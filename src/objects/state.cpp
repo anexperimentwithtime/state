@@ -13,12 +13,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/version.hpp>
+#include <aewt/state.hpp>
 
-namespace aewt::version {
-unsigned int get_major() { return 0; }
+namespace aewt::state {
+instance::instance() : created_at_(system_clock::now()) {}
 
-unsigned int get_minor() { return 0; }
-
-unsigned int get_patch() { return 0; }
-}  // namespace aewt::version
+system_clock::time_point instance::get_created_at() const {
+  return created_at_;
+}
+}  // namespace aewt::state

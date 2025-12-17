@@ -22,8 +22,8 @@ int main() {
   using namespace aewt;
   {
     using namespace version;
-    cout << "State version: " << major() << "." << minor() << "." << patch()
-         << endl;
+    cout << "State version: " << get_major() << "." << get_minor() << "."
+         << get_patch() << endl;
   }
   cout << "Boost version: " << BOOST_VERSION << endl;
   return 0;

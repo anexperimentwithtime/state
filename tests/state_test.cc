@@ -13,12 +13,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/version.hpp>
+#include <gtest/gtest.h>
 
-namespace aewt::version {
-unsigned int get_major() { return 0; }
+#include <aewt/state.hpp>
 
-unsigned int get_minor() { return 0; }
+using namespace aewt::state;
 
-unsigned int get_patch() { return 0; }
-}  // namespace aewt::version
+TEST(state_test, instance_is_created) {
+  const auto _instance = std::make_shared<instance>();
+  ASSERT_TRUE(system_clock::now() > _instance->get_created_at());
+}
