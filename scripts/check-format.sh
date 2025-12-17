@@ -16,7 +16,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-find . \( -iname '*.cpp' -o -iname '*.cc' -o -iname '*.cxx' \
+find ./src \( -iname '*.cpp' -o -iname '*.cc' -o -iname '*.cxx' \
          -o -iname '*.hpp' -o -iname '*.h' -o -iname '*.ipp' \) \
      -type f -print0 |
 {

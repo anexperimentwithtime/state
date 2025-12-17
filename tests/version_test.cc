@@ -14,12 +14,13 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include <gtest/gtest.h>
+
 #include <aewt/version.hpp>
 
 using namespace aewt::version;
 
 TEST(test_version, contains_current_version) {
-    ASSERT_EQ(major(), 0);
-    ASSERT_EQ(minor(), 0);
-    ASSERT_EQ(patch(), 0);
+  ASSERT_EQ(major(), 0);
+  ASSERT_EQ(minor(), 0);
+  ASSERT_EQ(patch(), 0);
 }

@@ -13,17 +13,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <iostream>
 #include <aewt/version.hpp>
 #include <boost/version.hpp>
+#include <iostream>
 
 int main() {
-    using namespace std;
-    using namespace aewt;
-    {
-        using namespace version;
-        cout << "State version: " << major() << "." << minor() << "." << patch() << endl;
-    }
-    cout << "Boost version: " << BOOST_VERSION << endl;
-    return 0;
+  using namespace std;
+  using namespace aewt;
+  {
+    using namespace version;
+    cout << "State version: " << major() << "." << minor() << "." << patch()
+         << endl;
+  }
+  cout << "Boost version: " << BOOST_VERSION << endl;
+  return 0;
 }

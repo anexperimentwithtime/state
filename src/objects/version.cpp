@@ -15,14 +15,8 @@
 
 #include <aewt/version.hpp>
 
-unsigned int aewt::version::major() {
-    return 0;
-}
+unsigned int aewt::version::major() { return 0; }
 
-unsigned int aewt::version::minor() {
-    return 0;
-}
+unsigned int aewt::version::minor() { return 0; }
 
-unsigned int aewt::version::patch() {
-    return 0;
-}
+unsigned int aewt::version::patch() { return 0; }
