@@ -13,12 +13,25 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/version.hpp>
+#pragma once
 
-namespace aewt::version {
-    unsigned int major() { return 0; }
+#ifndef AEWT_STATE_HPP
+#define AEWT_STATE_HPP
 
-    unsigned int minor() { return 0; }
+#include <memory>
+#include <chrono>
 
-    unsigned int patch() { return 0; }
-}
+namespace aewt::state {
+    using namespace std::chrono;
+
+    class instance : public std::enable_shared_from_this<instance> {
+        system_clock::time_point created_at_;
+
+    public:
+        instance();
+
+        system_clock::time_point get_created_at() const;
+    };
+} // namespace aewt
+
+#endif  // AEWT_STATE_HPP

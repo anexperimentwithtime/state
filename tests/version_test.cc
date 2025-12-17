@@ -19,7 +19,7 @@
 
 using namespace aewt::version;
 
-TEST(test_version, contains_current_version) {
+TEST(version_test, contains_version) {
   ASSERT_EQ(major(), 0);
   ASSERT_EQ(minor(), 0);
   ASSERT_EQ(patch(), 0);
