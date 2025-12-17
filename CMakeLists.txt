@@ -22,7 +22,7 @@ option(ENABLE_TESTS "Build tests cases" ON)
 find_package(Boost REQUIRED COMPONENTS program_options json charconv)
 
 find_package(
-        Boost 1.89.0
+        Boost
         REQUIRED
         COMPONENTS
         program_options
