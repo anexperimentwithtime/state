@@ -18,20 +18,20 @@
 #ifndef AEWT_STATE_HPP
 #define AEWT_STATE_HPP
 
-#include <memory>
 #include <chrono>
+#include <memory>
 
 namespace aewt::state {
-    using namespace std::chrono;
+using namespace std::chrono;
 
-    class instance : public std::enable_shared_from_this<instance> {
-        system_clock::time_point created_at_;
+class instance : public std::enable_shared_from_this<instance> {
+  system_clock::time_point created_at_;
 
-    public:
-        instance();
+ public:
+  instance();
 
-        system_clock::time_point get_created_at() const;
-    };
-} // namespace aewt
+  system_clock::time_point get_created_at() const;
+};
+}  // namespace aewt::state
 
 #endif  // AEWT_STATE_HPP

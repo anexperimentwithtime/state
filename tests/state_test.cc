@@ -20,6 +20,6 @@
 using namespace aewt::state;
 
 TEST(state_test, instance_is_created) {
-    const auto _instance = std::make_shared<instance>();
-    ASSERT_TRUE(system_clock::now() > _instance->get_created_at());
+  const auto _instance = std::make_shared<instance>();
+  ASSERT_TRUE(system_clock::now() > _instance->get_created_at());
 }

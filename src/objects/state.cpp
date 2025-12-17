@@ -16,10 +16,9 @@
 #include <aewt/state.hpp>
 
 namespace aewt::state {
-    instance::instance() : created_at_(system_clock::now()) {
-    }
+instance::instance() : created_at_(system_clock::now()) {}
 
-    system_clock::time_point instance::get_created_at() const {
-        return created_at_;
-    }
+system_clock::time_point instance::get_created_at() const {
+  return created_at_;
 }
+}  // namespace aewt::state
