@@ -20,7 +20,7 @@
 using namespace aewt::version;
 
 TEST(version_test, contains_version) {
-  ASSERT_EQ(major(), 0);
-  ASSERT_EQ(minor(), 0);
-  ASSERT_EQ(patch(), 0);
+  ASSERT_EQ(get_major(), 0);
+  ASSERT_EQ(get_minor(), 0);
+  ASSERT_EQ(get_patch(), 0);
 }

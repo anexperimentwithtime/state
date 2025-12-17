@@ -24,21 +24,21 @@ namespace aewt::version {
  *
  * @return int
  */
-unsigned int major();
+unsigned int get_major();
 
 /**
  * Get minor
  *
  * @return int
  */
-unsigned int minor();
+unsigned int get_minor();
 
 /**
  * Get patch
  *
  * @return int
  */
-unsigned int patch();
+unsigned int get_patch();
 }  // namespace aewt::version
 
 #endif  // AEWT_VERSION_HPP

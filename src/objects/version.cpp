@@ -16,9 +16,9 @@
 #include <aewt/version.hpp>
 
 namespace aewt::version {
-unsigned int major() { return 0; }
+unsigned int get_major() { return 0; }
 
-unsigned int minor() { return 0; }
+unsigned int get_minor() { return 0; }
 
-unsigned int patch() { return 0; }
+unsigned int get_patch() { return 0; }
 }  // namespace aewt::version
