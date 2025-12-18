@@ -22,35 +22,40 @@
 #include <aewt/version.hpp>
 #include <boost/version.hpp>
 
+std::string DEFAULT_SENTRY_DSN =
+    "https://{username}@{token}.ingest.{zone}.sentry.io/{app_id}";
+std::string DEFAULT_SENTRY_DEBUG = "OFF";
+
 void sentry_start() {
   using namespace spdlog;
   using namespace aewt;
   using namespace version;
 
-  info("sentry starting");
-  sentry_options_t* _options = sentry_options_new();
-  sentry_options_set_dsn(
-      _options,
-      dotenv::getenv(
-          "SENTRY_DSN",
-          "https://{username}@{token}.ingest.{zone}.sentry.io/{app_id}")
-          .data());
-  sentry_options_set_database_path(_options, ".sentry-native");
-  const std::string _release_name =
-      fmt::format("state@{}.{}.{}", get_major(), get_minor(), get_patch());
-  sentry_options_set_release(_options, _release_name.data());
-  sentry_options_set_debug(
-      _options, dotenv::getenv("SENTRY_DEBUG", "OFF").data() == "ON");
-  sentry_init(_options);
-  info("sentry started");
+  if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
+    info("sentry starting");
+    sentry_options_t* _options = sentry_options_new();
+    sentry_options_set_dsn(
+        _options, dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN).data());
+    sentry_options_set_database_path(_options, ".sentry-native");
+    const std::string _release_name =
+        fmt::format("state@{}.{}.{}", get_major(), get_minor(), get_patch());
+    sentry_options_set_release(_options, _release_name.data());
+    sentry_options_set_debug(
+        _options,
+        dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG).data() == "ON");
+    sentry_init(_options);
+    info("sentry started");
+  }
 }
 
 void sentry_stop() {
   using namespace spdlog;
 
-  info("sentry closing");
-  sentry_close();
-  info("sentry closed");
+  if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
+    info("sentry closing");
+    sentry_close();
+    info("sentry closed");
+  }
 }
 
 int main() {
@@ -61,6 +66,10 @@ int main() {
   using namespace version;
   info("state version: {}.{}.{}", get_major(), get_minor(), get_patch());
   info("boost version: {}", BOOST_VERSION);
+  info("environment variables:");
+  info("- SENTRY_DEBUG: {}",
+       dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG));
+  info("- SENTRY_DSN: {}", dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN));
 
   sentry_start();
   auto _state = std::make_shared<state::instance>();
