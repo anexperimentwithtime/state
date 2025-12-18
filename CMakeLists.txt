@@ -30,6 +30,7 @@ if (ENABLE_DEBUG)
 endif ()
 
 if (ENABLE_STATIC_LINKING)
+    add_definitions(-DCURL_STATICLIB)
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_USE_STATIC_RUNTIME ON)
     set(BOOST_ALL_NO_LIB ON)
