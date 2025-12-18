@@ -87,7 +87,6 @@ find_package(
         program_options
 )
 
-find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(sentry REQUIRED)
@@ -99,7 +98,7 @@ file(GLOB_RECURSE STATE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/objects/*.cpp")
 include_directories(src/include)
 
 add_library(objects OBJECT ${STATE_SOURCES})
-target_link_libraries(objects PUBLIC ${Boost_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} spdlog::spdlog sentry::sentry fmt::fmt laserpants::dotenv ${CURL_LIBRARY})
+target_link_libraries(objects PUBLIC ${Boost_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${CURL_LIBRARY} spdlog::spdlog sentry::sentry fmt::fmt laserpants::dotenv)
 
 add_executable(state main.cpp)
 target_link_libraries(state PUBLIC objects)
