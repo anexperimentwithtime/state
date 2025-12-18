@@ -15,9 +15,25 @@
 
 #pragma once
 
-#ifndef AEWT_STATE_HPP
-#define AEWT_STATE_HPP
+#ifndef AEWT_STATE_INSTANCE_HPP
+#define AEWT_STATE_INSTANCE_HPP
 
-#include <aewt/state/instance.hpp>
+#include <chrono>
+#include <memory>
 
-#endif  // AEWT_STATE_HPP
+namespace aewt::state {
+using namespace std::chrono;
+
+class instance : public std::enable_shared_from_this<instance> {
+  system_clock::time_point created_at_;
+
+ public:
+  instance();
+
+  ~instance();
+
+  system_clock::time_point get_created_at() const;
+};
+}  // namespace aewt::state
+
+#endif  // AEWT_STATE_INSTANCE_HPP

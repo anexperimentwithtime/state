@@ -15,16 +15,16 @@
 
 #include <spdlog/spdlog.h>
 
-#include <aewt/state.hpp>
+#include <aewt/state/instance.hpp>
 
 namespace aewt::state {
 using namespace spdlog;
 
 instance::instance() : created_at_(system_clock::now()) {
-  info("State allocated");
+  info("state instance allocated");
 }
 
-instance::~instance() { info("State released"); }
+instance::~instance() { info("state instance released"); }
 
 system_clock::time_point instance::get_created_at() const {
   return created_at_;
