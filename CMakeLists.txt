@@ -30,7 +30,6 @@ if (ENABLE_DEBUG)
 endif ()
 
 if (ENABLE_STATIC_LINKING)
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
     set(CURL_USE_STATIC_LIBS ON)
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_USE_STATIC_RUNTIME ON)
@@ -98,7 +97,18 @@ file(GLOB_RECURSE STATE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/objects/*.cpp")
 include_directories(src/include)
 
 add_library(objects OBJECT ${STATE_SOURCES})
-target_link_libraries(objects PUBLIC ${Boost_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} spdlog::spdlog sentry::sentry fmt::fmt laserpants::dotenv)
+target_link_libraries(objects PUBLIC ${Boost_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} spdlog::spdlog sentry::sentry fmt::fmt laserpants::dotenv
+        curl
+        z
+        zstd
+        brotlidec
+        brotlicommon
+        psl
+        idn2
+        cares
+        nghttp2
+        ssl
+        crypto)
 
 add_executable(state main.cpp)
 target_link_libraries(state PUBLIC objects)
