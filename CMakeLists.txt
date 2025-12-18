@@ -40,6 +40,7 @@ if (ENABLE_STATIC_LINKING)
     if (ENABLE_CI)
         set(OPENSSL_CRYPTO_LIBRARY "/usr/lib/libcrypto.a")
         set(OPENSSL_SSL_LIBRARY "/usr/lib/libssl.a")
+        set(CURL_LIBRARY "/usr/lib/libcurl.a")
     else ()
         if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
             set(ARCH_LIB_DIR "/usr/lib/aarch64-linux-gnu")
@@ -50,6 +51,7 @@ if (ENABLE_STATIC_LINKING)
         endif()
         set(OPENSSL_CRYPTO_LIBRARY "${ARCH_LIB_DIR}/libcrypto.a")
         set(OPENSSL_SSL_LIBRARY "${ARCH_LIB_DIR}/libssl.a")
+        set(CURL_LIBRARY "${ARCH_LIB_DIR}/libcurl.a")
     endif ()
 
     set(OpenSSL_USE_STATIC_LIBS TRUE)
@@ -97,17 +99,7 @@ file(GLOB_RECURSE STATE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/objects/*.cpp")
 include_directories(src/include)
 
 add_library(objects OBJECT ${STATE_SOURCES})
-target_link_libraries(objects PUBLIC ${Boost_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} spdlog::spdlog sentry::sentry fmt::fmt laserpants::dotenv
-        curl
-        z
-        zstd
-        brotlidec
-        brotlicommon
-        psl
-        idn2
-        nghttp2
-        ssl
-        crypto)
+target_link_libraries(objects PUBLIC ${Boost_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} spdlog::spdlog sentry::sentry fmt::fmt laserpants::dotenv ${CURL_LIBRARY})
 
 add_executable(state main.cpp)
 target_link_libraries(state PUBLIC objects)
