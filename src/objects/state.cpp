@@ -13,10 +13,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include <spdlog/spdlog.h>
+
 #include <aewt/state.hpp>
 
 namespace aewt::state {
-instance::instance() : created_at_(system_clock::now()) {}
+using namespace spdlog;
+
+instance::instance() : created_at_(system_clock::now()) {
+  info("State allocated");
+}
+
+instance::~instance() { info("State released"); }
 
 system_clock::time_point instance::get_created_at() const {
   return created_at_;

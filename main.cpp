@@ -13,18 +13,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include <spdlog/spdlog.h>
+
+#include <aewt/state.hpp>
 #include <aewt/version.hpp>
 #include <boost/version.hpp>
-#include <iostream>
 
 int main() {
   using namespace std;
   using namespace aewt;
+  using namespace spdlog;
   {
     using namespace version;
-    cout << "State version: " << get_major() << "." << get_minor() << "."
-         << get_patch() << endl;
+    info("State version: {}.{}.{}", get_major(), get_minor(), get_patch());
   }
-  cout << "Boost version: " << BOOST_VERSION << endl;
+  info("Boost version: {}", BOOST_VERSION);
+  auto _state = std::make_shared<state::instance>();
   return 0;
 }

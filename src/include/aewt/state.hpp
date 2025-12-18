@@ -30,6 +30,8 @@ class instance : public std::enable_shared_from_this<instance> {
  public:
   instance();
 
+  ~instance();
+
   system_clock::time_point get_created_at() const;
 };
 }  // namespace aewt::state
