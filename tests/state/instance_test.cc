@@ -21,5 +21,8 @@ using namespace aewt::state;
 
 TEST(state_instance_test, can_be_created) {
   const auto _instance = std::make_shared<instance>();
+  ASSERT_TRUE(!_instance->get_generator()().is_nil());
+  ASSERT_TRUE(!_instance->get_id().is_nil());
+  ASSERT_TRUE(_instance->get_generator()() != _instance->get_id());
   ASSERT_TRUE(system_clock::now() > _instance->get_created_at());
 }

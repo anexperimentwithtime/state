@@ -18,19 +18,35 @@
 #ifndef AEWT_STATE_INSTANCE_HPP
 #define AEWT_STATE_INSTANCE_HPP
 
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid.hpp>
 #include <chrono>
+#include <map>
 #include <memory>
 
 namespace aewt::state {
 using namespace std::chrono;
+using namespace boost::uuids;
+
+class session;
 
 class instance : public std::enable_shared_from_this<instance> {
+  random_generator generator_;
+
+  uuid id_;
+
   system_clock::time_point created_at_;
+
+  std::map<uuid, std::shared_ptr<session>, std::hash<uuid>> sessions_;
 
  public:
   instance();
 
   ~instance();
+
+  random_generator get_generator() const;
+
+  uuid get_id() const;
 
   system_clock::time_point get_created_at() const;
 };

@@ -13,26 +13,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <spdlog/spdlog.h>
+#pragma once
 
-#include <aewt/state/instance.hpp>
-#include <boost/uuid/random_generator.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#ifndef AEWT_STATE_SESSION_HPP
+#define AEWT_STATE_SESSION_HPP
 
-namespace aewt::state {
-using namespace spdlog;
+namespace aewt::state {}
 
-instance::instance() : id_(generator_()), created_at_(system_clock::now()) {
-  info("state instance {} allocated", to_string(id_));
-}
-
-instance::~instance() { info("state instance {} released", to_string(id_)); }
-
-random_generator instance::get_generator() const { return generator_; }
-
-uuid instance::get_id() const { return id_; }
-
-system_clock::time_point instance::get_created_at() const {
-  return created_at_;
-}
-}  // namespace aewt::state
+#endif  // AEWT_STATE_SESSION_HPP
