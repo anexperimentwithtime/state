@@ -15,7 +15,12 @@
 
 #include <dotenv.h>
 #include <fmt/base.h>
+
+#ifdef STATIC_ENABLED
+#else
 #include <sentry.h>
+#endif
+
 #include <spdlog/spdlog.h>
 
 #include <aewt/state.hpp>
@@ -32,6 +37,9 @@ void sentry_start() {
   using namespace version;
 
   if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
+#ifdef STATIC_ENABLED
+    info("sentry start isn't available on static");
+#else
     info("sentry starting");
     sentry_options_t* _options = sentry_options_new();
     sentry_options_set_dsn(
@@ -45,6 +53,7 @@ void sentry_start() {
         dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG).data() == "ON");
     sentry_init(_options);
     info("sentry started");
+#endif
   }
 }
 
@@ -52,9 +61,13 @@ void sentry_stop() {
   using namespace spdlog;
 
   if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
+#ifdef STATIC_ENABLED
+    info("sentry close isn't available on static");
+#else
     info("sentry closing");
     sentry_close();
     info("sentry closed");
+#endif
   }
 }
 
