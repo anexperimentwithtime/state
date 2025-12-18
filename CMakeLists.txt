@@ -30,7 +30,7 @@ if (ENABLE_DEBUG)
 endif ()
 
 if (ENABLE_STATIC_LINKING)
-    add_definitions(-DCURL_STATICLIB)
+    set(CURL_USE_STATIC_LIBS ON)
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_USE_STATIC_RUNTIME ON)
     set(BOOST_ALL_NO_LIB ON)
@@ -85,6 +85,7 @@ find_package(
         program_options
 )
 
+find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(sentry REQUIRED)
