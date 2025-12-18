@@ -30,7 +30,7 @@ if (ENABLE_DEBUG)
 endif ()
 
 if (ENABLE_STATIC_LINKING)
-    set(CURL_USE_STATIC_LIBS ON)
+    set(CURL_USE_STATIC_LIBS TRUE)
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_USE_STATIC_RUNTIME ON)
     set(BOOST_ALL_NO_LIB ON)
@@ -105,7 +105,6 @@ target_link_libraries(objects PUBLIC ${Boost_LIBRARIES} ${OPENSSL_SSL_LIBRARY} $
         brotlicommon
         psl
         idn2
-        cares
         nghttp2
         ssl
         crypto)
