@@ -13,23 +13,41 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <spdlog/spdlog.h>
+#pragma once
 
-#include <aewt/state/session.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#ifndef AEWT_KERNEL_HPP
+#define AEWT_KERNEL_HPP
 
-namespace aewt::state {
-session::session(const boost::uuids::uuid id,
-                 boost::asio::ip::tcp::socket socket)
-    : id_(id), socket_(std::move(socket)) {
-  spdlog::info("state session {} allocated", to_string(id_));
-}
+#include <boost/asio/awaitable.hpp>
+#include <boost/json/object.hpp>
 
-session::~session() {
-  spdlog::info("state session {} released", to_string(id_));
-}
+namespace aewt {
+/**
+ * Forward State
+ */
+class state;
 
-boost::uuids::uuid session::get_id() const { return id_; }
+/**
+ * Forward Session
+ */
+class session;
 
-boost::asio::ip::tcp::socket& session::get_socket() { return socket_; }
-}  // namespace aewt::state
+/**
+ * Forward Response
+ */
+class response;
+
+/**
+ * Kernel
+ *
+ * @param state
+ * @param session
+ * @param data
+ * @return awaitable<server_response>
+ */
+boost::asio::awaitable<response> kernel(std::shared_ptr<state> state,
+                                        std::shared_ptr<session> session,
+                                        boost::json::object data);
+}  // namespace aewt
+
+#endif  // AEWT_KERNEL_HPP
