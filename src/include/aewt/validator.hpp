@@ -15,56 +15,49 @@
 
 #pragma once
 
-#ifndef AEWT_SESSION_HPP
-#define AEWT_SESSION_HPP
+#ifndef AEWT_VALIDATOR_HPP
+#define AEWT_VALIDATOR_HPP
 
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/uuid/uuid.hpp>
+#include <boost/json/object.hpp>
+#include <map>
 
 namespace aewt {
     /**
-     * Session
+     * Validator
      */
-    class session : public std::enable_shared_from_this<session> {
+    class validator {
+        /**
+         * Passed
+         */
+        bool passed_ = false;
+
+        /**
+         * Bag
+         */
+        std::map<std::string, std::string> bag_;
+
     public:
         /**
          * Constructor
          *
-         * @param id
-         * @param socket
+         * @param data
          */
-        session(boost::uuids::uuid id, boost::asio::ip::tcp::socket socket);
+        explicit validator(boost::json::object data);
 
         /**
-         * Destructor
-         */
-        ~session();
-
-        /**
-         * Get ID
+         * Get Passed
          *
-         * @return uuid
+         * @return bool
          */
-        boost::uuids::uuid get_id() const;
+        [[nodiscard]] bool get_passed() const;
 
         /**
-         * Get Socket
+         * Get Bag
          *
-         * @return tcp::socket
+         * @return map<string, string>
          */
-        boost::asio::ip::tcp::socket &get_socket();
-
-    private:
-        /**
-         * ID
-         */
-        boost::uuids::uuid id_;
-
-        /**
-         * Socket
-         */
-        boost::asio::ip::tcp::socket socket_;
+        [[nodiscard]] std::map<std::string, std::string> get_bag() const;
     };
 } // namespace aewt
 
-#endif  // AEWT_SESSION_HPP
+#endif  // AEWT_VALIDATOR_HPP

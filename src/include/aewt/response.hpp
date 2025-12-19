@@ -18,8 +18,73 @@
 #ifndef AEWT_RESPONSE_HPP
 #define AEWT_RESPONSE_HPP
 
+#include <atomic>
+#include <boost/json/object.hpp>
+#include <map>
+#include <memory>
+
 namespace aewt {
-class response {};
-}  // namespace aewt
+    /**
+     * Response
+     */
+    class response : public std::enable_shared_from_this<response> {
+        /**
+         * Failed
+         */
+        std::atomic<bool> failed_ = false;
+
+        /**
+         * Processed
+         */
+        std::atomic<bool> processed_ = false;
+
+        /**
+         * Data
+         */
+        boost::json::object data_;
+
+    public:
+        /**
+         * Get Failed
+         *
+         * @return bool
+         */
+        bool get_failed() const;
+
+        /**
+         * Get Processed
+         *
+         * @return bool
+         */
+        bool get_processed() const;
+
+        /**
+         * Get Data
+         *
+         * @return json::object
+         */
+        boost::json::object get_data() const;
+
+        /**
+         * Mark As Failed
+         *
+         * @param error
+         * @param bag
+         */
+        void mark_as_failed(const char *error, const std::map<std::string, std::string> &bag);
+
+        /**
+         * Mark As Processed
+         */
+        void mark_as_processed();
+
+        /**
+         * Set Data
+         * @param message
+         * @param data
+         */
+        void set_data(const char *message, const boost::json::object &data = {});
+    };
+} // namespace aewt
 
 #endif  // AEWT_RESPONSE_HPP

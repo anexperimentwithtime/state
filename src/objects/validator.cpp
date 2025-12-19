@@ -13,32 +13,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include <aewt/validator.hpp>
 
-#ifndef AEWT_VERSION_HPP
-#define AEWT_VERSION_HPP
+namespace aewt {
+    validator::validator(boost::json::object data) {
+        if (!data.contains("action")) {
+            bag_.insert_or_assign("action", "action attribute must be present");
+            passed_ = false;
+        } else {
+            if (!data.at("action").is_string()) {
+                bag_.insert_or_assign("action", "action attribute must be string");
+                passed_ = false;
+            } else {
+                passed_ = true;
+            }
+        }
+    }
 
-namespace aewt::version {
-    /**
-     * Get major
-     *
-     * @return int
-     */
-    unsigned int get_major();
+    bool validator::get_passed() const { return passed_; }
 
-    /**
-     * Get minor
-     *
-     * @return int
-     */
-    unsigned int get_minor();
-
-    /**
-     * Get patch
-     *
-     * @return int
-     */
-    unsigned int get_patch();
-} // namespace aewt::version
-
-#endif  // AEWT_VERSION_HPP
+    std::map<std::string, std::string> validator::get_bag() const { return bag_; }
+} // namespace aewt
