@@ -13,10 +13,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <spdlog/spdlog.h>
 
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
+#include <aewt/logger.hpp>
+
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <ranges>
@@ -24,10 +25,10 @@
 namespace aewt {
     state::state()
         : id_(generator_()), created_at_(std::chrono::system_clock::now()) {
-        spdlog::info("state {} allocated", to_string(id_));
+        LOG_INFO("state {} allocated", to_string(id_));
     }
 
-    state::~state() { spdlog::info("state {} released", to_string(id_)); }
+    state::~state() { LOG_INFO("state {} released", to_string(id_)); }
 
     boost::uuids::random_generator state::get_generator() const {
         return generator_;
