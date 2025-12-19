@@ -18,37 +18,111 @@
 #ifndef AEWT_STATE_INSTANCE_HPP
 #define AEWT_STATE_INSTANCE_HPP
 
+#include <boost/functional/hash.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <chrono>
 #include <map>
 #include <memory>
+#include <shared_mutex>
 
 namespace aewt::state {
-using namespace std::chrono;
-using namespace boost::uuids;
-
+/**
+ * Forward Session
+ */
 class session;
 
+/**
+ * Instance
+ */
 class instance : public std::enable_shared_from_this<instance> {
-  random_generator generator_;
-
-  uuid id_;
-
-  system_clock::time_point created_at_;
-
-  std::map<uuid, std::shared_ptr<session>, std::hash<uuid>> sessions_;
-
  public:
+  /**
+   * Constructor
+   */
   instance();
 
+  /**
+   * Destructor
+   */
   ~instance();
 
-  random_generator get_generator() const;
+  /**
+   * Get Generator
+   *
+   * @return random_generator
+   */
+  boost::uuids::random_generator get_generator() const;
 
-  uuid get_id() const;
+  /**
+   * Get ID
+   *
+   * @return uuid
+   */
+  boost::uuids::uuid get_id() const;
 
-  system_clock::time_point get_created_at() const;
+  /**
+   * Get Created At
+   *
+   * @return system_clock::time_point
+   */
+  std::chrono::system_clock::time_point get_created_at() const;
+
+  /**
+   * Get Sessions
+   *
+   * @return vector<shared_ptr<session>>
+   */
+  std::vector<std::shared_ptr<session>> get_sessions() const;
+
+  /**
+   * Get Session
+   *
+   * @param id uuid
+   * @return optional<shared_ptr<session>>
+   */
+  std::optional<std::shared_ptr<session>> get_session(
+      boost::uuids::uuid id) const;
+
+  /**
+   * Add Session
+   *
+   * @param session shared_ptr<session>
+   */
+  void add_session(std::shared_ptr<session> session);
+
+  /**
+   * Remove Session
+   *
+   * @param id uuid
+   */
+  void remove_session(boost::uuids::uuid id);
+
+ private:
+  /**
+   * Generator
+   */
+  boost::uuids::random_generator generator_;
+
+  /**
+   * ID
+   */
+  boost::uuids::uuid id_;
+
+  /**
+   * Created At
+   */
+  std::chrono::system_clock::time_point created_at_;
+
+  /**
+   * Sessions
+   */
+  std::map<boost::uuids::uuid, std::shared_ptr<session>> sessions_;
+
+  /**
+   * Sessions Shared Mutex
+   */
+  mutable std::shared_mutex sessions_mutex_;
 };
 }  // namespace aewt::state
 

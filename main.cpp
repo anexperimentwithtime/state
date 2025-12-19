@@ -32,60 +32,53 @@ std::string DEFAULT_SENTRY_DSN =
 std::string DEFAULT_SENTRY_DEBUG = "OFF";
 
 void sentry_start() {
-  using namespace spdlog;
-  using namespace aewt;
-  using namespace version;
-
   if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
 #ifdef STATIC_ENABLED
-    info("sentry start isn't available on static");
+    spdlog::info("sentry start isn't available on static");
 #else
-    info("sentry starting");
+    spdlog::info("sentry starting");
     sentry_options_t* _options = sentry_options_new();
     sentry_options_set_dsn(
         _options, dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN).data());
     sentry_options_set_database_path(_options, ".sentry-native");
     const std::string _release_name =
-        fmt::format("state@{}.{}.{}", get_major(), get_minor(), get_patch());
+        fmt::format("state@{}.{}.{}", aewt::version::get_major(),
+                    aewt::version::get_minor(), aewt::version::get_patch());
     sentry_options_set_release(_options, _release_name.data());
     sentry_options_set_debug(
         _options,
         dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG).data() == "ON");
     sentry_init(_options);
-    info("sentry started");
+    spdlog::info("sentry started");
 #endif
   }
 }
 
 void sentry_stop() {
-  using namespace spdlog;
-
   if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
 #ifdef STATIC_ENABLED
-    info("sentry close isn't available on static");
+    spdlog::info("sentry close isn't available on static");
 #else
-    info("sentry closing");
+    spdlog::info("sentry closing");
     sentry_close();
-    info("sentry closed");
+    spdlog::info("sentry closed");
 #endif
   }
 }
 
 int main() {
   dotenv::init();
-  using namespace std;
-  using namespace aewt;
-  using namespace spdlog;
-  using namespace version;
-  info("state version: {}.{}.{}", get_major(), get_minor(), get_patch());
-  info("boost version: {}", BOOST_VERSION);
-  info("environment variables:");
-  info("- SENTRY_DEBUG: {}",
-       dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG));
-  info("- SENTRY_DSN: {}", dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN));
+  spdlog::info("state version: {}.{}.{}", aewt::version::get_major(),
+               aewt::version::get_minor(), aewt::version::get_patch());
+  spdlog::info("boost version: {}", BOOST_VERSION);
+  spdlog::info("environment variables:");
+  spdlog::info("- SENTRY_DEBUG: {}",
+               dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG));
+  spdlog::info("- SENTRY_DSN: {}",
+               dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN));
 
   sentry_start();
-  auto _state = std::make_shared<state::instance>();
+  auto _state = std::make_shared<aewt::state::instance>();
   sentry_stop();
 
   return 0;

@@ -18,6 +18,53 @@
 #ifndef AEWT_STATE_SESSION_HPP
 #define AEWT_STATE_SESSION_HPP
 
-namespace aewt::state {}
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/uuid/uuid.hpp>
+
+namespace aewt::state {
+/**
+ * Session
+ */
+class session : public std::enable_shared_from_this<session> {
+ public:
+  /**
+   * Constructor
+   *
+   * @param id
+   * @param socket
+   */
+  session(boost::uuids::uuid id, boost::asio::ip::tcp::socket socket);
+
+  /**
+   * Destructor
+   */
+  ~session();
+
+  /**
+   * Get ID
+   *
+   * @return uuid
+   */
+  boost::uuids::uuid get_id() const;
+
+  /**
+   * Get Socket
+   *
+   * @return tcp::socket
+   */
+  boost::asio::ip::tcp::socket& get_socket();
+
+ private:
+  /**
+   * ID
+   */
+  boost::uuids::uuid id_;
+
+  /**
+   * Socket
+   */
+  boost::asio::ip::tcp::socket socket_;
+};
+}  // namespace aewt::state
 
 #endif  // AEWT_STATE_SESSION_HPP

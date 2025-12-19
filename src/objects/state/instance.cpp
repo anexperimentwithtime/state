@@ -16,23 +16,61 @@
 #include <spdlog/spdlog.h>
 
 #include <aewt/state/instance.hpp>
+#include <aewt/state/session.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <ranges>
 
 namespace aewt::state {
-using namespace spdlog;
 
-instance::instance() : id_(generator_()), created_at_(system_clock::now()) {
-  info("state instance {} allocated", to_string(id_));
+instance::instance()
+    : id_(generator_()), created_at_(std::chrono::system_clock::now()) {
+  spdlog::info("state instance {} allocated", to_string(id_));
 }
 
-instance::~instance() { info("state instance {} released", to_string(id_)); }
+instance::~instance() {
+  spdlog::info("state instance {} released", to_string(id_));
+}
 
-random_generator instance::get_generator() const { return generator_; }
+boost::uuids::random_generator instance::get_generator() const {
+  return generator_;
+}
 
-uuid instance::get_id() const { return id_; }
+boost::uuids::uuid instance::get_id() const { return id_; }
 
-system_clock::time_point instance::get_created_at() const {
+std::chrono::system_clock::time_point instance::get_created_at() const {
   return created_at_;
+}
+
+std::vector<std::shared_ptr<session>> instance::get_sessions() const {
+  std::shared_lock _lock(sessions_mutex_);
+  std::vector<std::shared_ptr<session>> _result;
+  _result.reserve(sessions_.size());
+
+  for (auto& _session : sessions_ | std::views::values)
+    _result.push_back(_session);
+
+  return _result;
+}
+
+std::optional<std::shared_ptr<session>> instance::get_session(
+    const boost::uuids::uuid id) const {
+  std::shared_lock _lock(sessions_mutex_);
+
+  const auto _iterator = sessions_.find(id);
+  if (_iterator == sessions_.end()) {
+    return std::nullopt;
+  }
+  return _iterator->second;
+}
+
+void instance::add_session(std::shared_ptr<session> session) {
+  std::unique_lock _lock(sessions_mutex_);
+  sessions_.emplace(session->get_id(), std::move(session));
+}
+
+void instance::remove_session(const boost::uuids::uuid id) {
+  std::unique_lock _lock(sessions_mutex_);
+  sessions_.erase(id);
 }
 }  // namespace aewt::state

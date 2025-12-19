@@ -13,12 +13,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include <gtest/gtest.h>
 
-#ifndef AEWT_STATE_HPP
-#define AEWT_STATE_HPP
-
-#include <aewt/state/instance.hpp>
 #include <aewt/state/session.hpp>
+#include <boost/uuid/random_generator.hpp>
 
-#endif  // AEWT_STATE_HPP
+TEST(state_session_test, can_be_created) {
+  boost::asio::io_context _io_context;
+  boost::asio::ip::tcp::socket _socket(_io_context);
+  const auto _session = std::make_shared<aewt::state::session>(
+      boost::uuids::random_generator()(), std::move(_socket));
+
+  ASSERT_TRUE(!_session->get_id().is_nil());
+  ASSERT_TRUE(&_session->get_socket() == &_session->get_socket());
+}
