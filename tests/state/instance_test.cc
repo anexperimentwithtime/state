@@ -15,14 +15,30 @@
 
 #include <gtest/gtest.h>
 
-#include <aewt/state.hpp>
-
-using namespace aewt::state;
+#include <aewt/state/instance.hpp>
+#include <aewt/state/session.hpp>
 
 TEST(state_instance_test, can_be_created) {
-  const auto _instance = std::make_shared<instance>();
+  const auto _instance = std::make_shared<aewt::state::instance>();
   ASSERT_TRUE(!_instance->get_generator()().is_nil());
   ASSERT_TRUE(!_instance->get_id().is_nil());
   ASSERT_TRUE(_instance->get_generator()() != _instance->get_id());
-  ASSERT_TRUE(system_clock::now() > _instance->get_created_at());
+  ASSERT_TRUE(std::chrono::system_clock::now() > _instance->get_created_at());
+}
+
+TEST(state_instance_test, can_contains_sessions) {
+  boost::asio::io_context _io_context;
+  boost::asio::ip::tcp::socket _socket(_io_context);
+  const auto _session = std::make_shared<aewt::state::session>(
+      boost::uuids::random_generator()(), std::move(_socket));
+
+  const auto _instance = std::make_shared<aewt::state::instance>();
+  ASSERT_EQ(_instance->get_session(_session->get_id()), std::nullopt);
+  ASSERT_EQ(_instance->get_sessions().size(), 0);
+  _instance->add_session(_session);
+  ASSERT_EQ(_instance->get_sessions().size(), 1);
+  ASSERT_EQ(_instance->get_session(_session->get_id()), _session);
+  _instance->remove_session(_session->get_id());
+  ASSERT_EQ(_instance->get_sessions().size(), 0);
+  ASSERT_EQ(_instance->get_session(_session->get_id()), std::nullopt);
 }

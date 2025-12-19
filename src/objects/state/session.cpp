@@ -13,12 +13,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include <spdlog/spdlog.h>
 
-#ifndef AEWT_STATE_HPP
-#define AEWT_STATE_HPP
-
-#include <aewt/state/instance.hpp>
 #include <aewt/state/session.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
-#endif  // AEWT_STATE_HPP
+namespace aewt::state {
+session::session(const boost::uuids::uuid id,
+                 boost::asio::ip::tcp::socket socket)
+    : id_(id), socket_(std::move(socket)) {
+  spdlog::info("state session {} allocated", to_string(id_));
+}
+
+session::~session() {
+  spdlog::info("state session {} released", to_string(id_));
+}
+
+boost::uuids::uuid session::get_id() const { return id_; }
+
+boost::asio::ip::tcp::socket& session::get_socket() { return socket_; }
+}  // namespace aewt::state
