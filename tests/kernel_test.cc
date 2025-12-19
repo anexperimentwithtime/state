@@ -19,15 +19,16 @@
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
-#include <boost/asio/co_spawn.hpp>
 #include <boost/json/serialize.hpp>
 #include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 TEST(kernel_test, can_handle_non_valid_data) {
+    const auto _state = std::make_shared<aewt::state>();
+
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    const auto _state = std::make_shared<aewt::state>();
 
     const boost::json::object _data = {{"", ""}};
 
@@ -50,10 +51,11 @@ TEST(kernel_test, can_handle_non_valid_data) {
 }
 
 TEST(kernel_test, can_handle_non_actionable_data) {
+    const auto _state = std::make_shared<aewt::state>();
+
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    const auto _state = std::make_shared<aewt::state>();
 
     const boost::json::object _data = {{"action", 7}};
 
@@ -75,10 +77,11 @@ TEST(kernel_test, can_handle_non_actionable_data) {
 }
 
 TEST(kernel_test, can_handle_non_implemented_action) {
+    const auto _state = std::make_shared<aewt::state>();
+
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    const auto _state = std::make_shared<aewt::state>();
 
     const boost::json::object _data = {{"action", "invalid"}};
 
@@ -101,10 +104,11 @@ TEST(kernel_test, can_handle_non_implemented_action) {
 }
 
 TEST(kernel_test, can_handle_pong) {
+    const auto _state = std::make_shared<aewt::state>();
+
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    const auto _state = std::make_shared<aewt::state>();
 
     const boost::json::object _data = {{"action", "ping"}};
 
@@ -126,4 +130,30 @@ TEST(kernel_test, can_handle_pong) {
     ASSERT_TRUE(
         _response->get_data().at("data").as_object().at("timestamp").as_int64() < std::chrono::system_clock::now().
         time_since_epoch().count());
+}
+
+TEST(kernel_test, can_handle_whoami) {
+    const auto _state = std::make_shared<aewt::state>();
+
+    boost::asio::io_context _io_context;
+    boost::asio::ip::tcp::socket _socket(_io_context);
+    const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
+
+    const boost::json::object _data = {{"action", "whoami"}};
+
+    const auto _response = kernel(_state, _session, _data);
+
+    ASSERT_TRUE(_response->get_processed());
+    ASSERT_TRUE(!_response->get_failed());
+    ASSERT_TRUE(_response->get_data().contains("status"));
+    ASSERT_TRUE(_response->get_data().at("status").is_string());
+    ASSERT_EQ(_response->get_data().at("status").as_string(), "success");
+    ASSERT_TRUE(_response->get_data().contains("message"));
+    ASSERT_TRUE(_response->get_data().at("message").is_string());
+    ASSERT_EQ(_response->get_data().at("message").as_string(), "im");
+    ASSERT_TRUE(_response->get_data().contains("data"));
+    ASSERT_TRUE(_response->get_data().at("data").is_object());
+    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("id"));
+    ASSERT_TRUE(_response->get_data().at("data").as_object().at("id").is_string());
+    ASSERT_EQ(_response->get_data().at("data").as_object().at("id").as_string(), to_string(_session->get_id()));
 }
