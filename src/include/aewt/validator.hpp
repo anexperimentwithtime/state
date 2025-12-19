@@ -15,29 +15,23 @@
 
 #pragma once
 
-#ifndef AEWT_RESPONSE_HPP
-#define AEWT_RESPONSE_HPP
+#ifndef AEWT_VALIDATOR_HPP
+#define AEWT_VALIDATOR_HPP
 
-#include <atomic>
 #include <boost/json/object.hpp>
 #include <map>
-#include <memory>
 
 namespace aewt {
-class response : public std::enable_shared_from_this<response> {
-  std::atomic<bool> failed_ = false;
-  std::atomic<bool> processed_ = false;
-  boost::json::object data_;
+class validator {
+  bool passed_ = false;
+  std::map<std::string, std::string> bag_;
 
  public:
-  bool get_failed() const;
-  bool get_processed() const;
-  boost::json::object get_data() const;
-  void mark_as_failed(const char *error,
-                      const std::map<std::string, std::string> &bag);
-  void mark_as_processed();
-  void set_data(const char *message, const boost::json::object &data = {});
+  explicit validator(boost::json::object data);
+
+  bool get_passed() const;
+  std::map<std::string, std::string> get_bag() const;
 };
 }  // namespace aewt
 
-#endif  // AEWT_RESPONSE_HPP
+#endif  // AEWT_VALIDATOR_HPP

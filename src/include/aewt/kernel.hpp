@@ -18,8 +18,8 @@
 #ifndef AEWT_KERNEL_HPP
 #define AEWT_KERNEL_HPP
 
-#include <boost/asio/awaitable.hpp>
 #include <boost/json/object.hpp>
+#include <memory>
 
 namespace aewt {
 /**
@@ -43,11 +43,11 @@ class response;
  * @param state
  * @param session
  * @param data
- * @return awaitable<server_response>
+ * @return shared_ptr<response>
  */
-boost::asio::awaitable<response> kernel(std::shared_ptr<state> state,
-                                        std::shared_ptr<session> session,
-                                        boost::json::object data);
+std::shared_ptr<response> kernel(std::shared_ptr<state> state,
+                                 std::shared_ptr<session> session,
+                                 boost::json::object data);
 }  // namespace aewt
 
 #endif  // AEWT_KERNEL_HPP

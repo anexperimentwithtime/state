@@ -13,31 +13,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-
-#ifndef AEWT_RESPONSE_HPP
-#define AEWT_RESPONSE_HPP
-
-#include <atomic>
-#include <boost/json/object.hpp>
-#include <map>
-#include <memory>
+#include <aewt/validator.hpp>
 
 namespace aewt {
-class response : public std::enable_shared_from_this<response> {
-  std::atomic<bool> failed_ = false;
-  std::atomic<bool> processed_ = false;
-  boost::json::object data_;
+validator::validator(boost::json::object data) {
+  if (!data.contains("action")) {
+    bag_.insert_or_assign("action", "action attribute must be present");
+    passed_ = false;
+  } else {
+    if (!data.at("action").is_string()) {
+      bag_.insert_or_assign("action", "action attribute must be string");
+      passed_ = false;
+    } else {
+      passed_ = true;
+    }
+  }
+}
 
- public:
-  bool get_failed() const;
-  bool get_processed() const;
-  boost::json::object get_data() const;
-  void mark_as_failed(const char *error,
-                      const std::map<std::string, std::string> &bag);
-  void mark_as_processed();
-  void set_data(const char *message, const boost::json::object &data = {});
-};
+bool validator::get_passed() const { return passed_; }
+
+std::map<std::string, std::string> validator::get_bag() const { return bag_; }
 }  // namespace aewt
-
-#endif  // AEWT_RESPONSE_HPP
