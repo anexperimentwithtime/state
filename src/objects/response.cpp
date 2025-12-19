@@ -15,7 +15,6 @@
 
 #include <aewt/response.hpp>
 #include <map>
-#include <ranges>
 
 namespace aewt {
 bool response::get_failed() const {

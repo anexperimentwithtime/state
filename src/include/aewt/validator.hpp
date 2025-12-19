@@ -22,15 +22,41 @@
 #include <map>
 
 namespace aewt {
+/**
+ * Validator
+ */
 class validator {
+  /**
+   * Passed
+   */
   bool passed_ = false;
+
+  /**
+   * Bag
+   */
   std::map<std::string, std::string> bag_;
 
  public:
+  /**
+   * Constructor
+   *
+   * @param data
+   */
   explicit validator(boost::json::object data);
 
-  bool get_passed() const;
-  std::map<std::string, std::string> get_bag() const;
+  /**
+   * Get Passed
+   *
+   * @return bool
+   */
+  [[nodiscard]] bool get_passed() const;
+
+  /**
+   * Get Bag
+   *
+   * @return map<string, string>
+   */
+  [[nodiscard]] std::map<std::string, std::string> get_bag() const;
 };
 }  // namespace aewt
 
