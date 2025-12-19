@@ -27,11 +27,11 @@ TEST(state_test, can_be_created) {
 }
 
 TEST(state_test, can_contains_sessions) {
+    const auto _state = std::make_shared<aewt::state>();
+
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-
-    const auto _state = std::make_shared<aewt::state>();
     ASSERT_EQ(_state->get_session(_session->get_id()), std::nullopt);
     ASSERT_EQ(_state->get_sessions().size(), 0);
     _state->add_session(_session);

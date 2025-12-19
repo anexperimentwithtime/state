@@ -21,65 +21,61 @@
 #include <sentry.h>
 #endif
 
-#include <spdlog/spdlog.h>
-
+#include <aewt/logger.hpp>
 #include <aewt/state.hpp>
 #include <aewt/version.hpp>
 #include <boost/version.hpp>
 
 std::string DEFAULT_SENTRY_DSN =
-    "https://{username}@{token}.ingest.{zone}.sentry.io/{app_id}";
+        "https://{username}@{token}.ingest.{zone}.sentry.io/{app_id}";
 std::string DEFAULT_SENTRY_DEBUG = "OFF";
 
 void sentry_start() {
-  if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
+    if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
 #ifdef STATIC_ENABLED
-    spdlog::info("sentry start isn't available on static");
+        LOG_INFO("sentry start isn't available on static");
 #else
-    spdlog::info("sentry starting");
-    sentry_options_t* _options = sentry_options_new();
-    sentry_options_set_dsn(
-        _options, dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN).data());
-    sentry_options_set_database_path(_options, ".sentry-native");
-    const std::string _release_name =
-        fmt::format("state@{}.{}.{}", aewt::version::get_major(),
-                    aewt::version::get_minor(), aewt::version::get_patch());
-    sentry_options_set_release(_options, _release_name.data());
-    sentry_options_set_debug(
-        _options,
-        dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG).data() == "ON");
-    sentry_init(_options);
-    spdlog::info("sentry started");
+        LOG_INFO("sentry starting");
+        sentry_options_t *_options = sentry_options_new();
+        sentry_options_set_dsn(_options, dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN).data());
+        sentry_options_set_database_path(_options, ".sentry-native");
+        const std::string _release_name =
+                fmt::format("state@{}.{}.{}", aewt::version::get_major(),
+                            aewt::version::get_minor(), aewt::version::get_patch());
+        sentry_options_set_release(_options, _release_name.data());
+        sentry_options_set_debug(
+            _options,
+            dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG).data() == "ON");
+        sentry_init(_options);
+        LOG_INFO("sentry started");
 #endif
-  }
+    }
 }
 
 void sentry_stop() {
-  if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
+    if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
 #ifdef STATIC_ENABLED
-    spdlog::info("sentry close isn't available on static");
+        LOG_INFO("sentry close isn't available on static");
 #else
-    spdlog::info("sentry closing");
-    sentry_close();
-    spdlog::info("sentry closed");
+        LOG_INFO("sentry closing");
+        sentry_close();
+        LOG_INFO("sentry closed");
 #endif
-  }
+    }
 }
 
 int main() {
-  dotenv::init();
-  spdlog::info("state version: {}.{}.{}", aewt::version::get_major(),
-               aewt::version::get_minor(), aewt::version::get_patch());
-  spdlog::info("boost version: {}", BOOST_VERSION);
-  spdlog::info("environment variables:");
-  spdlog::info("- SENTRY_DEBUG: {}",
-               dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG));
-  spdlog::info("- SENTRY_DSN: {}",
-               dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN));
+    dotenv::init();
+    LOG_INFO("state version: {}.{}.{}", aewt::version::get_major(), aewt::version::get_minor(),
+             aewt::version::get_patch());
+    LOG_INFO("boost version: {}", BOOST_VERSION);
+    LOG_INFO("environment variables:");
+    LOG_INFO("- SENTRY_DEBUG: {}", dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG));
+    LOG_INFO("- SENTRY_DSN: {}", dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN));
 
-  sentry_start();
-  auto _state = std::make_shared<aewt::state>();
-  sentry_stop();
+    sentry_start();
+    auto _state = std::make_shared<aewt::state>();
+    sentry_stop();
 
-  return 0;
+    return 0;
 }

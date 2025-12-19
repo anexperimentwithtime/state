@@ -13,19 +13,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <spdlog/spdlog.h>
-
 #include <aewt/session.hpp>
+
+#include <aewt/logger.hpp>
+
 #include <boost/uuid/uuid_io.hpp>
 
 namespace aewt {
     session::session(const boost::uuids::uuid id,
                      boost::asio::ip::tcp::socket socket)
         : id_(id), socket_(std::move(socket)) {
-        spdlog::info("session {} allocated", to_string(id_));
+        LOG_INFO("session {} allocated", to_string(id_));
     }
 
-    session::~session() { spdlog::info("session {} released", to_string(id_)); }
+    session::~session() { LOG_INFO("session {} released", to_string(id_)); }
 
     boost::uuids::uuid session::get_id() const { return id_; }
 

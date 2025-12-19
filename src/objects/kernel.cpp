@@ -20,35 +20,42 @@
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
 #include <aewt/validator.hpp>
+
+#include <boost/uuid/uuid_io.hpp>
 #include <boost/core/ignore_unused.hpp>
 
 namespace aewt {
-    std::shared_ptr<response> kernel(const std::shared_ptr<state>& state,
-                                     const std::shared_ptr<session>& session,
+    void handle_ping(const std::shared_ptr<response> &response) {
+        response->set_data("pong", {
+                               {"timestamp", std::chrono::system_clock::now().time_since_epoch().count()}
+                           });
+    }
+
+    void handle_whoami(const std::shared_ptr<response> &response, const std::shared_ptr<session> &session) {
+        response->set_data("im", {
+                               {"id", to_string(session->get_id())}
+                           });
+    }
+
+    void handle_unimplemented(const std::shared_ptr<response> &response) {
+        response->mark_as_failed("unprocessable entity", {
+                                     {"action", "action attribute isn't implemented"}
+                                 });
+    }
+
+    std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
+                                     const std::shared_ptr<session> &session,
                                      boost::json::object data) {
-        boost::ignore_unused(state, session, data);
+        boost::ignore_unused(state);
+
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
-            const std::string _action{data.at("action").as_string()};
-
-            if (_action == "ping") {
-                _response->set_data(
-                    "pong",
-                    {
-                        {
-                            "timestamp",
-                            std::chrono::system_clock::now().time_since_epoch().count()
-                        },
-                    });
+            if (const std::string _action{data.at("action").as_string()}; _action == "ping") {
+                handle_ping(_response);
+            } else if (_action == "whoami") {
+                handle_whoami(_response, session);
             } else {
-                _response->mark_as_failed(
-                    "unprocessable entity",
-                    {
-                        {
-                            "action",
-                            fmt::format("action attribute isn't implemented", _action)
-                        }
-                    });
+                handle_unimplemented(_response);
             }
         } else {
             _response->mark_as_failed("unprocessable entity", _validator.get_bag());
