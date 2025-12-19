@@ -78,7 +78,7 @@ int main() {
                dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN));
 
   sentry_start();
-  auto _state = std::make_shared<aewt::state::instance>();
+  auto _state = std::make_shared<aewt::state>();
   sentry_stop();
 
   return 0;

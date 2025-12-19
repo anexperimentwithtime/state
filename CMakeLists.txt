@@ -92,6 +92,7 @@ find_package(
         REQUIRED
         COMPONENTS
         program_options
+        json
 )
 
 find_package(OpenSSL REQUIRED)

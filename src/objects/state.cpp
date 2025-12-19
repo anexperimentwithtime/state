@@ -15,34 +15,32 @@
 
 #include <spdlog/spdlog.h>
 
-#include <aewt/state/instance.hpp>
-#include <aewt/state/session.hpp>
+#include <aewt/session.hpp>
+#include <aewt/state.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <ranges>
 
-namespace aewt::state {
+namespace aewt {
 
-instance::instance()
+state::state()
     : id_(generator_()), created_at_(std::chrono::system_clock::now()) {
-  spdlog::info("state instance {} allocated", to_string(id_));
+  spdlog::info("state {} allocated", to_string(id_));
 }
 
-instance::~instance() {
-  spdlog::info("state instance {} released", to_string(id_));
-}
+state::~state() { spdlog::info("state {} released", to_string(id_)); }
 
-boost::uuids::random_generator instance::get_generator() const {
+boost::uuids::random_generator state::get_generator() const {
   return generator_;
 }
 
-boost::uuids::uuid instance::get_id() const { return id_; }
+boost::uuids::uuid state::get_id() const { return id_; }
 
-std::chrono::system_clock::time_point instance::get_created_at() const {
+std::chrono::system_clock::time_point state::get_created_at() const {
   return created_at_;
 }
 
-std::vector<std::shared_ptr<session>> instance::get_sessions() const {
+std::vector<std::shared_ptr<session>> state::get_sessions() const {
   std::shared_lock _lock(sessions_mutex_);
   std::vector<std::shared_ptr<session>> _result;
   _result.reserve(sessions_.size());
@@ -53,7 +51,7 @@ std::vector<std::shared_ptr<session>> instance::get_sessions() const {
   return _result;
 }
 
-std::optional<std::shared_ptr<session>> instance::get_session(
+std::optional<std::shared_ptr<session>> state::get_session(
     const boost::uuids::uuid id) const {
   std::shared_lock _lock(sessions_mutex_);
 
@@ -64,13 +62,13 @@ std::optional<std::shared_ptr<session>> instance::get_session(
   return _iterator->second;
 }
 
-void instance::add_session(std::shared_ptr<session> session) {
+void state::add_session(std::shared_ptr<session> session) {
   std::unique_lock _lock(sessions_mutex_);
   sessions_.emplace(session->get_id(), std::move(session));
 }
 
-void instance::remove_session(const boost::uuids::uuid id) {
+void state::remove_session(const boost::uuids::uuid id) {
   std::unique_lock _lock(sessions_mutex_);
   sessions_.erase(id);
 }
-}  // namespace aewt::state
+}  // namespace aewt

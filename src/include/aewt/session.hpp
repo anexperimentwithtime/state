@@ -15,13 +15,13 @@
 
 #pragma once
 
-#ifndef AEWT_STATE_SESSION_HPP
-#define AEWT_STATE_SESSION_HPP
+#ifndef AEWT_SESSION_HPP
+#define AEWT_SESSION_HPP
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/uuid/uuid.hpp>
 
-namespace aewt::state {
+namespace aewt {
 /**
  * Session
  */
@@ -65,6 +65,6 @@ class session : public std::enable_shared_from_this<session> {
    */
   boost::asio::ip::tcp::socket socket_;
 };
-}  // namespace aewt::state
+}  // namespace aewt
 
-#endif  // AEWT_STATE_SESSION_HPP
+#endif  // AEWT_SESSION_HPP
