@@ -22,49 +22,49 @@
 #include <boost/uuid/uuid.hpp>
 
 namespace aewt {
-/**
- * Session
- */
-class session : public std::enable_shared_from_this<session> {
- public:
-  /**
-   * Constructor
-   *
-   * @param id
-   * @param socket
-   */
-  session(boost::uuids::uuid id, boost::asio::ip::tcp::socket socket);
+    /**
+     * Session
+     */
+    class session : public std::enable_shared_from_this<session> {
+    public:
+        /**
+         * Constructor
+         *
+         * @param id
+         * @param socket
+         */
+        session(boost::uuids::uuid id, boost::asio::ip::tcp::socket socket);
 
-  /**
-   * Destructor
-   */
-  ~session();
+        /**
+         * Destructor
+         */
+        ~session();
 
-  /**
-   * Get ID
-   *
-   * @return uuid
-   */
-  boost::uuids::uuid get_id() const;
+        /**
+         * Get ID
+         *
+         * @return uuid
+         */
+        boost::uuids::uuid get_id() const;
 
-  /**
-   * Get Socket
-   *
-   * @return tcp::socket
-   */
-  boost::asio::ip::tcp::socket& get_socket();
+        /**
+         * Get Socket
+         *
+         * @return tcp::socket
+         */
+        boost::asio::ip::tcp::socket &get_socket();
 
- private:
-  /**
-   * ID
-   */
-  boost::uuids::uuid id_;
+    private:
+        /**
+         * ID
+         */
+        boost::uuids::uuid id_;
 
-  /**
-   * Socket
-   */
-  boost::asio::ip::tcp::socket socket_;
-};
-}  // namespace aewt
+        /**
+         * Socket
+         */
+        boost::asio::ip::tcp::socket socket_;
+    };
+} // namespace aewt
 
 #endif  // AEWT_SESSION_HPP

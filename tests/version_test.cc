@@ -18,7 +18,7 @@
 #include <aewt/version.hpp>
 
 TEST(version_test, contains_version) {
-  ASSERT_EQ(aewt::version::get_major(), 0);
-  ASSERT_EQ(aewt::version::get_minor(), 0);
-  ASSERT_EQ(aewt::version::get_patch(), 0);
+    ASSERT_EQ(aewt::version::get_major(), 0);
+    ASSERT_EQ(aewt::version::get_minor(), 0);
+    ASSERT_EQ(aewt::version::get_patch(), 0);
 }

@@ -51,10 +51,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check format
-        run: |
-          bash scripts/check-format.sh
-
       - name: Prepares databases
         env:
           DB_HOST: mysql

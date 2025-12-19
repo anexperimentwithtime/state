@@ -19,26 +19,26 @@
 #define AEWT_VERSION_HPP
 
 namespace aewt::version {
-/**
- * Get major
- *
- * @return int
- */
-unsigned int get_major();
+    /**
+     * Get major
+     *
+     * @return int
+     */
+    unsigned int get_major();
 
-/**
- * Get minor
- *
- * @return int
- */
-unsigned int get_minor();
+    /**
+     * Get minor
+     *
+     * @return int
+     */
+    unsigned int get_minor();
 
-/**
- * Get patch
- *
- * @return int
- */
-unsigned int get_patch();
-}  // namespace aewt::version
+    /**
+     * Get patch
+     *
+     * @return int
+     */
+    unsigned int get_patch();
+} // namespace aewt::version
 
 #endif  // AEWT_VERSION_HPP

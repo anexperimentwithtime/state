@@ -16,21 +16,21 @@
 #include <aewt/validator.hpp>
 
 namespace aewt {
-validator::validator(boost::json::object data) {
-  if (!data.contains("action")) {
-    bag_.insert_or_assign("action", "action attribute must be present");
-    passed_ = false;
-  } else {
-    if (!data.at("action").is_string()) {
-      bag_.insert_or_assign("action", "action attribute must be string");
-      passed_ = false;
-    } else {
-      passed_ = true;
+    validator::validator(boost::json::object data) {
+        if (!data.contains("action")) {
+            bag_.insert_or_assign("action", "action attribute must be present");
+            passed_ = false;
+        } else {
+            if (!data.at("action").is_string()) {
+                bag_.insert_or_assign("action", "action attribute must be string");
+                passed_ = false;
+            } else {
+                passed_ = true;
+            }
+        }
     }
-  }
-}
 
-bool validator::get_passed() const { return passed_; }
+    bool validator::get_passed() const { return passed_; }
 
-std::map<std::string, std::string> validator::get_bag() const { return bag_; }
-}  // namespace aewt
+    std::map<std::string, std::string> validator::get_bag() const { return bag_; }
+} // namespace aewt

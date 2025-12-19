@@ -17,34 +17,34 @@
 #include <map>
 
 namespace aewt {
-bool response::get_failed() const {
-  return failed_.load(std::memory_order_acquire);
-}
+    bool response::get_failed() const {
+        return failed_.load(std::memory_order_acquire);
+    }
 
-bool response::get_processed() const {
-  return processed_.load(std::memory_order_acquire);
-}
+    bool response::get_processed() const {
+        return processed_.load(std::memory_order_acquire);
+    }
 
-boost::json::object response::get_data() const { return data_; }
+    boost::json::object response::get_data() const { return data_; }
 
-void response::mark_as_processed() {
-  processed_.store(true, std::memory_order_release);
-}
+    void response::mark_as_processed() {
+        processed_.store(true, std::memory_order_release);
+    }
 
-void response::set_data(const char *message, const boost::json::object &data) {
-  data_ = {{"status", "success"}, {"message", message}, {"data", data}};
-}
+    void response::set_data(const char *message, const boost::json::object &data) {
+        data_ = {{"status", "success"}, {"message", message}, {"data", data}};
+    }
 
-void response::mark_as_failed(const char *error,
-                              const std::map<std::string, std::string> &bag) {
-  failed_.store(true, std::memory_order_release);
+    void response::mark_as_failed(const char *error,
+                                  const std::map<std::string, std::string> &bag) {
+        failed_.store(true, std::memory_order_release);
 
-  boost::json::object _data;
-  _data.reserve(bag.size());
-  for (auto &[_key, _entry] : bag) {
-    _data.insert_or_assign(_key, _entry);
-  }
+        boost::json::object _data;
+        _data.reserve(bag.size());
+        for (auto &[_key, _entry]: bag) {
+            _data.insert_or_assign(_key, _entry);
+        }
 
-  data_ = {{"status", "failed"}, {"message", error}, {"data", _data}};
-}
-}  // namespace aewt
+        data_ = {{"status", "failed"}, {"message", error}, {"data", _data}};
+    }
+} // namespace aewt

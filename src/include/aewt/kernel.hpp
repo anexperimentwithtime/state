@@ -22,32 +22,32 @@
 #include <memory>
 
 namespace aewt {
-/**
- * Forward State
- */
-class state;
+    /**
+     * Forward State
+     */
+    class state;
 
-/**
- * Forward Session
- */
-class session;
+    /**
+     * Forward Session
+     */
+    class session;
 
-/**
- * Forward Response
- */
-class response;
+    /**
+     * Forward Response
+     */
+    class response;
 
-/**
- * Kernel
- *
- * @param state
- * @param session
- * @param data
- * @return shared_ptr<response>
- */
-std::shared_ptr<response> kernel(std::shared_ptr<state> state,
-                                 std::shared_ptr<session> session,
-                                 boost::json::object data);
-}  // namespace aewt
+    /**
+     * Kernel
+     *
+     * @param state
+     * @param session
+     * @param data
+     * @return shared_ptr<response>
+     */
+    std::shared_ptr<response> kernel(const std::shared_ptr<state>& state,
+                                     const std::shared_ptr<session>& session,
+                                     boost::json::object data);
+} // namespace aewt
 
 #endif  // AEWT_KERNEL_HPP

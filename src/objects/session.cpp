@@ -19,15 +19,15 @@
 #include <boost/uuid/uuid_io.hpp>
 
 namespace aewt {
-session::session(const boost::uuids::uuid id,
-                 boost::asio::ip::tcp::socket socket)
-    : id_(id), socket_(std::move(socket)) {
-  spdlog::info("session {} allocated", to_string(id_));
-}
+    session::session(const boost::uuids::uuid id,
+                     boost::asio::ip::tcp::socket socket)
+        : id_(id), socket_(std::move(socket)) {
+        spdlog::info("session {} allocated", to_string(id_));
+    }
 
-session::~session() { spdlog::info("session {} released", to_string(id_)); }
+    session::~session() { spdlog::info("session {} released", to_string(id_)); }
 
-boost::uuids::uuid session::get_id() const { return id_; }
+    boost::uuids::uuid session::get_id() const { return id_; }
 
-boost::asio::ip::tcp::socket& session::get_socket() { return socket_; }
-}  // namespace aewt
+    boost::asio::ip::tcp::socket &session::get_socket() { return socket_; }
+} // namespace aewt

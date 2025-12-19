@@ -23,31 +23,37 @@
 #include <boost/core/ignore_unused.hpp>
 
 namespace aewt {
-std::shared_ptr<response> kernel(std::shared_ptr<state> state,
-                                 std::shared_ptr<session> session,
-                                 boost::json::object data) {
-  boost::ignore_unused(state, session, data);
-  auto _response = std::make_shared<response>();
-  if (const validator _validator(data); _validator.get_passed()) {
-    const std::string _action{data.at("action").as_string()};
+    std::shared_ptr<response> kernel(const std::shared_ptr<state>& state,
+                                     const std::shared_ptr<session>& session,
+                                     boost::json::object data) {
+        boost::ignore_unused(state, session, data);
+        auto _response = std::make_shared<response>();
+        if (const validator _validator(data); _validator.get_passed()) {
+            const std::string _action{data.at("action").as_string()};
 
-    if (_action == "ping") {
-      _response->set_data(
-          "pong",
-          {
-              {"timestamp",
-               std::chrono::system_clock::now().time_since_epoch().count()},
-          });
-    } else {
-      _response->mark_as_failed(
-          "unprocessable entity",
-          {{"action",
-            fmt::format("action attribute isn't implemented", _action)}});
+            if (_action == "ping") {
+                _response->set_data(
+                    "pong",
+                    {
+                        {
+                            "timestamp",
+                            std::chrono::system_clock::now().time_since_epoch().count()
+                        },
+                    });
+            } else {
+                _response->mark_as_failed(
+                    "unprocessable entity",
+                    {
+                        {
+                            "action",
+                            fmt::format("action attribute isn't implemented", _action)
+                        }
+                    });
+            }
+        } else {
+            _response->mark_as_failed("unprocessable entity", _validator.get_bag());
+        }
+        _response->mark_as_processed();
+        return _response;
     }
-  } else {
-    _response->mark_as_failed("unprocessable entity", _validator.get_bag());
-  }
-  _response->mark_as_processed();
-  return _response;
-}
-}  // namespace aewt
+} // namespace aewt

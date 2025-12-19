@@ -22,42 +22,42 @@
 #include <map>
 
 namespace aewt {
-/**
- * Validator
- */
-class validator {
-  /**
-   * Passed
-   */
-  bool passed_ = false;
+    /**
+     * Validator
+     */
+    class validator {
+        /**
+         * Passed
+         */
+        bool passed_ = false;
 
-  /**
-   * Bag
-   */
-  std::map<std::string, std::string> bag_;
+        /**
+         * Bag
+         */
+        std::map<std::string, std::string> bag_;
 
- public:
-  /**
-   * Constructor
-   *
-   * @param data
-   */
-  explicit validator(boost::json::object data);
+    public:
+        /**
+         * Constructor
+         *
+         * @param data
+         */
+        explicit validator(boost::json::object data);
 
-  /**
-   * Get Passed
-   *
-   * @return bool
-   */
-  [[nodiscard]] bool get_passed() const;
+        /**
+         * Get Passed
+         *
+         * @return bool
+         */
+        [[nodiscard]] bool get_passed() const;
 
-  /**
-   * Get Bag
-   *
-   * @return map<string, string>
-   */
-  [[nodiscard]] std::map<std::string, std::string> get_bag() const;
-};
-}  // namespace aewt
+        /**
+         * Get Bag
+         *
+         * @return map<string, string>
+         */
+        [[nodiscard]] std::map<std::string, std::string> get_bag() const;
+    };
+} // namespace aewt
 
 #endif  // AEWT_VALIDATOR_HPP
