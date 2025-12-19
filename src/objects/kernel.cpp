@@ -26,35 +26,21 @@
 
 namespace aewt {
     void handle_ping(const std::shared_ptr<response> &response) {
-        response->set_data(
-            "pong",
-            {
-                {
-                    "timestamp",
-                    std::chrono::system_clock::now().time_since_epoch().count()
-                },
-            });
+        response->set_data("pong", {
+                               {"timestamp", std::chrono::system_clock::now().time_since_epoch().count()}
+                           });
     }
 
     void handle_whoami(const std::shared_ptr<response> &response, const std::shared_ptr<session> &session) {
-        response->set_data(
-            "im",
-            {
-                {
-                    "id", to_string(session->get_id()),
-                },
-            });
+        response->set_data("im", {
+                               {"id", to_string(session->get_id())}
+                           });
     }
 
-    void handle_unimplemented(const std::shared_ptr<response> &response, const std::string &action) {
-        response->mark_as_failed(
-            "unprocessable entity",
-            {
-                {
-                    "action",
-                    fmt::format("action attribute isn't implemented", action)
-                }
-            });
+    void handle_unimplemented(const std::shared_ptr<response> &response) {
+        response->mark_as_failed("unprocessable entity", {
+                                     {"action", "action attribute isn't implemented"}
+                                 });
     }
 
     std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
@@ -69,7 +55,7 @@ namespace aewt {
             } else if (_action == "whoami") {
                 handle_whoami(_response, session);
             } else {
-                handle_unimplemented(_response, _action);
+                handle_unimplemented(_response);
             }
         } else {
             _response->mark_as_failed("unprocessable entity", _validator.get_bag());
