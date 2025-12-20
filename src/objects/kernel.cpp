@@ -349,7 +349,6 @@ namespace aewt {
 
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
-            LOG_INFO("Works");
             const auto transaction_id = boost::lexical_cast<boost::uuids::uuid>(std::string{
                 data.at("transaction_id").as_string()
             });
