@@ -15,6 +15,8 @@
 
 #include <aewt/response.hpp>
 #include <map>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace aewt {
     bool response::get_failed() const {
@@ -27,16 +29,8 @@ namespace aewt {
 
     boost::json::object response::get_data() const { return data_; }
 
-    void response::mark_as_processed() {
-        processed_.store(true, std::memory_order_release);
-    }
-
-    void response::set_data(const char *message, const boost::json::object &data) {
-        data_ = {{"status", "success"}, {"message", message}, {"data", data}};
-    }
-
-    void response::mark_as_failed(const char *error,
-                                  const std::map<std::string, std::string> &bag) {
+    void response::mark_as_failed(boost::uuids::uuid transaction_id, const char *error,
+    const std::map<std::string, std::string> &bag)  {
         failed_.store(true, std::memory_order_release);
 
         boost::json::object _data;
@@ -45,6 +39,14 @@ namespace aewt {
             _data.insert_or_assign(_key, _entry);
         }
 
-        data_ = {{"status", "failed"}, {"message", error}, {"data", _data}};
+        data_ = {{"transaction_id", to_string(transaction_id)}, {"status", "failed"}, {"message", error}, {"data", _data}};
+    }
+
+    void response::mark_as_processed() {
+        processed_.store(true, std::memory_order_release);
+    }
+
+    void response::set_data(boost::uuids::uuid transaction_id, const char *message, const boost::json::object &data) {
+        data_ = {{"transaction_id", to_string(transaction_id)}, {"status", "success"}, {"message", message}, {"data", data}};
     }
 } // namespace aewt

@@ -71,4 +71,72 @@ namespace aewt {
         std::unique_lock _lock(sessions_mutex_);
         sessions_.erase(id);
     }
+
+    bool state::subscribe(const boost::uuids::uuid &session_id, const boost::uuids::uuid &client_id,
+        const std::string &channel) {
+        std::unique_lock _lock(subscriptions_mutex_);
+
+        auto& _index =
+            subscriptions_.get<subscriptions_by_session_client_channel>();
+
+        auto [_it, _inserted] =
+            _index.insert(subscription{session_id, client_id, channel});
+
+        return _inserted;
+    }
+
+    bool state::unsubscribe(const boost::uuids::uuid &session_id, const boost::uuids::uuid &client_id,
+        const std::string &channel) {
+
+        std::unique_lock _lock(subscriptions_mutex_);
+
+        auto& _index =
+            subscriptions_.get<subscriptions_by_session_client_channel>();
+
+        const auto _iterator = _index.find(
+                boost::make_tuple(session_id, client_id, channel)
+            );
+
+        if (_iterator == _index.end())
+            return false;
+
+        _index.erase(_iterator);
+        return true;
+    }
+
+    bool state::is_subscribed(const boost::uuids::uuid &session_id, const boost::uuids::uuid &client_id,
+        const std::string &channel) {
+        std::shared_lock _lock(subscriptions_mutex_);
+
+        const auto& _index =
+            subscriptions_.get<subscriptions_by_session_client_channel>();
+
+        return _index.find(
+            boost::make_tuple(session_id, client_id, channel)
+        ) != _index.end();
+    }
+
+    std::size_t state::unsubscribe_all_client(const boost::uuids::uuid &client_id) {
+        std::unique_lock _lock(subscriptions_mutex_);
+
+        auto& _index = subscriptions_.get<subscriptions_by_client>();
+
+        const auto _range = _index.equal_range(client_id);
+
+        const std::size_t _count = std::distance(_range.first, _range.second);
+        _index.erase(_range.first, _range.second);
+        return _count;
+    }
+
+    std::size_t state::unsubscribe_all_session(const boost::uuids::uuid &session_id) {
+        std::unique_lock _lock(subscriptions_mutex_);
+
+        auto& _index = subscriptions_.get<subscriptions_by_session>();
+
+        const auto _range = _index.equal_range(session_id);
+
+        const std::size_t _count = std::distance(_range.first, _range.second);
+        _index.erase(_range.first, _range.second);
+        return _count;
+    }
 } // namespace aewt

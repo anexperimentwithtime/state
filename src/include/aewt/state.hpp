@@ -18,6 +18,8 @@
 #ifndef AEWT_STATE_HPP
 #define AEWT_STATE_HPP
 
+#include <aewt/subscriptions.hpp>
+
 #include <boost/functional/hash.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid.hpp>
@@ -98,6 +100,51 @@ namespace aewt {
          */
         void remove_session(boost::uuids::uuid id);
 
+        /**
+         * Subscribe
+         *
+         * @param session_id
+         * @param client_id
+         * @param channel
+         * @return bool
+         */
+        bool subscribe(const boost::uuids::uuid& session_id, const boost::uuids::uuid& client_id, const std::string& channel);
+
+        /**
+         * Unsubscribe
+         *
+         * @param session_id
+         * @param client_id
+         * @param channel
+         * @return bool
+         */
+        bool unsubscribe(const boost::uuids::uuid& session_id, const boost::uuids::uuid& client_id, const std::string& channel);
+
+        /**
+         * Is Subscribed
+         *
+         * @param session_id
+         * @param client_id
+         * @param channel
+         * @return bool
+         */
+        bool is_subscribed(const boost::uuids::uuid& session_id, const boost::uuids::uuid& client_id, const std::string& channel);
+
+        /**
+         * Unsubscribe All Client
+         *
+         * @param client_id
+         * @return
+         */
+        std::size_t unsubscribe_all_client(const boost::uuids::uuid& client_id);
+
+        /**
+         * Unsubscribe All Session
+         *
+         * @param session_id
+         * @return
+         */
+        std::size_t unsubscribe_all_session(const boost::uuids::uuid& session_id);
     private:
         /**
          * Generator
@@ -123,6 +170,16 @@ namespace aewt {
          * Sessions Shared Mutex
          */
         mutable std::shared_mutex sessions_mutex_;
+
+        /**
+         * Subscriptions
+         */
+        subscriptions subscriptions_;
+
+        /**
+         * Sessions Shared Mutex
+         */
+        mutable std::shared_mutex subscriptions_mutex_;
     };
 } // namespace aewt
 

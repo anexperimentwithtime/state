@@ -57,6 +57,13 @@ namespace aewt {
          * @return map<string, string>
          */
         [[nodiscard]] std::map<std::string, std::string> get_bag() const;
+
+        /**
+         * Is UUID
+         * @param uuid
+         * @return
+         */
+        static bool is_uuid(const std::string &uuid);
     };
 } // namespace aewt
 

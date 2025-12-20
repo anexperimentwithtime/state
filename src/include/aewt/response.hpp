@@ -20,6 +20,7 @@
 
 #include <atomic>
 #include <boost/json/object.hpp>
+#include <boost/uuid/uuid.hpp>
 #include <map>
 #include <memory>
 
@@ -68,10 +69,11 @@ namespace aewt {
         /**
          * Mark As Failed
          *
+         * @param transaction_id
          * @param error
          * @param bag
          */
-        void mark_as_failed(const char *error, const std::map<std::string, std::string> &bag);
+        void mark_as_failed(boost::uuids::uuid transaction_id, const char *error, const std::map<std::string, std::string> &bag);
 
         /**
          * Mark As Processed
@@ -80,10 +82,11 @@ namespace aewt {
 
         /**
          * Set Data
+         * @param transaction_id
          * @param message
          * @param data
          */
-        void set_data(const char *message, const boost::json::object &data = {});
+        void set_data(boost::uuids::uuid transaction_id, const char *message, const boost::json::object &data = {});
     };
 } // namespace aewt
 

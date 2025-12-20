@@ -15,17 +15,35 @@
 
 #include <aewt/validator.hpp>
 
+#include <boost/uuid/string_generator.hpp>
+#include <boost/optional.hpp>
+
 namespace aewt {
     validator::validator(boost::json::object data) {
-        if (!data.contains("action")) {
-            bag_.insert_or_assign("action", "action attribute must be present");
+        if (!data.contains("transaction_id")) {
+            bag_.insert_or_assign("transaction_id", "transaction_id attribute must be present");
             passed_ = false;
         } else {
-            if (!data.at("action").is_string()) {
-                bag_.insert_or_assign("action", "action attribute must be string");
+            if (!data.at("transaction_id").is_string()) {
+                bag_.insert_or_assign("transaction_id", "transaction_id attribute must be string");
                 passed_ = false;
             } else {
-                passed_ = true;
+                if (!is_uuid(std::string{data.at("transaction_id").as_string()})) {
+                    bag_.insert_or_assign("transaction_id", "transaction_id attribute must be uuid");
+                    passed_ = false;
+                } else {
+                    if (!data.contains("action")) {
+                        bag_.insert_or_assign("action", "action attribute must be present");
+                        passed_ = false;
+                    } else {
+                        if (!data.at("action").is_string()) {
+                            bag_.insert_or_assign("action", "action attribute must be string");
+                            passed_ = false;
+                        } else {
+                            passed_ = true;
+                        }
+                    }
+                }
             }
         }
     }
@@ -33,4 +51,14 @@ namespace aewt {
     bool validator::get_passed() const { return passed_; }
 
     std::map<std::string, std::string> validator::get_bag() const { return bag_; }
+
+    bool validator::is_uuid(const std::string &uuid) {
+        try {
+            constexpr boost::uuids::string_generator _generator;
+            const boost::optional<boost::uuids::uuid> _uuid = _generator(uuid);
+            return true;
+        } catch (...) {
+            return false;
+        }
+    }
 } // namespace aewt
