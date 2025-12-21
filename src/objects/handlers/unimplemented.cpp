@@ -13,33 +13,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include <aewt/handlers/unimplemented.hpp>
 
-#ifndef AEWT_SUBSCRIPTION_HPP
-#define AEWT_SUBSCRIPTION_HPP
+#include <aewt/response.hpp>
 
-#include <boost/uuid/uuid.hpp>
-
-namespace aewt {
-    /**
-     * Subscription
-     */
-    struct subscription {
-        /**
-         * Session ID
-         */
-        boost::uuids::uuid session_id_;
-
-        /**
-         * Client ID
-         */
-        boost::uuids::uuid client_id_;
-
-        /**
-         * Channel
-         */
-        std::string channel_;
-    };
-} // namespace aewt
-
-#endif  // AEWT_SUBSCRIPTION_HPP
+namespace aewt::handlers {
+    void unimplemented(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response) {
+        response->mark_as_failed(transaction_id, "unprocessable entity", {
+                                         {"action", "action attribute isn't implemented"}
+                                     });
+    }
+}

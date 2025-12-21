@@ -28,11 +28,29 @@
 #include <boost/uuid/uuid.hpp>
 
 namespace aewt {
+    /**
+     * Subscriptions By Session
+     */
     struct subscriptions_by_session {};
+
+    /**
+     * Subscriptions By Client
+     */
     struct subscriptions_by_client  {};
+
+    /**
+     * Subscriptions By Channel
+     */
     struct subscriptions_by_channel {};
+
+    /**
+     * Subscriptions By Session, Client and Channel
+     */
     struct subscriptions_by_session_client_channel {};
 
+    /**
+     * Subscriptions
+     */
     using subscriptions = boost::multi_index::multi_index_container<
         subscription,
         boost::multi_index::indexed_by<

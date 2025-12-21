@@ -154,7 +154,7 @@ namespace aewt {
          * @param session_id
          * @param client_id
          * @param channel
-         * @param object
+         * @param data
          *
          * @return size_t
          */
