@@ -79,45 +79,46 @@ namespace aewt {
     bool validate_subscribe_and_unsubscribe_payload(const boost::uuids::uuid transaction_id,
                                                     const std::shared_ptr<response> &response,
                                                     const boost::json::object &data) {
-        const validation_rules _rules
-        {
-            {
-                [](const boost::json::object &body) { return !body.contains("params"); },
-                {{"params", "params attribute must be present"}}
-            },
-            {
-                [](const boost::json::object &body) { return !body.at("params").is_object(); },
-                {{"params", "params attribute must be object"}}
-            },
-            {
-                [](const boost::json::object &body) { return !body.at("params").as_object().contains("channel"); },
-                {{"params", "params channel attribute must be present"}}
-            },
-            {
-                [](const boost::json::object &body) {
-                    return !body.at("params").as_object().at("channel").is_string();
-                },
-                {{"params", "params channel attribute must be string"}}
-            },
-            {
-                [](const boost::json::object &body) { return !body.at("params").as_object().contains("client_id"); },
-                {{"params", "params client_id attribute must be present"}}
-            },
-            {
-                [](const boost::json::object &body) {
-                    return !body.at("params").as_object().at("client_id").is_string();
-                },
-                {{"params", "params client_id attribute must be string"}}
-            },
-            {
-                [](const boost::json::object &body) {
-                    return !validator::is_uuid(std::string{body.at("params").as_object().at("client_id").as_string()});
-                },
-                {{"params", "params client_id attribute must be uuid"}}
-            },
-        };
+        if (!data.contains("params")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity", {{"params", "params attribute must be present"}});
+            return false;
+        }
 
-        return validate(_rules, response, transaction_id, data);
+        const boost::json::value _params = data.at("params");
+        if (!_params.is_object()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity", {{"params", "params attribute must be object"}});
+            return false;
+        }
+
+        const boost::json::object _params_object = _params.as_object();
+        if (!_params_object.contains("channel")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity", {{"params", "params channel attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _channel = _params_object.at("channel");
+        if (!_channel.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity", {{"params", "params channel attribute must be string"}});
+            return false;
+        }
+
+        if (!_params_object.contains("client_id")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity", {{"params", "params client_id attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _client_id = _params_object.at("client_id");
+        if (!_client_id.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity", {{"params", "params client_id attribute must be string"}});
+            return false;
+        }
+
+        if (!validator::is_uuid(_client_id.as_string().c_str())) {
+            response->mark_as_failed(transaction_id, "unprocessable entity", {{"params", "params client_id attribute must be uuid"}});
+            return false;
+        }
+
+        return true;
     }
 
     bool validate_is_subscribed_payload(const boost::uuids::uuid transaction_id,
@@ -155,9 +156,7 @@ namespace aewt {
             },
             {
                 [](const boost::json::object &body) {
-                    return !validator::is_uuid(std::string{
-                        body.at("params").as_object().at("client_id").as_string()
-                    });
+                    return !validator::is_uuid(body.at("params").as_object().at("client_id").as_string().c_str());
                 },
                 {{"params", "params client_id attribute must be uuid"}}
             },
@@ -173,9 +172,7 @@ namespace aewt {
             },
             {
                 [](const boost::json::object &body) {
-                    return !validator::is_uuid(std::string{
-                        body.at("params").as_object().at("session_id").as_string()
-                    });
+                    return !validator::is_uuid(body.at("params").as_object().at("session_id").as_string().c_str());
                 },
                 {{"params", "params session_id attribute must be uuid"}}
             },
@@ -258,9 +255,7 @@ namespace aewt {
             },
             {
                 [](const boost::json::object &body) {
-                    return !validator::is_uuid(std::string{
-                        body.at("params").as_object().at("client_id").as_string()
-                    });
+                    return !validator::is_uuid(body.at("params").as_object().at("client_id").as_string().c_str());
                 },
                 {{"params", "params client_id attribute must be uuid"}}
             },
@@ -310,9 +305,7 @@ namespace aewt {
             },
             {
                 [](const boost::json::object &body) {
-                    return !validator::is_uuid(std::string{
-                        body.at("params").as_object().at("session_id").as_string()
-                    });
+                    return !validator::is_uuid(body.at("params").as_object().at("session_id").as_string().c_str());
                 },
                 {{"params", "params session_id attribute must be uuid"}}
             },
@@ -366,7 +359,7 @@ namespace aewt {
             }
         } else {
             if (data.contains("transaction_id") && data.at("transaction_id").is_string() && validator::is_uuid(
-                    std::string{data.at("transaction_id").as_string()})) {
+                data.at("transaction_id").as_string().c_str())) {
                 _response->mark_as_failed(
                     boost::lexical_cast<boost::uuids::uuid>(std::string{data.at("transaction_id").as_string()}),
                     "unprocessable entity", _validator.get_bag());
