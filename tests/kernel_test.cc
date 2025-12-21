@@ -13,18 +13,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <../cmake-build-debug/_deps/googletest-src/googletest/include/gtest/gtest.h>
+#include <gtest/gtest.h>
 
-#include <../src/include/aewt/kernel.hpp>
-#include <../src/include/aewt/response.hpp>
-#include <../src/include/aewt/session.hpp>
-#include <../src/include/aewt/state.hpp>
-#include <../src/include/aewt/logger.hpp>
+#include <aewt/kernel.hpp>
+#include <aewt/response.hpp>
+#include <aewt/session.hpp>
+#include <aewt/state.hpp>
+#include <aewt/logger.hpp>
 #include <boost/json/serialize.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-TEST(kernel_validations_test, can_handle_empty_action_on_data) {
+TEST(kernel_test, can_handle_empty_action_on_data) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -58,7 +58,7 @@ TEST(kernel_validations_test, can_handle_empty_action_on_data) {
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _transaction_id);
 }
 
-TEST(kernel_validations_test, can_handle_wrong_action_primitive_on_data) {
+TEST(kernel_test, can_handle_wrong_action_primitive_on_data) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -91,7 +91,7 @@ TEST(kernel_validations_test, can_handle_wrong_action_primitive_on_data) {
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _transaction_id);
 }
 
-TEST(kernel_validations_test, can_handle_empty_transaction_id_on_data) {
+TEST(kernel_test, can_handle_empty_transaction_id_on_data) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -123,7 +123,7 @@ TEST(kernel_validations_test, can_handle_empty_transaction_id_on_data) {
     ASSERT_NE(_response->get_data().at("transaction_id").as_string(), "78dbde63-817c-46bc-a470-71d066eb3eed");
 }
 
-TEST(kernel_validations_test, can_handle_wrong_transaction_id_primitive_on_data) {
+TEST(kernel_test, can_handle_wrong_transaction_id_primitive_on_data) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -156,7 +156,7 @@ TEST(kernel_validations_test, can_handle_wrong_transaction_id_primitive_on_data)
 }
 
 
-TEST(kernel_validations_test, can_handle_wrong_transaction_id_value_on_data) {
+TEST(kernel_test, can_handle_wrong_transaction_id_value_on_data) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -188,7 +188,7 @@ TEST(kernel_validations_test, can_handle_wrong_transaction_id_value_on_data) {
     ASSERT_NE(_response->get_data().at("transaction_id").as_string(), "7");
 }
 
-TEST(kernel_validations_test, can_handle_non_implemented_action) {
+TEST(kernel_test, can_handle_non_implemented_action) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;

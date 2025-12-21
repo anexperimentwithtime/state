@@ -24,7 +24,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-TEST(kernel_whoami_test, can_handle) {
+TEST(handlers_whoami_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;

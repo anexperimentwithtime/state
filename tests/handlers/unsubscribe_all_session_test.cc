@@ -24,7 +24,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-TEST(kernel_unsubscribe_all_session_test, can_handle) {
+TEST(handlers_unsubscribe_all_session_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -64,7 +64,7 @@ TEST(kernel_unsubscribe_all_session_test, can_handle) {
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _unsubscribe_all_session_transaction_id);
 }
 
-TEST(kernel_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_empty_data_params) {
+TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_empty_data_params) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -101,7 +101,7 @@ TEST(kernel_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_
               "params attribute must be present");
 }
 
-TEST(kernel_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_privimite) {
+TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_privimite) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -138,7 +138,7 @@ TEST(kernel_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_
               "params attribute must be object");
 }
 
-TEST(kernel_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_empty_data_params_session_id) {
+TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_empty_data_params_session_id) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -175,7 +175,7 @@ TEST(kernel_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_
               "params session_id attribute must be present");
 }
 
-TEST(kernel_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_session_id_primitive) {
+TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_session_id_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -212,7 +212,7 @@ TEST(kernel_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_
               "params session_id attribute must be string");
 }
 
-TEST(kernel_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_session_id_type) {
+TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_session_id_type) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;

@@ -24,7 +24,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-TEST(kernel_broadcast_test, can_handle) {
+TEST(handlers_broadcast_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -60,7 +60,7 @@ TEST(kernel_broadcast_test, can_handle) {
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_broadcast_test, can_handle_broadcast_on_empty_data_params) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_empty_data_params) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -96,7 +96,7 @@ TEST(kernel_broadcast_test, can_handle_broadcast_on_empty_data_params) {
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_privimite) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_privimite) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -137,7 +137,7 @@ TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_privimite)
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_broadcast_test, can_handle_broadcast_on_empty_data_params_session_id) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_empty_data_params_session_id) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -178,7 +178,7 @@ TEST(kernel_broadcast_test, can_handle_broadcast_on_empty_data_params_session_id
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_session_id_primitive) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_session_id_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -219,7 +219,7 @@ TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_session_id
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_session_id_type) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_session_id_type) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -260,7 +260,7 @@ TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_session_id
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_broadcast_test, can_handle_broadcast_on_empty_data_params_client_id) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_empty_data_params_client_id) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -301,7 +301,7 @@ TEST(kernel_broadcast_test, can_handle_broadcast_on_empty_data_params_client_id)
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_client_id_primitive) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_client_id_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -342,7 +342,7 @@ TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_client_id_
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_client_id_type) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_client_id_type) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -379,7 +379,7 @@ TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_client_id_
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_broadcast_test, can_handle_broadcast_on_empty_data_params_payload) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_empty_data_params_payload) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -416,7 +416,7 @@ TEST(kernel_broadcast_test, can_handle_broadcast_on_empty_data_params_payload) {
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_broadcast_test, can_handle_broadcast_on_wrong_data_params_payload_primitive) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_payload_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;

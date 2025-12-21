@@ -24,7 +24,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-TEST(kernel_unsubscribe_all_client_test, can_handle) {
+TEST(handlers_unsubscribe_all_client_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -63,7 +63,7 @@ TEST(kernel_unsubscribe_all_client_test, can_handle) {
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _unsubscribe_all_client_transaction_id);
 }
 
-TEST(kernel_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_empty_data_params) {
+TEST(handlers_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_empty_data_params) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -99,7 +99,7 @@ TEST(kernel_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_em
               "params attribute must be present");
 }
 
-TEST(kernel_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_wrong_data_params_privimite) {
+TEST(handlers_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_wrong_data_params_privimite) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -135,7 +135,7 @@ TEST(kernel_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_wr
               "params attribute must be object");
 }
 
-TEST(kernel_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_empty_data_params_client_id) {
+TEST(handlers_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_empty_data_params_client_id) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -171,7 +171,7 @@ TEST(kernel_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_em
               "params client_id attribute must be present");
 }
 
-TEST(kernel_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_wrong_data_params_client_id_primitive) {
+TEST(handlers_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_wrong_data_params_client_id_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -207,7 +207,7 @@ TEST(kernel_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_wr
               "params client_id attribute must be string");
 }
 
-TEST(kernel_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_wrong_data_params_client_id_type) {
+TEST(handlers_unsubscribe_all_client_test, can_handle_unsubscribe_all_client_on_wrong_data_params_client_id_type) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;

@@ -24,7 +24,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-TEST(kernel_subscribe_test, can_handle) {
+TEST(handlers_subscribe_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -60,7 +60,7 @@ TEST(kernel_subscribe_test, can_handle) {
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _subscribe_transaction_id);
 }
 
-TEST(kernel_subscribe_test, can_handle_no_effect) {
+TEST(handlers_subscribe_test, can_handle_no_effect) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;

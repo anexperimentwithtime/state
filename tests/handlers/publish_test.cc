@@ -24,7 +24,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-TEST(kernel_publish_test, can_handle) {
+TEST(handlers_publish_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -64,7 +64,7 @@ TEST(kernel_publish_test, can_handle) {
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _publish_transaction_id);
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_empty_data_params) {
+TEST(handlers_publish_test, can_handle_publish_on_empty_data_params) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -101,7 +101,7 @@ TEST(kernel_publish_test, can_handle_publish_on_empty_data_params) {
               "params attribute must be present");
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_privimite) {
+TEST(handlers_publish_test, can_handle_publish_on_wrong_data_params_privimite) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -138,7 +138,7 @@ TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_privimite) {
               "params attribute must be object");
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_empty_data_params_session_id) {
+TEST(handlers_publish_test, can_handle_publish_on_empty_data_params_session_id) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -175,7 +175,7 @@ TEST(kernel_publish_test, can_handle_publish_on_empty_data_params_session_id) {
               "params session_id attribute must be present");
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_session_id_primitive) {
+TEST(handlers_publish_test, can_handle_publish_on_wrong_data_params_session_id_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -212,7 +212,7 @@ TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_session_id_pri
               "params session_id attribute must be string");
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_session_id_type) {
+TEST(handlers_publish_test, can_handle_publish_on_wrong_data_params_session_id_type) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -249,7 +249,7 @@ TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_session_id_typ
               "params session_id attribute must be uuid");
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_empty_data_params_client_id) {
+TEST(handlers_publish_test, can_handle_publish_on_empty_data_params_client_id) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -286,7 +286,7 @@ TEST(kernel_publish_test, can_handle_publish_on_empty_data_params_client_id) {
               "params client_id attribute must be present");
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_client_id_primitive) {
+TEST(handlers_publish_test, can_handle_publish_on_wrong_data_params_client_id_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -323,7 +323,7 @@ TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_client_id_prim
               "params client_id attribute must be string");
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_client_id_type) {
+TEST(handlers_publish_test, can_handle_publish_on_wrong_data_params_client_id_type) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -360,7 +360,7 @@ TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_client_id_type
               "params client_id attribute must be uuid");
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_empty_data_params_channel) {
+TEST(handlers_publish_test, can_handle_publish_on_empty_data_params_channel) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -397,7 +397,7 @@ TEST(kernel_publish_test, can_handle_publish_on_empty_data_params_channel) {
               "params channel attribute must be present");
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_channel_primitive) {
+TEST(handlers_publish_test, can_handle_publish_on_wrong_data_params_channel_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -437,7 +437,7 @@ TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_channel_primit
 
 //
 
-TEST(kernel_publish_test, can_handle_publish_on_empty_data_params_payload) {
+TEST(handlers_publish_test, can_handle_publish_on_empty_data_params_payload) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -474,7 +474,7 @@ TEST(kernel_publish_test, can_handle_publish_on_empty_data_params_payload) {
               "params payload attribute must be present");
 }
 
-TEST(kernel_publish_test, can_handle_publish_on_wrong_data_params_payload_primitive) {
+TEST(handlers_publish_test, can_handle_publish_on_wrong_data_params_payload_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
