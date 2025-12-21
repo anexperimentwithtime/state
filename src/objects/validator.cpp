@@ -28,7 +28,7 @@ namespace aewt {
                 bag_.insert_or_assign("transaction_id", "transaction_id attribute must be string");
                 passed_ = false;
             } else {
-                if (!is_uuid(std::string{data.at("transaction_id").as_string()})) {
+                if (!is_uuid(data.at("transaction_id").as_string().c_str())) {
                     bag_.insert_or_assign("transaction_id", "transaction_id attribute must be uuid");
                     passed_ = false;
                 } else {
@@ -52,7 +52,7 @@ namespace aewt {
 
     std::map<std::string, std::string> validator::get_bag() const { return bag_; }
 
-    bool validator::is_uuid(const std::string &uuid) {
+    bool validator::is_uuid(const char * uuid) {
         try {
             constexpr boost::uuids::string_generator _generator;
             const boost::optional<boost::uuids::uuid> _uuid = _generator(uuid);

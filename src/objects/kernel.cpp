@@ -66,47 +66,50 @@ namespace aewt {
         if (!data.contains("params")) {
             response->mark_as_failed(transaction_id, "unprocessable entity",
                                      {{"params", "params attribute must be present"}});
-        } else {
-            if (!data.at("params").is_object()) {
-                response->mark_as_failed(transaction_id, "unprocessable entity",
-                                         {{"params", "params attribute must be object"}});
-            } else {
-                if (!data.at("params").as_object().contains("channel")) {
-                    response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                 {"params", "params channel attribute must be present"}
-                                             });
-                } else {
-                    if (!data.at("params").as_object().at("channel").is_string()) {
-                        response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                     {"params", "params channel attribute must be string"}
-                                                 });
-                    } else {
-                        if (!data.at("params").as_object().contains("client_id")) {
-                            response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                         {"params", "params client_id attribute must be present"}
-                                                     });
-                        } else {
-                            if (!data.at("params").as_object().at("client_id").is_string()) {
-                                response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                             {"params", "params client_id attribute must be string"}
-                                                         });
-                            } else {
-                                if (!validator::is_uuid(std::string{
-                                    data.at("params").as_object().at("client_id").as_string()
-                                })) {
-                                    response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                                 {"params", "params client_id attribute must be uuid"}
-                                                             });
-                                } else {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            return false;
         }
-        return false;
+
+        const boost::json::value _params = data.at("params");
+        if (!_params.is_object()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params attribute must be object"}});
+            return false;
+        }
+
+        const boost::json::object _params_object = _params.as_object();
+        if (!_params_object.contains("channel")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params channel attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _channel = _params_object.at("channel");
+        if (!_channel.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params channel attribute must be string"}});
+            return false;
+        }
+
+        if (!_params_object.contains("client_id")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _client_id = _params_object.at("client_id");
+        if (!_client_id.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be string"}});
+            return false;
+        }
+
+        if (!validator::is_uuid(_client_id.as_string().c_str())) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be uuid"}});
+            return false;
+        }
+
+        return true;
     }
 
     bool validate_is_subscribed_payload(const boost::uuids::uuid transaction_id,
@@ -115,76 +118,69 @@ namespace aewt {
         if (!data.contains("params")) {
             response->mark_as_failed(transaction_id, "unprocessable entity",
                                      {{"params", "params attribute must be present"}});
-        } else {
-            if (!data.at("params").is_object()) {
-                response->mark_as_failed(transaction_id, "unprocessable entity",
-                                         {{"params", "params attribute must be object"}});
-            } else {
-                if (!data.at("params").as_object().contains("channel")) {
-                    response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                 {"params", "params channel attribute must be present"}
-                                             });
-                } else {
-                    if (!data.at("params").as_object().at("channel").is_string()) {
-                        response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                     {"params", "params channel attribute must be string"}
-                                                 });
-                    } else {
-                        if (!data.at("params").as_object().contains("client_id")) {
-                            response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                         {"params", "params client_id attribute must be present"}
-                                                     });
-                        } else {
-                            if (!data.at("params").as_object().at("client_id").is_string()) {
-                                response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                             {"params", "params client_id attribute must be string"}
-                                                         });
-                            } else {
-                                if (!validator::is_uuid(std::string{
-                                    data.at("params").as_object().at("client_id").as_string()
-                                })) {
-                                    response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                                 {"params", "params client_id attribute must be uuid"}
-                                                             });
-                                } else {
-                                    if (!data.at("params").as_object().contains("session_id")) {
-                                        response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                                     {
-                                                                         "params",
-                                                                         "params session_id attribute must be present"
-                                                                     }
-                                                                 });
-                                    } else {
-                                        if (!data.at("params").as_object().at("session_id").is_string()) {
-                                            response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                                         {
-                                                                             "params",
-                                                                             "params session_id attribute must be string"
-                                                                         }
-                                                                     });
-                                        } else {
-                                            if (!validator::is_uuid(std::string{
-                                                data.at("params").as_object().at("session_id").as_string()
-                                            })) {
-                                                response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                                             {
-                                                                                 "params",
-                                                                                 "params session_id attribute must be uuid"
-                                                                             }
-                                                                         });
-                                            } else {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            return false;
         }
-        return false;
+
+        const boost::json::value _params = data.at("params");
+        if (!_params.is_object()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params attribute must be object"}});
+            return false;
+        }
+
+        const boost::json::object _params_object = _params.as_object();
+        if (!_params_object.contains("channel")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params channel attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _channel = _params_object.at("channel");
+        if (!_channel.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params channel attribute must be string"}});
+            return false;
+        }
+
+        if (!_params_object.contains("client_id")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _client_id = _params_object.at("client_id");
+        if (!_client_id.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be string"}});
+            return false;
+        }
+
+        if (!validator::is_uuid(_client_id.as_string().c_str())) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be uuid"}});
+            return false;
+        }
+
+        if (!_params_object.contains("session_id")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params session_id attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _session_id = _params_object.at("session_id");
+        if (!_session_id.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params session_id attribute must be string"}});
+            return false;
+        }
+
+        if (!validator::is_uuid(_session_id.as_string().c_str())) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params session_id attribute must be uuid"}});
+            return false;
+        }
+
+        return true;
     }
 
     void handle_subscribe(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
@@ -242,35 +238,37 @@ namespace aewt {
         if (!data.contains("params")) {
             response->mark_as_failed(transaction_id, "unprocessable entity",
                                      {{"params", "params attribute must be present"}});
-        } else {
-            if (!data.at("params").is_object()) {
-                response->mark_as_failed(transaction_id, "unprocessable entity",
-                                         {{"params", "params attribute must be object"}});
-            } else {
-                if (!data.at("params").as_object().contains("client_id")) {
-                    response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                 {"params", "params client_id attribute must be present"}
-                                             });
-                } else {
-                    if (!data.at("params").as_object().at("client_id").is_string()) {
-                        response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                     {"params", "params client_id attribute must be string"}
-                                                 });
-                    } else {
-                        if (!validator::is_uuid(std::string{
-                            data.at("params").as_object().at("client_id").as_string()
-                        })) {
-                            response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                         {"params", "params client_id attribute must be uuid"}
-                                                     });
-                        } else {
-                            return true;
-                        }
-                    }
-                }
-            }
+            return false;
         }
-        return false;
+
+        const boost::json::value _params = data.at("params");
+        if (!_params.is_object()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params attribute must be object"}});
+            return false;
+        }
+
+        const boost::json::object _params_object = _params.as_object();
+        if (!_params_object.contains("client_id")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _client_id = _params_object.at("client_id");
+        if (!_client_id.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be string"}});
+            return false;
+        }
+
+        if (!validator::is_uuid(_client_id.as_string().c_str())) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be uuid"}});
+            return false;
+        }
+
+        return true;
     }
 
     void handle_unsubscribe_all_client(const boost::uuids::uuid transaction_id,
@@ -295,35 +293,37 @@ namespace aewt {
         if (!data.contains("params")) {
             response->mark_as_failed(transaction_id, "unprocessable entity",
                                      {{"params", "params attribute must be present"}});
-        } else {
-            if (!data.at("params").is_object()) {
-                response->mark_as_failed(transaction_id, "unprocessable entity",
-                                         {{"params", "params attribute must be object"}});
-            } else {
-                if (!data.at("params").as_object().contains("session_id")) {
-                    response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                 {"params", "params session_id attribute must be present"}
-                                             });
-                } else {
-                    if (!data.at("params").as_object().at("session_id").is_string()) {
-                        response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                     {"params", "params session_id attribute must be string"}
-                                                 });
-                    } else {
-                        if (!validator::is_uuid(std::string{
-                            data.at("params").as_object().at("session_id").as_string()
-                        })) {
-                            response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                                         {"params", "params session_id attribute must be uuid"}
-                                                     });
-                        } else {
-                            return true;
-                        }
-                    }
-                }
-            }
+            return false;
         }
-        return false;
+
+        const boost::json::value _params = data.at("params");
+        if (!_params.is_object()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params attribute must be object"}});
+            return false;
+        }
+
+        const boost::json::object _params_object = _params.as_object();
+        if (!_params_object.contains("session_id")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params session_id attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _session_id = _params_object.at("session_id");
+        if (!_session_id.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params session_id attribute must be string"}});
+            return false;
+        }
+
+        if (!validator::is_uuid(_session_id.as_string().c_str())) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params session_id attribute must be uuid"}});
+            return false;
+        }
+
+        return true;
     }
 
     void handle_unsubscribe_all_session(const boost::uuids::uuid transaction_id,
@@ -371,7 +371,7 @@ namespace aewt {
             }
         } else {
             if (data.contains("transaction_id") && data.at("transaction_id").is_string() && validator::is_uuid(
-                    std::string{data.at("transaction_id").as_string()})) {
+                    data.at("transaction_id").as_string().c_str())) {
                 _response->mark_as_failed(
                     boost::lexical_cast<boost::uuids::uuid>(std::string{data.at("transaction_id").as_string()}),
                     "unprocessable entity", _validator.get_bag());
