@@ -24,20 +24,18 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-TEST(kernel_is_subscribed_test, can_handle) {
+TEST(handlers_broadcast_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
-    kernel(_state, _session, _subscribe);
+    _state->add_session(_session);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", { {"client_id", _client_id},{"session_id", to_string(_session->get_id())}, {"payload", boost::json::object({{"message", "EHLO"}})}}}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -50,7 +48,7 @@ TEST(kernel_is_subscribed_test, can_handle) {
     ASSERT_EQ(_response->get_data().at("status").as_string(), "success");
     ASSERT_TRUE(_response->get_data().contains("message"));
     ASSERT_TRUE(_response->get_data().at("message").is_string());
-    ASSERT_EQ(_response->get_data().at("message").as_string(), "yes");
+    ASSERT_EQ(_response->get_data().at("message").as_string(), "ok");
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
@@ -59,25 +57,20 @@ TEST(kernel_is_subscribed_test, can_handle) {
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _is_subscribed_transaction_id);
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_empty_data_params) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
-    auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
-
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
-    kernel(_state, _session, _subscribe);
-
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -97,9 +90,13 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params) {
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_privimite) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -107,14 +104,14 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_pr
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
     auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", { {"client_id", _client_id}}}};
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", 7}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", 7}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -134,9 +131,13 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_pr
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params attribute must be object");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params_session_id) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_empty_data_params_session_id) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -144,14 +145,14 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params_se
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
     auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", { {"client_id", _client_id}}}};
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", { {"client_id", _client_id},{"payload", boost::json::object({{"message", "EHLO"}})}}}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -171,9 +172,13 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params_se
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params session_id attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_session_id_primitive) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_session_id_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -181,14 +186,14 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_se
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
     auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", { {"client_id", _client_id}}}};
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id},{"session_id", 7}}}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", { {"client_id", _client_id},{"session_id", 7}, {"payload", boost::json::object({{"message", "EHLO"}})}}}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -208,9 +213,13 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_se
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params session_id attribute must be string");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_session_id_type) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_session_id_type) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -218,14 +227,14 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_se
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
     auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", { {"client_id", _client_id}}}};
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id},{"session_id", "7"}}}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", { {"client_id", _client_id},{"session_id", "7"}, {"payload", boost::json::object({{"message", "EHLO"}})}}}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -245,9 +254,13 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_se
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params session_id attribute must be uuid");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params_client_id) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_empty_data_params_client_id) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -255,14 +268,14 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params_cl
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
     auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", { {"client_id", _client_id}}}};
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", {{"session_id", to_string(_session->get_id())}, {"payload", boost::json::object({{"message", "EHLO"}})}}}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -282,9 +295,13 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params_cl
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params client_id attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_client_id_primitive) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_client_id_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -292,14 +309,14 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_cl
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
     auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", { {"client_id", _client_id}}}};
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", 7},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", { {"client_id", 7},{"session_id", to_string(_session->get_id())}, {"payload", boost::json::object({{"message", "EHLO"}})}}}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -319,24 +336,24 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_cl
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params client_id attribute must be string");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_client_id_type) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_client_id_type) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
-    auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
-    kernel(_state, _session, _subscribe);
-
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", "7"},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", { {"client_id", "7"},{"session_id", to_string(_session->get_id())}, {"payload", boost::json::object({{"message", "EHLO"}})}}}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -356,24 +373,24 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_cl
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params client_id attribute must be uuid");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params_channel) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_empty_data_params_payload) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
-    auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
-    kernel(_state, _session, _subscribe);
-
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"client_id", _client_id},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", { {"client_id", _client_id},{"session_id", to_string(_session->get_id())}}}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -392,25 +409,25 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params_ch
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params channel attribute must be present");
+              "params payload attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_channel_primitive) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_payload_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
-    auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
+    auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
-    kernel(_state, _session, _subscribe);
-
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", 7}, {"client_id", _client_id},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", { {"client_id", _client_id},{"session_id", to_string(_session->get_id())}, {"payload", 7}}}};
 
     const auto _response = kernel(_state, _session, _data);
 
@@ -429,5 +446,9 @@ TEST(kernel_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_ch
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params channel attribute must be string");
+              "params payload attribute must be object");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }

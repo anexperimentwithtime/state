@@ -24,7 +24,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-TEST(kernel_validations_on_subscriptions_test, can_handle_empty_params_client_id_on_subscriptions) {
+TEST(validators_subscriptions_test, can_handle_empty_params_client_id_on_subscriptions) {
     const auto _state = std::make_shared<aewt::state>();
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
@@ -58,7 +58,7 @@ TEST(kernel_validations_on_subscriptions_test, can_handle_empty_params_client_id
     }
 }
 
-TEST(kernel_validations_on_subscriptions_test, can_handle_wrong_params_client_id_primivite_on_subscriptions) {
+TEST(validators_subscriptions_test, can_handle_wrong_params_client_id_primivite_on_subscriptions) {
     const auto _state = std::make_shared<aewt::state>();
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
@@ -92,7 +92,7 @@ TEST(kernel_validations_on_subscriptions_test, can_handle_wrong_params_client_id
     }
 }
 
-TEST(kernel_validations_on_subscriptions_test, can_handle_wrong_params_client_id_type_on_subscriptions) {
+TEST(validators_subscriptions_test, can_handle_wrong_params_client_id_type_on_subscriptions) {
     const auto _state = std::make_shared<aewt::state>();
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
@@ -126,7 +126,7 @@ TEST(kernel_validations_on_subscriptions_test, can_handle_wrong_params_client_id
     }
 }
 
-TEST(kernel_validations_on_subscriptions_test, can_handle_empty_params_channel_on_subscriptions) {
+TEST(validators_subscriptions_test, can_handle_empty_params_channel_on_subscriptions) {
     const auto _state = std::make_shared<aewt::state>();
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
@@ -160,7 +160,7 @@ TEST(kernel_validations_on_subscriptions_test, can_handle_empty_params_channel_o
     }
 }
 
-TEST(kernel_validations_on_subscriptions_test, can_handle_wrong_params_channel_primivite_on_subscriptions) {
+TEST(validators_subscriptions_test, can_handle_wrong_params_channel_primivite_on_subscriptions) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -195,7 +195,7 @@ TEST(kernel_validations_on_subscriptions_test, can_handle_wrong_params_channel_p
     }
 }
 
-TEST(kernel_validations_on_subscriptions_test, can_handle_wrong_params_primivite_on_subscriptions) {
+TEST(validators_subscriptions_test, can_handle_wrong_params_primivite_on_subscriptions) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
@@ -230,7 +230,7 @@ TEST(kernel_validations_on_subscriptions_test, can_handle_wrong_params_primivite
     }
 }
 
-TEST(kernel_validations_on_subscriptions_test, can_handle_empty_params_on_subscriptions) {
+TEST(validators_subscriptions_test, can_handle_empty_params_on_subscriptions) {
     const auto _state = std::make_shared<aewt::state>();
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
