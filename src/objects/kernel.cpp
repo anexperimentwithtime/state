@@ -29,6 +29,7 @@
 #include <aewt/handlers/whoami.hpp>
 #include <aewt/handlers/is_subscribed.hpp>
 #include <aewt/handlers/broadcast.hpp>
+#include <aewt/handlers/publish.hpp>
 #include <aewt/handlers/unimplemented.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
@@ -61,6 +62,8 @@ namespace aewt {
                 handlers::unsubscribe_all_session(transaction_id, _response, state, session, data);
             } else if (_action == "broadcast") {
                 handlers::broadcast(transaction_id, _response, state, session, data);
+            } else if (_action == "publish") {
+                handlers::publish(transaction_id, _response, state, session, data);
             } else if (_action == "whoami") {
                 handlers::whoami(transaction_id, _response, session);
             } else {
