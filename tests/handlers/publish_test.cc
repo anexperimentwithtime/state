@@ -101,7 +101,7 @@ TEST(handlers_publish_test, can_handle_publish_on_empty_data_params) {
               "params attribute must be present");
 }
 
-TEST(handlers_publish_test, can_handle_publish_on_wrong_data_params_privimite) {
+TEST(handlers_publish_test, can_handle_publish_on_wrong_data_params_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;

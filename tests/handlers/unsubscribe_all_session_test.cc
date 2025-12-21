@@ -101,7 +101,7 @@ TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_o
               "params attribute must be present");
 }
 
-TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_privimite) {
+TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;

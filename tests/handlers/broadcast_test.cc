@@ -96,7 +96,7 @@ TEST(handlers_broadcast_test, can_handle_broadcast_on_empty_data_params) {
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _broadcast_transaction_id);
 }
 
-TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_privimite) {
+TEST(handlers_broadcast_test, can_handle_broadcast_on_wrong_data_params_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;

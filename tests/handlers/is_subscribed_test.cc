@@ -99,7 +99,7 @@ TEST(handlers_is_subscribed_test, can_handle_is_subscribed_on_empty_data_params)
               "params attribute must be present");
 }
 
-TEST(handlers_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_privimite) {
+TEST(handlers_is_subscribed_test, can_handle_is_subscribed_on_wrong_data_params_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
     boost::asio::io_context _io_context;
