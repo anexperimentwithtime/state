@@ -148,6 +148,18 @@ namespace aewt {
         std::size_t unsubscribe_all_session(const boost::uuids::uuid& session_id);
 
         /**
+         * Broadcast
+         *
+         * @param transaction_id
+         * @param session_id
+         * @param client_id
+         * @param data
+         *
+         * @return size_t
+         */
+        std::size_t broadcast(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id, boost::uuids::uuid client_id, boost::json::object data);
+
+        /**
          * Publish
          *
          * @param transaction_id

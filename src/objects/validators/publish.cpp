@@ -13,13 +13,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/validators/broadcast.hpp>
+#include <aewt/validators/publish.hpp>
 
 #include <aewt/response.hpp>
 #include <aewt/validator.hpp>
 
 namespace aewt::validators {
-    bool broadcast(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+    bool publish(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
                    const boost::json::object &data) {
         if (!data.contains("params")) {
             response->mark_as_failed(transaction_id, "unprocessable entity",
@@ -35,6 +35,18 @@ namespace aewt::validators {
         }
 
         const boost::json::object _params_object = _params.as_object();
+        if (!_params_object.contains("channel")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params channel attribute must be present"}});
+            return false;
+        }
+
+        if (const boost::json::value _channel = _params_object.at("channel"); !_channel.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params channel attribute must be string"}});
+            return false;
+        }
+
         if (!_params_object.contains("client_id")) {
             response->mark_as_failed(transaction_id, "unprocessable entity",
                                      {{"params", "params client_id attribute must be present"}});

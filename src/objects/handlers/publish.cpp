@@ -13,28 +13,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/handlers/broadcast.hpp>
+#include <aewt/handlers/publish.hpp>
 
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 
-#include <aewt/validators/broadcast.hpp>
+#include <aewt/validators/publish.hpp>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
-    void broadcast(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+    void publish(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
        const std::shared_ptr<state> &state, const std::shared_ptr<session> &session, const boost::json::object &data) {
-        if (validators::broadcast(transaction_id, response, data)) {
+        if (validators::publish(transaction_id, response, data)) {
             auto _params = data.at("params").as_object();
             const auto client_id = boost::lexical_cast<boost::uuids::uuid>(
                 std::string{_params.at("client_id").as_string()});
+            const std::string channel{_params.at("channel").as_string()};
             const auto _payload = _params.at("payload").as_object();
 
             const auto _timestamp = std::chrono::system_clock::now();
-            const std::size_t _count = state->broadcast(transaction_id, session->get_id(), client_id, _payload);
+            const std::size_t _count = state->publish(transaction_id, session->get_id(), client_id, channel, _payload);
             response->set_data(transaction_id, _count > 0 ? "ok" : "no effect", {
                                    {"timestamp", _timestamp.time_since_epoch().count()},
                                    {"count", _count}
