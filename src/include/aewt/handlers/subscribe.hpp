@@ -15,31 +15,43 @@
 
 #pragma once
 
-#ifndef AEWT_SUBSCRIPTION_HPP
-#define AEWT_SUBSCRIPTION_HPP
+#ifndef AEWT_HANDLERS_SUBSCRIBE_HPP
+#define AEWT_HANDLERS_SUBSCRIBE_HPP
 
 #include <boost/uuid/uuid.hpp>
+#include <boost/json/object.hpp>
+#include <memory>
 
 namespace aewt {
     /**
-     * Subscription
+     * Forward Response
      */
-    struct subscription {
-        /**
-         * Session ID
-         */
-        boost::uuids::uuid session_id_;
+    class response;
 
-        /**
-         * Client ID
-         */
-        boost::uuids::uuid client_id_;
+    /**
+     * Forward Session
+     */
+    class session;
 
+    /**
+     * Forward State
+     */
+    class state;
+
+    namespace handlers {
         /**
-         * Channel
+         * Subscribe
+         *
+         * @param transaction_id
+         * @param response
+         * @param state
+         * @param session
+         * @param data
          */
-        std::string channel_;
-    };
+        void subscribe(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+                       const std::shared_ptr<state> &state,
+                       const std::shared_ptr<session> &session, const boost::json::object &data);
+    }
 } // namespace aewt
 
-#endif  // AEWT_SUBSCRIPTION_HPP
+#endif  // AEWT_HANDLERS_SUBSCRIBE_HPP

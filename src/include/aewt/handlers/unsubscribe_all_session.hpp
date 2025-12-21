@@ -15,57 +15,43 @@
 
 #pragma once
 
-#ifndef AEWT_VALIDATOR_HPP
-#define AEWT_VALIDATOR_HPP
+#ifndef AEWT_HANDLERS_UNSUBSCRIBE_ALL_SESSION_HPP
+#define AEWT_HANDLERS_UNSUBSCRIBE_ALL_SESSION_HPP
 
+#include <boost/uuid/uuid.hpp>
 #include <boost/json/object.hpp>
-#include <map>
+#include <memory>
 
 namespace aewt {
     /**
-     * Validator
+     * Forward Response
      */
-    class validator {
-        /**
-         * Passed
-         */
-        bool passed_ = false;
+    class response;
 
-        /**
-         * Bag
-         */
-        std::map<std::string, std::string> bag_;
+    /**
+     * Forward Session
+     */
+    class session;
 
-    public:
+    /**
+     * Forward State
+     */
+    class state;
+
+    namespace handlers {
         /**
-         * Constructor
+         * Unsubscribe All Session
          *
+         * @param transaction_id
+         * @param response
+         * @param state
+         * @param session
          * @param data
          */
-        explicit validator(boost::json::object data);
-
-        /**
-         * Get Passed
-         *
-         * @return bool
-         */
-        [[nodiscard]] bool get_passed() const;
-
-        /**
-         * Get Bag
-         *
-         * @return map<string, string>
-         */
-        [[nodiscard]] std::map<std::string, std::string> get_bag() const;
-
-        /**
-         * Is UUID
-         *
-         * @param uuid
-         * @return
-         */
-        static bool is_uuid(const char * uuid);
-    };
+        void unsubscribe_all_session(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+                                     const std::shared_ptr<state> &state,
+                                     const std::shared_ptr<session> &session, const boost::json::object &data);
+    }
 } // namespace aewt
 
-#endif  // AEWT_VALIDATOR_HPP
+#endif  // AEWT_HANDLERS_UNSUBSCRIBE_ALL_SESSION_HPP

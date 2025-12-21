@@ -15,31 +15,30 @@
 
 #pragma once
 
-#ifndef AEWT_SUBSCRIPTION_HPP
-#define AEWT_SUBSCRIPTION_HPP
+#ifndef AEWT_VALIDATORS_IS_SUBSCRIBED_HPP
+#define AEWT_VALIDATORS_IS_SUBSCRIBED_HPP
 
 #include <boost/uuid/uuid.hpp>
+#include <boost/json/object.hpp>
+#include <memory>
 
 namespace aewt {
     /**
-     * Subscription
+     * Forward Response
      */
-    struct subscription {
-        /**
-         * Session ID
-         */
-        boost::uuids::uuid session_id_;
+    class response;
 
+    namespace validators {
         /**
-         * Client ID
+         * Is Subscribed
+         *
+         * @param transaction_id
+         * @param response
+         * @param data
+         * @return bool
          */
-        boost::uuids::uuid client_id_;
-
-        /**
-         * Channel
-         */
-        std::string channel_;
-    };
+        bool is_subscribed(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response, const boost::json::object &data);
+    }
 } // namespace aewt
 
-#endif  // AEWT_SUBSCRIPTION_HPP
+#endif  // AEWT_VALIDATORS_IS_SUBSCRIBED_HPP

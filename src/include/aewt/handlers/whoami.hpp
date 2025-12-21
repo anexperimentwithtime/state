@@ -15,31 +15,34 @@
 
 #pragma once
 
-#ifndef AEWT_SUBSCRIPTION_HPP
-#define AEWT_SUBSCRIPTION_HPP
+#ifndef AEWT_HANDLERS_WHOAMI_HPP
+#define AEWT_HANDLERS_WHOAMI_HPP
 
 #include <boost/uuid/uuid.hpp>
+#include <memory>
 
 namespace aewt {
     /**
-     * Subscription
+     * Forward Response
      */
-    struct subscription {
-        /**
-         * Session ID
-         */
-        boost::uuids::uuid session_id_;
+    class response;
 
-        /**
-         * Client ID
-         */
-        boost::uuids::uuid client_id_;
+    /**
+     * Forward Session
+     */
+    class session;
 
+    namespace handlers {
         /**
-         * Channel
+         * Whoami
+         *
+         * @param transaction_id
+         * @param response
+         * @param session
          */
-        std::string channel_;
-    };
+        void whoami(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+                    const std::shared_ptr<session> &session);
+    }
 } // namespace aewt
 
-#endif  // AEWT_SUBSCRIPTION_HPP
+#endif  // AEWT_HANDLERS_WHOAMI_HPP

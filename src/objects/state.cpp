@@ -140,8 +140,8 @@ namespace aewt {
         return _count;
     }
 
-    std::size_t state::publish(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id,
-        boost::uuids::uuid client_id, const std::string &channel, boost::json::object data) {
+    std::size_t state::publish(const boost::uuids::uuid transaction_id, const boost::uuids::uuid session_id,
+        const boost::uuids::uuid client_id, const std::string &channel, boost::json::object data) {
         std::shared_lock _lock(subscriptions_mutex_);
 
         const auto& _by_channel = subscriptions_.get<subscriptions_by_channel>();
@@ -149,15 +149,12 @@ namespace aewt {
 
         std::vector<boost::uuids::uuid> _sessions;
         for (auto _it = _range.first; _it != _range.second; ++_it) {
-            LOG_INFO("WTF: {}", to_string(_it->session_id_));
             _sessions.push_back(_it->session_id_);
         }
 
         std::size_t _count = 0;
         std::vector<std::shared_ptr<session>> _receivers;
         for (const auto& _session_id : _sessions) {
-
-            LOG_INFO("SESSION: {}", to_string(_session_id));
             if (auto _it = sessions_.find(_session_id); _it != sessions_.end()) {
                 auto _session = _it->second;
                 _receivers.push_back(_session);
