@@ -27,6 +27,7 @@
 #include <map>
 #include <memory>
 #include <shared_mutex>
+#include <boost/json/object.hpp>
 
 namespace aewt {
     /**
@@ -145,6 +146,20 @@ namespace aewt {
          * @return
          */
         std::size_t unsubscribe_all_session(const boost::uuids::uuid& session_id);
+
+        /**
+         * Publish
+         *
+         * @param transaction_id
+         * @param session_id
+         * @param client_id
+         * @param channel
+         * @param object
+         *
+         * @return size_t
+         */
+        std::size_t publish(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id, boost::uuids::uuid client_id, const std::string & channel, boost::json::object data);
+
     private:
         /**
          * Generator
