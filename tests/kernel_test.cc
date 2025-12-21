@@ -13,13 +13,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+#include <../cmake-build-debug/_deps/googletest-src/googletest/include/gtest/gtest.h>
 
-#include <aewt/kernel.hpp>
-#include <aewt/response.hpp>
-#include <aewt/session.hpp>
-#include <aewt/state.hpp>
-#include <aewt/logger.hpp>
+#include <../src/include/aewt/kernel.hpp>
+#include <../src/include/aewt/response.hpp>
+#include <../src/include/aewt/session.hpp>
+#include <../src/include/aewt/state.hpp>
+#include <../src/include/aewt/logger.hpp>
 #include <boost/json/serialize.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
