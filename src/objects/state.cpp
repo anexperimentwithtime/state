@@ -139,4 +139,45 @@ namespace aewt {
         _index.erase(_range.first, _range.second);
         return _count;
     }
+
+    std::size_t state::publish(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id,
+        boost::uuids::uuid client_id, const std::string &channel, boost::json::object data) {
+        std::shared_lock _lock(subscriptions_mutex_);
+
+        const auto& _by_channel = subscriptions_.get<subscriptions_by_channel>();
+        auto _range = _by_channel.equal_range(channel);
+
+        std::vector<boost::uuids::uuid> _sessions;
+        for (auto _it = _range.first; _it != _range.second; ++_it) {
+            LOG_INFO("WTF: {}", to_string(_it->session_id_));
+            _sessions.push_back(_it->session_id_);
+        }
+
+        std::size_t _count = 0;
+        std::vector<std::shared_ptr<session>> _receivers;
+        for (const auto& _session_id : _sessions) {
+
+            LOG_INFO("SESSION: {}", to_string(_session_id));
+            if (auto _it = sessions_.find(_session_id); _it != sessions_.end()) {
+                auto _session = _it->second;
+                _receivers.push_back(_session);
+                _count++;
+            }
+        }
+
+        const auto _data = std::make_shared<boost::json::object>(boost::json::object({
+            {"transaction_id", to_string(transaction_id)},
+            {"action", "broadcast"},
+            {"session_id", to_string(session_id)},
+            {"client_id", to_string(client_id)},
+            {"payload", data},
+            {"count", _count}
+        }));
+
+        for (const auto& _receiver : _receivers) {
+            _receiver->send(_data);
+        }
+
+        return _count;
+    }
 } // namespace aewt

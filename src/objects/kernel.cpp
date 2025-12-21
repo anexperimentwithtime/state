@@ -37,20 +37,20 @@ namespace aewt {
 
     void handle_whoami(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
                        const std::shared_ptr<session> &session) {
+        const auto &_socket = session->get_socket();
         boost::json::object _data = {
             {"transaction_id", to_string(transaction_id)},
             {"id", to_string(session->get_id())},
-            {"is_open", session->get_socket().is_open()},
+            {"is_open", _socket.is_open()},
         };
-
-        if (session->get_socket().is_open()) {
-            _data["ip"] = session->get_socket().remote_endpoint().address().to_string();
-            _data["port"] = session->get_socket().remote_endpoint().port();
+        if (_socket.is_open()) {
+            const auto _remote_endpoint = _socket.remote_endpoint();
+            _data["ip"] = _remote_endpoint.address().to_string();
+            _data["port"] = _remote_endpoint.port();
         } else {
             _data["ip"] = nullptr;
             _data["port"] = nullptr;
         }
-
         response->set_data(transaction_id, "im", _data);
     }
 
@@ -83,8 +83,7 @@ namespace aewt {
             return false;
         }
 
-        const boost::json::value _channel = _params_object.at("channel");
-        if (!_channel.is_string()) {
+        if (const boost::json::value _channel = _params_object.at("channel"); !_channel.is_string()) {
             response->mark_as_failed(transaction_id, "unprocessable entity",
                                      {{"params", "params channel attribute must be string"}});
             return false;
@@ -135,8 +134,7 @@ namespace aewt {
             return false;
         }
 
-        const boost::json::value _channel = _params_object.at("channel");
-        if (!_channel.is_string()) {
+        if (const boost::json::value _channel = _params_object.at("channel"); !_channel.is_string()) {
             response->mark_as_failed(transaction_id, "unprocessable entity",
                                      {{"params", "params channel attribute must be string"}});
             return false;
@@ -183,14 +181,117 @@ namespace aewt {
         return true;
     }
 
+    bool validate_broadcast_payload(const boost::uuids::uuid transaction_id,
+                                    const std::shared_ptr<response> &response,
+                                    const boost::json::object &data) {
+        if (!data.contains("params")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _params = data.at("params");
+        if (!_params.is_object()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params attribute must be object"}});
+            return false;
+        }
+
+        const boost::json::object _params_object = _params.as_object();
+        if (!_params_object.contains("channel")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params channel attribute must be present"}});
+            return false;
+        }
+
+        if (const boost::json::value _channel = _params_object.at("channel"); !_channel.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params channel attribute must be string"}});
+            return false;
+        }
+
+        if (!_params_object.contains("client_id")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _client_id = _params_object.at("client_id");
+        if (!_client_id.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be string"}});
+            return false;
+        }
+
+        if (!validator::is_uuid(_client_id.as_string().c_str())) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params client_id attribute must be uuid"}});
+            return false;
+        }
+
+        if (!_params_object.contains("session_id")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params session_id attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _session_id = _params_object.at("session_id");
+        if (!_session_id.is_string()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params session_id attribute must be string"}});
+            return false;
+        }
+
+        if (!validator::is_uuid(_session_id.as_string().c_str())) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params session_id attribute must be uuid"}});
+            return false;
+        }
+
+        if (!_params_object.contains("payload")) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params payload attribute must be present"}});
+            return false;
+        }
+
+        const boost::json::value _payload = _params_object.at("payload");
+        if (!_payload.is_object()) {
+            response->mark_as_failed(transaction_id, "unprocessable entity",
+                                     {{"params", "params payload attribute must be object"}});
+            return false;
+        }
+
+        return true;
+    }
+
+    void handle_broadcast(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+                          const std::shared_ptr<state> &state,
+                          const std::shared_ptr<session> &session, const boost::json::object &data) {
+        if (validate_broadcast_payload(transaction_id, response, data)) {
+            auto _params = data.at("params").as_object();
+            const auto client_id = boost::lexical_cast<boost::uuids::uuid>(
+                std::string{_params.at("client_id").as_string()});
+            const std::string channel{_params.at("channel").as_string()};
+            const auto _payload = _params.at("payload").as_object();
+
+            const auto _timestamp = std::chrono::system_clock::now();
+            const std::size_t _count = state->publish(transaction_id, session->get_id(), client_id, channel, _payload);
+            response->set_data(transaction_id, _count > 0 ? "ok" : "no effect", {
+                                   {"timestamp", _timestamp.time_since_epoch().count()},
+                                   {"count", _count}
+                               });
+        }
+    }
+
     void handle_subscribe(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
                           const std::shared_ptr<state> &state,
                           const std::shared_ptr<session> &session, const boost::json::object &data) {
         if (validate_subscribe_and_unsubscribe_payload(transaction_id, response, data)) {
-            const auto client_id = boost::lexical_cast<boost::uuids::uuid>(
-                std::string{data.at("params").as_object().at("client_id").as_string()});
-            const std::string channel{data.at("params").as_object().at("channel").as_string()};
-
+            auto _params = data.at("params").as_object();
+            const auto client_id = boost::lexical_cast<boost::uuids::uuid>(std::string{
+                _params.at("client_id").as_string()
+            });
+            const std::string channel{_params.at("channel").as_string()};
             const auto _timestamp = std::chrono::system_clock::now();
             const bool _success = state->subscribe(session->get_id(), client_id, channel);
             response->set_data(transaction_id, _success ? "ok" : "no effect", {
@@ -332,7 +433,6 @@ namespace aewt {
         if (validate_unsubscribe_all_session_payload(transaction_id, response, data)) {
             const auto session_id = boost::lexical_cast<boost::uuids::uuid>(
                 std::string{data.at("params").as_object().at("session_id").as_string()});
-
             const auto _timestamp = std::chrono::system_clock::now();
             const std::size_t _count = state->unsubscribe_all_session(session_id);
             response->set_data(transaction_id, _count > 0 ? "ok" : "no effect", {
@@ -364,6 +464,8 @@ namespace aewt {
                 handle_unsubscribe_all_client(transaction_id, _response, state, session, data);
             } else if (_action == "unsubscribe_all_session") {
                 handle_unsubscribe_all_session(transaction_id, _response, state, session, data);
+            } else if (_action == "broadcast") {
+                handle_broadcast(transaction_id, _response, state, session, data);
             } else if (_action == "whoami") {
                 handle_whoami(transaction_id, _response, session);
             } else {

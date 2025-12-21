@@ -31,4 +31,8 @@ namespace aewt {
     boost::uuids::uuid session::get_id() const { return id_; }
 
     boost::asio::ip::tcp::socket &session::get_socket() { return socket_; }
+
+    void session::send(std::shared_ptr<boost::json::object> data) {
+        if (socket_.is_open()) {}
+    }
 } // namespace aewt

@@ -18,7 +18,9 @@
 #ifndef AEWT_SESSION_HPP
 #define AEWT_SESSION_HPP
 
+#include <memory>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/json/object.hpp>
 #include <boost/uuid/uuid.hpp>
 
 namespace aewt {
@@ -54,6 +56,12 @@ namespace aewt {
          */
         boost::asio::ip::tcp::socket &get_socket();
 
+        /**
+         * Send
+         *
+         * @param data
+         */
+        void send(std::shared_ptr<boost::json::object> data);
     private:
         /**
          * ID
