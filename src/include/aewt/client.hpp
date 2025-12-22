@@ -15,30 +15,26 @@
 
 #pragma once
 
-#ifndef AEWT_VALIDATORS_SUBSCRIPTIONS_HPP
-#define AEWT_VALIDATORS_SUBSCRIPTIONS_HPP
+#ifndef AEWT_CLIENT_HPP
+#define AEWT_CLIENT_HPP
 
 #include <boost/uuid/uuid.hpp>
-#include <boost/json/object.hpp>
-#include <memory>
 
 namespace aewt {
     /**
-     * Forward Response
+     * Client
      */
-    class response;
-
-    namespace validators {
+    struct client {
         /**
-         * Subscriptions
-         *
-         * @param transaction_id
-         * @param response
-         * @param data
-         * @return bool
+         * Session ID
          */
-        bool subscriptions(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response, const boost::json::object &data);
-    }
+        boost::uuids::uuid session_id_;
+
+        /**
+         * Client ID
+         */
+        boost::uuids::uuid client_id_;
+    };
 } // namespace aewt
 
-#endif  // AEWT_VALIDATORS_SUBSCRIPTIONS_HPP
+#endif  // AEWT_CLIENT_HPP

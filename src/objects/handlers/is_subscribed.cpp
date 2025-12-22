@@ -32,13 +32,13 @@ namespace aewt::handlers {
         boost::ignore_unused(session);
 
         if (validators::is_subscribed(transaction_id, response, data)) {
-            const auto client_id = boost::lexical_cast<boost::uuids::uuid>(
+            const auto _client_id = boost::lexical_cast<boost::uuids::uuid>(
                 std::string{data.at("params").as_object().at("client_id").as_string()});
-            const auto session_id = boost::lexical_cast<boost::uuids::uuid>(
+            const auto _session_id = boost::lexical_cast<boost::uuids::uuid>(
                 std::string{data.at("params").as_object().at("session_id").as_string()});
-            const std::string channel{data.at("params").as_object().at("channel").as_string()};
+            const std::string _channel{data.at("params").as_object().at("channel").as_string()};
             const auto _timestamp = std::chrono::system_clock::now();
-            const bool _success = state->is_subscribed(session_id, client_id, channel);
+            const bool _success = state->is_subscribed(_session_id, _client_id, _channel);
             response->set_data(transaction_id, _success ? "yes" : "no", {
                                    {"timestamp", _timestamp.time_since_epoch().count()}
                                });

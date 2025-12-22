@@ -19,6 +19,7 @@
 #define AEWT_STATE_HPP
 
 #include <aewt/subscriptions.hpp>
+#include <aewt/clients.hpp>
 
 #include <boost/functional/hash.hpp>
 #include <boost/uuid/random_generator.hpp>
@@ -79,6 +80,38 @@ namespace aewt {
         std::vector<std::shared_ptr<session> > get_sessions() const;
 
         /**
+         * Get Clients By Session
+         *
+         * @param session_id
+         * @return vector<uuid>
+         */
+        std::vector<boost::uuids::uuid> get_clients_by_session(boost::uuids::uuid session_id) const;
+
+        /**
+         * Get Clients
+         *
+         * @return vector<uuid>
+         */
+        std::vector<boost::uuids::uuid> get_clients() const;
+
+        /**
+         * Get Client Exists On Session
+         *
+         * @param client_id
+         * @param session_id
+         * @return bool
+         */
+        bool get_client_exists_on_session(boost::uuids::uuid client_id, boost::uuids::uuid session_id) const;
+
+        /**
+         * Get Client Exists
+         *
+         * @param client_id
+         * @return bool
+         */
+        bool get_client_exists(boost::uuids::uuid client_id) const;
+
+        /**
          * Get Session
          *
          * @param id uuid
@@ -91,15 +124,34 @@ namespace aewt {
          * Add Session
          *
          * @param session shared_ptr<session>
+         * @return bool
          */
-        void add_session(std::shared_ptr<session> session);
+        bool add_session(std::shared_ptr<session> session);
 
         /**
          * Remove Session
          *
          * @param id uuid
          */
-        void remove_session(boost::uuids::uuid id);
+        bool remove_session(boost::uuids::uuid id);
+
+
+        /**
+         * Add Client
+         *
+         * @param client_id
+         * @param session_id
+         * @return
+         */
+        bool add_client(boost::uuids::uuid client_id, boost::uuids::uuid session_id);
+
+        /**
+         * Remove Client
+         *
+         * @param client_id
+         * @return bool
+         */
+        bool remove_client(boost::uuids::uuid client_id);
 
         /**
          * Subscribe
@@ -109,7 +161,8 @@ namespace aewt {
          * @param channel
          * @return bool
          */
-        bool subscribe(const boost::uuids::uuid& session_id, const boost::uuids::uuid& client_id, const std::string& channel);
+        bool subscribe(const boost::uuids::uuid &session_id, const boost::uuids::uuid &client_id,
+                       const std::string &channel);
 
         /**
          * Unsubscribe
@@ -119,7 +172,8 @@ namespace aewt {
          * @param channel
          * @return bool
          */
-        bool unsubscribe(const boost::uuids::uuid& session_id, const boost::uuids::uuid& client_id, const std::string& channel);
+        bool unsubscribe(const boost::uuids::uuid &session_id, const boost::uuids::uuid &client_id,
+                         const std::string &channel);
 
         /**
          * Is Subscribed
@@ -129,7 +183,8 @@ namespace aewt {
          * @param channel
          * @return bool
          */
-        bool is_subscribed(const boost::uuids::uuid& session_id, const boost::uuids::uuid& client_id, const std::string& channel);
+        bool is_subscribed(const boost::uuids::uuid &session_id, const boost::uuids::uuid &client_id,
+                           const std::string &channel);
 
         /**
          * Unsubscribe All Client
@@ -137,7 +192,7 @@ namespace aewt {
          * @param client_id
          * @return
          */
-        std::size_t unsubscribe_all_client(const boost::uuids::uuid& client_id);
+        std::size_t unsubscribe_all_client(const boost::uuids::uuid &client_id);
 
         /**
          * Unsubscribe All Session
@@ -145,7 +200,7 @@ namespace aewt {
          * @param session_id
          * @return
          */
-        std::size_t unsubscribe_all_session(const boost::uuids::uuid& session_id);
+        std::size_t unsubscribe_all_session(const boost::uuids::uuid &session_id);
 
         /**
          * Broadcast
@@ -157,7 +212,8 @@ namespace aewt {
          *
          * @return size_t
          */
-        std::size_t broadcast(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id, boost::uuids::uuid client_id, boost::json::object data);
+        std::size_t broadcast(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id,
+                              boost::uuids::uuid client_id, boost::json::object data);
 
         /**
          * Publish
@@ -170,7 +226,21 @@ namespace aewt {
          *
          * @return size_t
          */
-        std::size_t publish(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id, boost::uuids::uuid client_id, const std::string & channel, boost::json::object data);
+        std::size_t publish(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id,
+                            boost::uuids::uuid client_id, const std::string &channel, boost::json::object data);
+
+        /**
+         * Send
+         *
+         * @param transaction_id
+         * @param session_id
+         * @param sender_id
+         * @param receiver_id
+         * @param data
+         * @return bool
+         */
+        bool send(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id, boost::uuids::uuid sender_id,
+                  boost::uuids::uuid receiver_id, const boost::json::object &data) const;
 
     private:
         /**
@@ -197,6 +267,16 @@ namespace aewt {
          * Sessions Shared Mutex
          */
         mutable std::shared_mutex sessions_mutex_;
+
+        /**
+         * Clients
+         */
+        clients clients_;
+
+        /**
+         * Clients Shared Mutex
+         */
+        mutable std::shared_mutex clients_mutex_;
 
         /**
          * Subscriptions

@@ -29,12 +29,12 @@ namespace aewt::handlers {
        const std::shared_ptr<state> &state, const std::shared_ptr<session> &session, const boost::json::object &data) {
         if (validators::subscriptions(transaction_id, response, data)) {
             auto _params = data.at("params").as_object();
-            const auto client_id = boost::lexical_cast<boost::uuids::uuid>(
+            const auto _client_id = boost::lexical_cast<boost::uuids::uuid>(
                    std::string{_params.at("client_id").as_string()});
-            const std::string channel{_params.at("channel").as_string()};
+            const std::string _channel{_params.at("channel").as_string()};
 
             const auto _timestamp = std::chrono::system_clock::now();
-            const bool _success = state->unsubscribe(session->get_id(), client_id, channel);
+            const bool _success = state->unsubscribe(session->get_id(), _client_id, _channel);
             response->set_data(transaction_id, _success ? "ok" : "no effect", {
                                    {"timestamp", _timestamp.time_since_epoch().count()}
                                });
