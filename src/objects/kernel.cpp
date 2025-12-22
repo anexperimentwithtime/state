@@ -24,11 +24,13 @@
 #include <aewt/handlers/ping.hpp>
 #include <aewt/handlers/whoami.hpp>
 
+#include <aewt/handlers/client.hpp>
 #include <aewt/handlers/clients.hpp>
 #include <aewt/handlers/client_join.hpp>
 #include <aewt/handlers/client_leave.hpp>
 #include <aewt/handlers/client_exists.hpp>
 
+#include <aewt/handlers/session_handler.hpp>
 #include <aewt/handlers/session_clients.hpp>
 #include <aewt/handlers/session_client_exists.hpp>
 
@@ -82,6 +84,8 @@ namespace aewt {
                 handlers::send(transaction_id, _response, state, session, data);
             } else if (_action == "client_join") {
                 handlers::client_join(transaction_id, _response, state, session, data);
+            } else if (_action == "client") {
+                handlers::client(transaction_id, _response, state, session, data);
             } else if (_action == "client_leave") {
                 handlers::client_leave(transaction_id, _response, state, session, data);
             } else if (_action == "session_clients") {
@@ -90,6 +94,8 @@ namespace aewt {
                 handlers::clients(transaction_id, _response, state, session);
             } else if (_action == "client_exists") {
                 handlers::client_exists(transaction_id, _response, state, session, data);
+            } else if (_action == "session") {
+                handlers::session_handler(transaction_id, _response, state, session, data);
             } else if (_action == "session_client_exists") {
                 handlers::session_client_exists(transaction_id, _response, state, session, data);
             } else if (_action == "whoami") {
