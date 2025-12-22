@@ -19,7 +19,7 @@
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 
-#include <aewt/validators/send.hpp>
+#include <aewt/validators/send_validator.hpp>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -27,7 +27,7 @@
 namespace aewt::handlers {
     void send_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
        const std::shared_ptr<state> &state, const std::shared_ptr<session> &session, const boost::json::object &data) {
-        if (validators::send(transaction_id, response, data)) {
+        if (validators::send_validator(transaction_id, response, data)) {
             auto _params = data.at("params").as_object();
             const auto _sender_id = boost::lexical_cast<boost::uuids::uuid>(
                 std::string{_params.at("sender_id").as_string()});

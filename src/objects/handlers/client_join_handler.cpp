@@ -15,7 +15,7 @@
 
 #include <aewt/handlers/client_join_handler.hpp>
 
-#include <aewt/validators/clients.hpp>
+#include <aewt/validators/clients_validator.hpp>
 
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
@@ -30,7 +30,7 @@ namespace aewt::handlers {
        const std::shared_ptr<state> &state, const std::shared_ptr<session> &session, const boost::json::object &data) {
         boost::ignore_unused(session);
 
-        if (validators::clients(transaction_id, response, data)) {
+        if (validators::clients_validator(transaction_id, response, data)) {
             auto _params = data.at("params").as_object();
             const auto _client_id = boost::lexical_cast<boost::uuids::uuid>(
             std::string{_params.at("client_id").as_string()});
