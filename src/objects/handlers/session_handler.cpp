@@ -22,13 +22,12 @@
 #include <aewt/session.hpp>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/core/ignore_unused.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
     void session_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                 const std::shared_ptr<state> &state, const std::shared_ptr<aewt::session> &session,
-                 const boost::json::object &data) {
+                         const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
+                         const boost::json::object &data) {
         const auto _timestamp = std::chrono::system_clock::now();
         if (validators::session_id(transaction_id, response, data)) {
             const auto _session_id = boost::lexical_cast<boost::uuids::uuid>(std::string{
@@ -37,7 +36,7 @@ namespace aewt::handlers {
             if (const auto _session = state->get_session(_session_id); _session.has_value()) {
                 const auto &_socket = _session.value()->get_socket();
                 boost::json::object _data = {
-                        {"timestamp", _timestamp.time_since_epoch().count()},
+                    {"timestamp", _timestamp.time_since_epoch().count()},
                     {"id", to_string(session->get_id())},
                     {"is_open", _socket.is_open()},
                 };
@@ -52,8 +51,8 @@ namespace aewt::handlers {
                 response->set_data(transaction_id, "ok", _data);
             } else {
                 response->set_data(transaction_id, "no effect", {
-                                  {"timestamp", _timestamp.time_since_epoch().count()},
-                              });
+                                       {"timestamp", _timestamp.time_since_epoch().count()},
+                                   });
             }
         }
     }

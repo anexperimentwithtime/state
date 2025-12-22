@@ -21,32 +21,32 @@
 #include <aewt/state.hpp>
 #include <aewt/validator.hpp>
 
-#include <aewt/handlers/ping.hpp>
-#include <aewt/handlers/whoami.hpp>
+#include <aewt/handlers/ping_handler.hpp>
+#include <aewt/handlers/whoami_handler.hpp>
 
-#include <aewt/handlers/client.hpp>
-#include <aewt/handlers/clients.hpp>
-#include <aewt/handlers/client_join.hpp>
-#include <aewt/handlers/client_leave.hpp>
-#include <aewt/handlers/client_exists.hpp>
+#include <aewt/handlers/client_handler.hpp>
+#include <aewt/handlers/clients_handler.hpp>
+#include <aewt/handlers/client_join_handler.hpp>
+#include <aewt/handlers/client_leave_handler.hpp>
+#include <aewt/handlers/client_exists_handler.hpp>
 
 #include <aewt/handlers/session_handler.hpp>
-#include <aewt/handlers/session_clients.hpp>
-#include <aewt/handlers/session_client_exists.hpp>
+#include <aewt/handlers/session_clients_handler.hpp>
+#include <aewt/handlers/session_client_exists_handler.hpp>
 
-#include <aewt/handlers/subscribe.hpp>
+#include <aewt/handlers/subscribe_handler.hpp>
 
-#include <aewt/handlers/unsubscribe.hpp>
-#include <aewt/handlers/unsubscribe_all_client.hpp>
-#include <aewt/handlers/unsubscribe_all_session.hpp>
+#include <aewt/handlers/unsubscribe_handler.hpp>
+#include <aewt/handlers/unsubscribe_all_client_handler.hpp>
+#include <aewt/handlers/unsubscribe_all_session_handler.hpp>
 
-#include <aewt/handlers/is_subscribed.hpp>
+#include <aewt/handlers/is_subscribed_handler.hpp>
 
-#include <aewt/handlers/broadcast.hpp>
-#include <aewt/handlers/publish.hpp>
-#include <aewt/handlers/send.hpp>
+#include <aewt/handlers/broadcast_handler.hpp>
+#include <aewt/handlers/publish_handler.hpp>
+#include <aewt/handlers/send_handler.hpp>
 
-#include <aewt/handlers/unimplemented.hpp>
+#include <aewt/handlers/unimplemented_handler.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/json/serialize.hpp>
@@ -65,43 +65,43 @@ namespace aewt {
                 data.at("transaction_id").as_string()
             });
             if (const std::string _action{data.at("action").as_string()}; _action == "ping") {
-                handlers::ping(transaction_id, _response);
+                handlers::ping_handler(transaction_id, _response);
             } else if (_action == "subscribe") {
-                handlers::subscribe(transaction_id, _response, state, session, data);
+                handlers::subscribe_handler(transaction_id, _response, state, session, data);
             } else if (_action == "is_subscribed") {
-                handlers::is_subscribed(transaction_id, _response, state, session, data);
+                handlers::is_subscribed_handler(transaction_id, _response, state, session, data);
             } else if (_action == "unsubscribe") {
-                handlers::unsubscribe(transaction_id, _response, state, session, data);
+                handlers::unsubscribe_handler(transaction_id, _response, state, session, data);
             } else if (_action == "unsubscribe_all_client") {
-                handlers::unsubscribe_all_client(transaction_id, _response, state, session, data);
+                handlers::unsubscribe_all_client_handler(transaction_id, _response, state, session, data);
             } else if (_action == "unsubscribe_all_session") {
-                handlers::unsubscribe_all_session(transaction_id, _response, state, session, data);
+                handlers::unsubscribe_all_session_handler(transaction_id, _response, state, session, data);
             } else if (_action == "broadcast") {
-                handlers::broadcast(transaction_id, _response, state, session, data);
+                handlers::broadcast_handler(transaction_id, _response, state, session, data);
             } else if (_action == "publish") {
-                handlers::publish(transaction_id, _response, state, session, data);
+                handlers::publish_handler(transaction_id, _response, state, session, data);
             } else if (_action == "send") {
-                handlers::send(transaction_id, _response, state, session, data);
+                handlers::send_handler(transaction_id, _response, state, session, data);
             } else if (_action == "client_join") {
-                handlers::client_join(transaction_id, _response, state, session, data);
+                handlers::client_join_handler(transaction_id, _response, state, session, data);
             } else if (_action == "client") {
-                handlers::client(transaction_id, _response, state, session, data);
+                handlers::client_handler(transaction_id, _response, state, session, data);
             } else if (_action == "client_leave") {
-                handlers::client_leave(transaction_id, _response, state, session, data);
+                handlers::client_leave_handler(transaction_id, _response, state, session, data);
             } else if (_action == "session_clients") {
-                handlers::session_clients(transaction_id, _response, state, session, data);
+                handlers::session_clients_handler(transaction_id, _response, state, session, data);
             } else if (_action == "clients") {
-                handlers::clients(transaction_id, _response, state, session);
+                handlers::clients_handler(transaction_id, _response, state, session);
             } else if (_action == "client_exists") {
-                handlers::client_exists(transaction_id, _response, state, session, data);
+                handlers::client_exists_handler(transaction_id, _response, state, session, data);
             } else if (_action == "session") {
                 handlers::session_handler(transaction_id, _response, state, session, data);
             } else if (_action == "session_client_exists") {
-                handlers::session_client_exists(transaction_id, _response, state, session, data);
+                handlers::session_client_exists_handler(transaction_id, _response, state, session, data);
             } else if (_action == "whoami") {
-                handlers::whoami(transaction_id, _response, session);
+                handlers::whoami_handler(transaction_id, _response, session);
             } else {
-                handlers::unimplemented(transaction_id, _response);
+                handlers::unimplemented_handler(transaction_id, _response);
             }
         } else {
             if (data.contains("transaction_id") && data.at("transaction_id").is_string() && validator::is_uuid(
