@@ -27,6 +27,7 @@
 #include <chrono>
 #include <map>
 #include <memory>
+#include <vector>
 #include <shared_mutex>
 #include <boost/json/object.hpp>
 
@@ -228,6 +229,15 @@ namespace aewt {
          */
         std::size_t publish(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id,
                             boost::uuids::uuid client_id, const std::string &channel, boost::json::object data);
+
+        /**
+         * Get Session
+         *
+         * @param client_id
+         *
+         * @return vector<subscription>
+         */
+        std::vector<subscription> get_client_subscriptions(boost::uuids::uuid client_id);
 
         /**
          * Send

@@ -17,6 +17,7 @@
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
+#include <aewt/subscription.hpp>
 
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -266,8 +267,22 @@ namespace aewt {
         return _count;
     }
 
+    std::vector<subscription> state::get_client_subscriptions(boost::uuids::uuid client_id) {
+        std::shared_lock _lock(subscriptions_mutex_);
+
+        const auto& _by_client = subscriptions_.get<subscriptions_by_client>();
+        auto [_begin, _end] = _by_client.equal_range(client_id);
+
+        std::vector<subscription> _subscriptions;
+        _subscriptions.reserve(std::distance(_begin, _end));
+        for (auto _iterator = _begin; _iterator != _end; ++_iterator) {
+            _subscriptions.push_back(*_iterator);
+        }
+        return _subscriptions;
+    }
+
     bool state::send(const boost::uuids::uuid transaction_id, const boost::uuids::uuid session_id,
-        const boost::uuids::uuid sender_id, const boost::uuids::uuid receiver_id, const boost::json::object& data) const {
+                     const boost::uuids::uuid sender_id, const boost::uuids::uuid receiver_id, const boost::json::object& data) const {
         if (const auto _receiver = get_session(session_id); _receiver.has_value() && get_client_exists(receiver_id)) {
 
             const auto _data = std::make_shared<boost::json::object>(boost::json::object({
