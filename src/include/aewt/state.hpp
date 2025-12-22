@@ -214,7 +214,7 @@ namespace aewt {
          * @return size_t
          */
         std::size_t broadcast(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id,
-                              boost::uuids::uuid client_id, boost::json::object data);
+                              boost::uuids::uuid client_id, boost::json::object data) const;
 
         /**
          * Publish

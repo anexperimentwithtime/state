@@ -29,7 +29,7 @@ namespace aewt {
 
     boost::json::object response::get_data() const { return data_; }
 
-    void response::mark_as_failed(boost::uuids::uuid transaction_id, const char *error,
+    void response::mark_as_failed(const boost::uuids::uuid transaction_id, const char *error,
     const std::map<std::string, std::string> &bag)  {
         failed_.store(true, std::memory_order_release);
 
