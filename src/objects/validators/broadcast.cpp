@@ -79,8 +79,7 @@ namespace aewt::validators {
             return false;
         }
 
-        const boost::json::value _payload = _params_object.at("payload");
-        if (!_payload.is_object()) {
+        if (const boost::json::value _payload = _params_object.at("payload"); !_payload.is_object()) {
             response->mark_as_failed(transaction_id, "unprocessable entity",
                                      {{"params", "params payload attribute must be object"}});
             return false;
