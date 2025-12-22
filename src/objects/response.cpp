@@ -39,7 +39,15 @@ namespace aewt {
             _data.insert_or_assign(_key, _entry);
         }
 
-        data_ = {{"transaction_id", to_string(transaction_id)}, {"status", "failed"}, {"message", error}, {"data", _data}};
+        if (!transaction_id.is_nil()) {
+            data_ = {
+                {"transaction_id", to_string(transaction_id)}, {"status", "failed"}, {"message", error}, {"data", _data}
+            };
+        } else {
+            data_ = {
+                {"transaction_id", nullptr}, {"status", "failed"}, {"message", error}, {"data", _data}
+            };
+        }
     }
 
     void response::mark_as_processed() {

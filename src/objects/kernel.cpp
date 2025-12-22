@@ -110,7 +110,7 @@ namespace aewt {
                     boost::lexical_cast<boost::uuids::uuid>(std::string{data.at("transaction_id").as_string()}),
                     "unprocessable entity", _validator.get_bag());
             } else {
-                _response->mark_as_failed(state->get_generator()(), "unprocessable entity", _validator.get_bag());
+                _response->mark_as_failed(boost::uuids::uuid {}, "unprocessable entity", _validator.get_bag());
             }
         }
         _response->mark_as_processed();
