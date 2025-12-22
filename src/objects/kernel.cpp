@@ -22,14 +22,28 @@
 #include <aewt/validator.hpp>
 
 #include <aewt/handlers/ping.hpp>
+#include <aewt/handlers/whoami.hpp>
+
+#include <aewt/handlers/clients.hpp>
+#include <aewt/handlers/client_join.hpp>
+#include <aewt/handlers/client_leave.hpp>
+#include <aewt/handlers/client_exists.hpp>
+
+#include <aewt/handlers/session_clients.hpp>
+#include <aewt/handlers/session_client_exists.hpp>
+
 #include <aewt/handlers/subscribe.hpp>
+
 #include <aewt/handlers/unsubscribe.hpp>
 #include <aewt/handlers/unsubscribe_all_client.hpp>
 #include <aewt/handlers/unsubscribe_all_session.hpp>
-#include <aewt/handlers/whoami.hpp>
+
 #include <aewt/handlers/is_subscribed.hpp>
+
 #include <aewt/handlers/broadcast.hpp>
 #include <aewt/handlers/publish.hpp>
+#include <aewt/handlers/send.hpp>
+
 #include <aewt/handlers/unimplemented.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
@@ -64,6 +78,20 @@ namespace aewt {
                 handlers::broadcast(transaction_id, _response, state, session, data);
             } else if (_action == "publish") {
                 handlers::publish(transaction_id, _response, state, session, data);
+            } else if (_action == "send") {
+                handlers::send(transaction_id, _response, state, session, data);
+            } else if (_action == "client_join") {
+                handlers::client_join(transaction_id, _response, state, session, data);
+            } else if (_action == "client_leave") {
+                handlers::client_leave(transaction_id, _response, state, session, data);
+            } else if (_action == "session_clients") {
+                handlers::session_clients(transaction_id, _response, state, session, data);
+            } else if (_action == "clients") {
+                handlers::clients(transaction_id, _response, state, session);
+            } else if (_action == "client_exists") {
+                handlers::client_exists(transaction_id, _response, state, session, data);
+            } else if (_action == "session_client_exists") {
+                handlers::session_client_exists(transaction_id, _response, state, session, data);
             } else if (_action == "whoami") {
                 handlers::whoami(transaction_id, _response, session);
             } else {

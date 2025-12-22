@@ -15,8 +15,8 @@
 
 #pragma once
 
-#ifndef AEWT_VALIDATORS_SUBSCRIPTIONS_HPP
-#define AEWT_VALIDATORS_SUBSCRIPTIONS_HPP
+#ifndef AEWT_VALIDATORS_SESSION_ID_HPP
+#define AEWT_VALIDATORS_SESSION_ID_HPP
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/json/object.hpp>
@@ -30,15 +30,15 @@ namespace aewt {
 
     namespace validators {
         /**
-         * Subscriptions
+         * Session ID
          *
          * @param transaction_id
          * @param response
          * @param data
          * @return bool
          */
-        bool subscriptions(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response, const boost::json::object &data);
+        bool session_id(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response, const boost::json::object &data);
     }
 } // namespace aewt
 
-#endif  // AEWT_VALIDATORS_SUBSCRIPTIONS_HPP
+#endif  // AEWT_VALIDATORS_SESSION_ID_HPP

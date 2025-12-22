@@ -32,11 +32,11 @@ namespace aewt::handlers {
         boost::ignore_unused(session);
 
         if (validators::unsubscribe_all_client(transaction_id, response, data)) {
-            const auto client_id = boost::lexical_cast<boost::uuids::uuid>(
+            const auto _client_id = boost::lexical_cast<boost::uuids::uuid>(
                     std::string{data.at("params").as_object().at("client_id").as_string()});
 
             const auto _timestamp = std::chrono::system_clock::now();
-            const std::size_t _count = state->unsubscribe_all_client(client_id);
+            const std::size_t _count = state->unsubscribe_all_client(_client_id);
             response->set_data(transaction_id, _count > 0 ? "ok" : "no effect", {
                                    {"timestamp", _timestamp.time_since_epoch().count()},
                                    {"count", _count}

@@ -13,30 +13,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/handlers/whoami.hpp>
+#include <aewt/handlers/clients.hpp>
 
 #include <aewt/response.hpp>
+#include <aewt/state.hpp>
 #include <aewt/session.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
-    void whoami(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                           const std::shared_ptr<session> &session) {
-        const auto &_socket = session->get_socket();
-        boost::json::object _data = {
-            {"id", to_string(session->get_id())},
-            {"is_open", _socket.is_open()},
-        };
-        if (_socket.is_open()) {
-            const auto _remote_endpoint = _socket.remote_endpoint();
-            _data["ip"] = _remote_endpoint.address().to_string();
-            _data["port"] = _remote_endpoint.port();
-        } else {
-            _data["ip"] = nullptr;
-            _data["port"] = nullptr;
+    void clients(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+                            const std::shared_ptr<state> &state,
+                            const std::shared_ptr<session> &session) {
+        const auto _timestamp = std::chrono::system_clock::now();
+        auto _clients = state->get_clients();
+        boost::json::array _clients_array;
+        for (const auto &client : _clients) {
+            _clients_array.push_back(to_string(client).data());
         }
-        response->set_data(transaction_id, "im", _data);
+        const boost::json::object _data = {
+            {"timestamp", _timestamp.time_since_epoch().count()},
+            {"clients", _clients_array},
+        };
+        response->set_data(transaction_id, "ok", _data);
     }
 
 }

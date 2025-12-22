@@ -13,32 +13,32 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/handlers/publish.hpp>
+#include <aewt/handlers/client_exists.hpp>
+
+#include <aewt/validators/clients.hpp>
 
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 
-#include <aewt/validators/publish.hpp>
-
 #include <boost/lexical_cast.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
-    void publish(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+    void client_exists(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
        const std::shared_ptr<state> &state, const std::shared_ptr<session> &session, const boost::json::object &data) {
-        if (validators::publish(transaction_id, response, data)) {
+
+        boost::ignore_unused(session);
+
+        if (validators::clients(transaction_id, response, data)) {
             auto _params = data.at("params").as_object();
             const auto _client_id = boost::lexical_cast<boost::uuids::uuid>(
-                std::string{_params.at("client_id").as_string()});
-            const std::string _channel{_params.at("channel").as_string()};
-            const auto _payload = _params.at("payload").as_object();
-
+            std::string{_params.at("client_id").as_string()});
             const auto _timestamp = std::chrono::system_clock::now();
-            const std::size_t _count = state->publish(transaction_id, session->get_id(), _client_id, _channel, _payload);
-            response->set_data(transaction_id, _count > 0 ? "ok" : "no effect", {
+
+            response->set_data(transaction_id, state->get_client_exists(_client_id) ? "yes" : "no", {
                                    {"timestamp", _timestamp.time_since_epoch().count()},
-                                   {"count", _count}
                                });
         }
     }

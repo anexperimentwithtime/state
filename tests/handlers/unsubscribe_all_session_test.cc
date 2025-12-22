@@ -98,7 +98,11 @@ TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_o
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params attribute must be present");
+    "params attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _unsubscribe_all_session_transaction_id);
 }
 
 TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_primitive) {
@@ -135,7 +139,11 @@ TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_o
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params attribute must be object");
+    "params attribute must be object");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _unsubscribe_all_session_transaction_id);
 }
 
 TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_empty_data_params_session_id) {
@@ -172,7 +180,11 @@ TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_o
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params session_id attribute must be present");
+    "params session_id attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _unsubscribe_all_session_transaction_id);
 }
 
 TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_session_id_primitive) {
@@ -209,7 +221,11 @@ TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_o
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params session_id attribute must be string");
+    "params session_id attribute must be string");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _unsubscribe_all_session_transaction_id);
 }
 
 TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_on_wrong_data_params_session_id_type) {
@@ -246,5 +262,9 @@ TEST(handlers_unsubscribe_all_session_test, can_handle_unsubscribe_all_session_o
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params session_id attribute must be uuid");
+    "params session_id attribute must be uuid");
+
+    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _unsubscribe_all_session_transaction_id);
 }

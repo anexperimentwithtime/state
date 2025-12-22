@@ -52,6 +52,49 @@ namespace aewt {
         return _result;
     }
 
+    std::vector<boost::uuids::uuid> state::get_clients_by_session(const boost::uuids::uuid session_id) const {
+        std::shared_lock _lock(clients_mutex_);
+
+        const auto& _index = clients_.get<clients_by_session>();
+        auto [_begin, _end] = _index.equal_range(session_id);
+
+        std::vector<boost::uuids::uuid> _result;
+        _result.reserve(std::distance(_begin, _end));
+
+        for (auto it = _begin; it != _end; ++it)
+            _result.push_back(it->client_id_);
+
+        return _result;
+    }
+
+    std::vector<boost::uuids::uuid> state::get_clients() const {
+        std::shared_lock _lock(clients_mutex_);
+
+        const auto& _index = clients_.get<clients_by_client>();
+
+        std::vector<boost::uuids::uuid> _result;
+        _result.reserve(clients_.size());
+
+        for (const auto& _client : _index)
+            _result.push_back(_client.client_id_);
+
+        return _result;
+    }
+
+    bool state::get_client_exists_on_session(const boost::uuids::uuid client_id, const boost::uuids::uuid session_id) const {
+        std::shared_lock _lock(clients_mutex_);
+
+        const auto& _index = clients_.get<clients_by_client_session>();
+        return _index.find(boost::make_tuple(client_id, session_id)) != _index.end();
+    }
+
+    bool state::get_client_exists(const boost::uuids::uuid client_id) const {
+        std::shared_lock _lock(clients_mutex_);
+
+        const auto& _index = clients_.get<clients_by_client>();
+        return _index.find(client_id) != _index.end();
+    }
+
     std::optional<std::shared_ptr<session> > state::get_session(
         const boost::uuids::uuid id) const {
         std::shared_lock _lock(sessions_mutex_);
@@ -63,18 +106,43 @@ namespace aewt {
         return _iterator->second;
     }
 
-    void state::add_session(std::shared_ptr<session> session) {
+    bool state::add_session(std::shared_ptr<session> session) {
         std::unique_lock _lock(sessions_mutex_);
-        sessions_.emplace(session->get_id(), std::move(session));
+        auto [_, _inserted] = sessions_.emplace(session->get_id(), std::move(session));
+        return _inserted;
     }
 
-    void state::remove_session(const boost::uuids::uuid id) {
+    bool state::remove_session(const boost::uuids::uuid id) {
         std::unique_lock _lock(sessions_mutex_);
-        sessions_.erase(id);
+        return sessions_.erase(id) > 0;
+    }
+
+    bool state::add_client(const boost::uuids::uuid client_id, const boost::uuids::uuid session_id) {
+        std::unique_lock _lock(clients_mutex_);
+
+        auto& _index = clients_.get<clients_by_client_session>();
+        auto [_it, _inserted] =
+            _index.insert(client{
+                session_id,
+                client_id
+            });
+
+        return _inserted;
+    }
+
+    bool state::remove_client(const boost::uuids::uuid client_id) {
+        std::unique_lock _lock(clients_mutex_);
+
+        auto& _index = clients_.get<clients_by_client>();
+        auto [_begin, _end] = _index.equal_range(client_id);
+
+        const std::size_t _count = std::distance(_begin, _end);
+        _index.erase(_begin, _end);
+        return _count;
     }
 
     bool state::subscribe(const boost::uuids::uuid &session_id, const boost::uuids::uuid &client_id,
-        const std::string &channel) {
+                          const std::string &channel) {
         std::unique_lock _lock(subscriptions_mutex_);
 
         auto& _index =
@@ -122,10 +190,10 @@ namespace aewt {
 
         auto& _index = subscriptions_.get<subscriptions_by_client>();
 
-        const auto _range = _index.equal_range(client_id);
+        const auto [_begin, _end] = _index.equal_range(client_id);
 
-        const std::size_t _count = std::distance(_range.first, _range.second);
-        _index.erase(_range.first, _range.second);
+        const std::size_t _count = std::distance(_begin, _end);
+        _index.erase(_begin, _end);
         return _count;
     }
 
@@ -134,10 +202,10 @@ namespace aewt {
 
         auto& _index = subscriptions_.get<subscriptions_by_session>();
 
-        const auto _range = _index.equal_range(session_id);
+        const auto [_begin, _end] = _index.equal_range(session_id);
 
-        const std::size_t _count = std::distance(_range.first, _range.second);
-        _index.erase(_range.first, _range.second);
+        const std::size_t _count = std::distance(_begin, _end);
+        _index.erase(_begin, _end);
         return _count;
     }
 
@@ -196,5 +264,25 @@ namespace aewt {
         }
 
         return _count;
+    }
+
+    bool state::send(const boost::uuids::uuid transaction_id, const boost::uuids::uuid session_id,
+        const boost::uuids::uuid sender_id, const boost::uuids::uuid receiver_id, const boost::json::object& data) const {
+        if (const auto _receiver = get_session(session_id); _receiver.has_value() && get_client_exists(receiver_id)) {
+
+            const auto _data = std::make_shared<boost::json::object>(boost::json::object({
+                {"transaction_id", to_string(transaction_id)},
+                {"action", "send"},
+                {"session_id", to_string(session_id)},
+                {"sender_id", to_string(sender_id)},
+                {"receiver_id", to_string(receiver_id)},
+                {"payload", data},
+            }));
+            const auto &_session = _receiver.value();
+            _session->send(_data);
+            return true;
+        }
+
+        return false;
     }
 } // namespace aewt

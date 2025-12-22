@@ -29,12 +29,12 @@ namespace aewt::handlers {
        const std::shared_ptr<state> &state, const std::shared_ptr<session> &session, const boost::json::object &data) {
         if (validators::broadcast(transaction_id, response, data)) {
             auto _params = data.at("params").as_object();
-            const auto client_id = boost::lexical_cast<boost::uuids::uuid>(
+            const auto _client_id = boost::lexical_cast<boost::uuids::uuid>(
                 std::string{_params.at("client_id").as_string()});
             const auto _payload = _params.at("payload").as_object();
 
             const auto _timestamp = std::chrono::system_clock::now();
-            const std::size_t _count = state->broadcast(transaction_id, session->get_id(), client_id, _payload);
+            const std::size_t _count = state->broadcast(transaction_id, session->get_id(), _client_id, _payload);
             response->set_data(transaction_id, _count > 0 ? "ok" : "no effect", {
                                    {"timestamp", _timestamp.time_since_epoch().count()},
                                    {"count", _count}
