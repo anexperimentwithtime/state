@@ -44,8 +44,8 @@ namespace aewt {
         boost::ignore_unused(data);
 
         if (socket_.has_value()) {
-            if (const auto &_socket = socket_.value(); _socket.is_open()) {
-            }
+            // if (const auto &_socket = socket_.value(); _socket.is_open()) {
+            // }
         }
     }
 } // namespace aewt

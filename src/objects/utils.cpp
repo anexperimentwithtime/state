@@ -99,13 +99,13 @@ namespace aewt {
         };
 
         if (const auto &_socket_optional = client->get_socket(); _socket_optional.has_value()) {
-            if (auto &_socket = _socket_optional.value(); _socket.is_open()) {
-                _data["ip"] = _socket.remote_endpoint().address().to_string();
-                _data["port"] = _socket.remote_endpoint().port();
-            } else {
-                _data["ip"] = nullptr;
-                _data["port"] = nullptr;
-            }
+            // if (auto &_socket = _socket_optional.value(); _socket.is_open()) {
+            //     _data["ip"] = _socket.remote_endpoint().address().to_string();
+            //     _data["port"] = _socket.remote_endpoint().port();
+            // } else {
+            //     _data["ip"] = nullptr;
+            //     _data["port"] = nullptr;
+            // }
         } else {
             _data["ip"] = nullptr;
             _data["port"] = nullptr;
@@ -123,9 +123,9 @@ namespace aewt {
         };
 
         if (_socket.is_open()) {
-            const auto _remote_endpoint = _socket.remote_endpoint();
-            _data["ip"] = _remote_endpoint.address().to_string();
-            _data["port"] = _remote_endpoint.port();
+            // const auto _remote_endpoint = _socket.remote_endpoint();
+            // _data["ip"] = _remote_endpoint.address().to_string();
+            // _data["port"] = _remote_endpoint.port();
         } else {
             _data["ip"] = nullptr;
             _data["port"] = nullptr;
