@@ -34,7 +34,7 @@ namespace aewt::handlers {
             const std::size_t _count = request.state_->
                     publish(request.transaction_id_, request.session_->get_id(), _client_id, _channel, _payload);
 
-            const auto _status = _count > 0 ? "ok" : "no effect";
+            const auto _status = get_status(_count > 0);
 
             next(request, _status, {{"count", _count}});
         }

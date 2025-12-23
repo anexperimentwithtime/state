@@ -32,11 +32,12 @@ namespace aewt {
     }
 
     void mark_as_invalid(const request &request, const char *field, const char *argument) {
-        request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_, {{field, argument}});
+        request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_,
+                                          {{field, argument}});
     }
 
     std::string get_param_as_string(const boost::json::object &params, const char *field) {
-        return std::string{ params.at(field).as_string() };
+        return std::string{params.at(field).as_string()};
     }
 
     const boost::json::object &get_params(const request &request) {
@@ -52,7 +53,7 @@ namespace aewt {
     }
 
     boost::uuids::uuid get_param_as_id(const boost::json::object &params, const char *field) {
-        return boost::lexical_cast<boost::uuids::uuid>(std::string{ params.at(field).as_string() });
+        return boost::lexical_cast<boost::uuids::uuid>(std::string{params.at(field).as_string()});
     }
 
     boost::json::array make_array_of_ids(const std::vector<boost::uuids::uuid> &vector) {
@@ -80,11 +81,12 @@ namespace aewt {
         return _array;
     }
 
-    boost::json::object make_client_object(const std::shared_ptr<client>& client, const boost::json::array & subscriptions) {
+    boost::json::object make_client_object(const std::shared_ptr<client> &client,
+                                           const boost::json::array &subscriptions) {
         boost::json::object _data = {
             {"id", to_string(client->get_id())},
             {"session_id", to_string(client->get_session_id())},
-            {"subscriptions", subscriptions },
+            {"subscriptions", subscriptions},
             {"is_local", client->get_is_local()},
         };
 
@@ -122,5 +124,11 @@ namespace aewt {
         }
 
         return _data;
+    }
+
+    const char *get_status(const bool gate, const char *on_true, const char *on_false) {
+        return gate
+                   ? on_true
+                   : on_false;
     }
 } // namespace aewt

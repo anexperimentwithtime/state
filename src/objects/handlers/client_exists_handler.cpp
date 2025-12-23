@@ -28,7 +28,11 @@ namespace aewt::handlers {
             const auto &_params = get_params(request);
             const auto &_client_id = get_param_as_id(_params, "client_id");
 
-            const auto _status = request.state_->get_client_exists(_client_id) ? "yes" : "no";
+            const auto _status = get_status(
+                request.state_->get_client_exists(_client_id),
+                "yes",
+                "no"
+            );
 
             next(request, _status);
         }

@@ -32,7 +32,7 @@ namespace aewt::handlers {
 
             const bool _success = request.state_->subscribe(request.session_->get_id(), _client_id, _channel);
 
-            const auto _status = _success ? "ok" : "no effect";
+            const auto _status = get_status(_success);
 
             next(request, _status);
         }
