@@ -18,31 +18,19 @@
 #ifndef AEWT_HANDLERS_WHOAMI_HANDLER_HPP
 #define AEWT_HANDLERS_WHOAMI_HANDLER_HPP
 
-#include <boost/uuid/uuid.hpp>
-#include <memory>
-
 namespace aewt {
     /**
-     * Forward Response
+     * Forward Request
      */
-    class response;
-
-    /**
-     * Forward Session
-     */
-    class session;
+    struct request;
 
     namespace handlers {
         /**
          * Whoami
          *
-         * @param transaction_id
-         * @param response
-         * @param session
-         * @param timestamp
+         * @param request
          */
-        void whoami_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                            const std::shared_ptr<session> &session, long timestamp);
+        void whoami_handler(const request &request);
     }
 } // namespace aewt
 

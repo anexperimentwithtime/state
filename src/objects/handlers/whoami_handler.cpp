@@ -17,15 +17,15 @@
 
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
+#include <aewt/request.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
-    void whoami_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                        const std::shared_ptr<session> &session, const long timestamp) {
-        const auto &_socket = session->get_socket();
+    void whoami_handler(const request &request) {
+        const auto &_socket = request.session->get_socket();
         boost::json::object _data = {
-            {"id", to_string(session->get_id())},
+            {"id", to_string(request.session->get_id())},
             {"is_open", _socket.is_open()},
         };
         if (_socket.is_open()) {
@@ -37,6 +37,6 @@ namespace aewt::handlers {
             _data["port"] = nullptr;
         }
 
-        response->set_data(transaction_id, "ok", timestamp, _data);
+        request.response->set_data(request.transaction_id, "ok", request.timestamp, _data);
     }
 }

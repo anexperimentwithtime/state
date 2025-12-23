@@ -24,6 +24,11 @@
 
 namespace aewt {
     /**
+     * Forward Request
+     */
+    struct request;
+
+    /**
      * Forward Response
      */
     class response;
@@ -42,17 +47,9 @@ namespace aewt {
         /**
          * Client Exists Handler
          *
-         * @param transaction_id
-         * @param response
-         * @param state
-         * @param session
-         * @param data
-         * @param timestamp
+         * @param request
          */
-        void client_exists_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                                   const std::shared_ptr<state> &state,
-                                   const std::shared_ptr<session> &session, const boost::json::object &data,
-                                   long timestamp);
+        void client_exists_handler(const request &request);
     }
 } // namespace aewt
 

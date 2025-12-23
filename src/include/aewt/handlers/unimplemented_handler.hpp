@@ -22,6 +22,11 @@
 
 namespace aewt {
     /**
+     * Forward Request
+     */
+    struct request;
+
+    /**
      * Forward Response
      */
     class response;
@@ -30,12 +35,9 @@ namespace aewt {
         /**
          * Unimplemented Handler
          *
-         * @param transaction_id
-         * @param response
-         * @param timestamp
+         * @param request
          */
-        void unimplemented_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                                   long timestamp);
+        void unimplemented_handler(const request &request);
     }
 } // namespace aewt
 

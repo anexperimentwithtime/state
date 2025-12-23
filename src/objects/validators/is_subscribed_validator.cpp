@@ -16,71 +16,71 @@
 #include <aewt/validators/is_subscribed_validator.hpp>
 
 #include <aewt/response.hpp>
+#include <aewt/request.hpp>
 #include <aewt/validator.hpp>
 
 namespace aewt::validators {
-    bool is_subscribed_validator(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                                 const boost::json::object &data, const long timestamp) {
-        if (!data.contains("params")) {
-            response->mark_as_failed(transaction_id, "unprocessable entity", timestamp,
+    bool is_subscribed_validator(const request &request) {
+        if (!request.data.contains("params")) {
+            request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
                                      {{"params", "params attribute must be present"}});
             return false;
         }
 
-        const boost::json::value _params = data.at("params");
+        const boost::json::value _params = request.data.at("params");
         if (!_params.is_object()) {
-            response->mark_as_failed(transaction_id, "unprocessable entity", timestamp,
+            request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
                                      {{"params", "params attribute must be object"}});
             return false;
         }
 
         const boost::json::object _params_object = _params.as_object();
         if (!_params_object.contains("channel")) {
-            response->mark_as_failed(transaction_id, "unprocessable entity", timestamp,
+            request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
                                      {{"params", "params channel attribute must be present"}});
             return false;
         }
 
         if (const boost::json::value _channel = _params_object.at("channel"); !_channel.is_string()) {
-            response->mark_as_failed(transaction_id, "unprocessable entity", timestamp,
+            request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
                                      {{"params", "params channel attribute must be string"}});
             return false;
         }
 
         if (!_params_object.contains("client_id")) {
-            response->mark_as_failed(transaction_id, "unprocessable entity", timestamp,
+            request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
                                      {{"params", "params client_id attribute must be present"}});
             return false;
         }
 
         const boost::json::value _client_id = _params_object.at("client_id");
         if (!_client_id.is_string()) {
-            response->mark_as_failed(transaction_id, "unprocessable entity", timestamp,
+            request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
                                      {{"params", "params client_id attribute must be string"}});
             return false;
         }
 
         if (!validator::is_uuid(_client_id.as_string().c_str())) {
-            response->mark_as_failed(transaction_id, "unprocessable entity", timestamp,
+            request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
                                      {{"params", "params client_id attribute must be uuid"}});
             return false;
         }
 
         if (!_params_object.contains("session_id")) {
-            response->mark_as_failed(transaction_id, "unprocessable entity", timestamp,
+            request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
                                      {{"params", "params session_id attribute must be present"}});
             return false;
         }
 
         const boost::json::value _session_id = _params_object.at("session_id");
         if (!_session_id.is_string()) {
-            response->mark_as_failed(transaction_id, "unprocessable entity", timestamp,
+            request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
                                      {{"params", "params session_id attribute must be string"}});
             return false;
         }
 
         if (!validator::is_uuid(_session_id.as_string().c_str())) {
-            response->mark_as_failed(transaction_id, "unprocessable entity", timestamp,
+            request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
                                      {{"params", "params session_id attribute must be uuid"}});
             return false;
         }

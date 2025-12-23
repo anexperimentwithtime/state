@@ -20,26 +20,20 @@
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
-
-#include <boost/lexical_cast.hpp>
-#include <boost/core/ignore_unused.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include <aewt/request.hpp>
 
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
-    void client_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                        const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
-                        const boost::json::object &data, const long timestamp) {
-        boost::ignore_unused(session);
+    void client_handler(const request &request) {
 
-        if (validators::client_id_validator(transaction_id, response, data, timestamp)) {
-            auto _params = data.at("params").as_object();
+        if (validators::client_id_validator(request)) {
+            auto _params = request.data.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
 
-            if (const auto _client_optional = state->get_client(_client_id); _client_optional.has_value()) {
+            if (const auto _client_optional = request.state->get_client(_client_id); _client_optional.has_value()) {
                 const auto _client = _client_optional.value();
-                auto _client_subscriptions = state->get_client_subscriptions(_client_id);
+                auto _client_subscriptions = request.state->get_client_subscriptions(_client_id);
 
                 boost::json::array _subscriptions;
                 _subscriptions.reserve(_client_subscriptions.size());
@@ -67,9 +61,9 @@ namespace aewt::handlers {
                     _data["port"] = nullptr;
                 }
 
-                response->set_data(transaction_id, "ok", timestamp, _data);
+                request.response->set_data(request.transaction_id, "ok", request.timestamp, _data);
             } else {
-                response->set_data(transaction_id, "no effect", timestamp);
+                request.response->set_data(request.transaction_id, "no effect", request.timestamp);
             }
         }
     }

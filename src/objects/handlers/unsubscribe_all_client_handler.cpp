@@ -18,6 +18,7 @@
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
+#include <aewt/request.hpp>
 
 #include <aewt/validators/unsubscribe_all_client_validator.hpp>
 
@@ -26,25 +27,20 @@
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
-    void unsubscribe_all_client_handler(const boost::uuids::uuid transaction_id,
-                                        const std::shared_ptr<response> &response,
-                                        const std::shared_ptr<state> &state,
-                                        const std::shared_ptr<session> &session, const boost::json::object &data,
-                                        const long timestamp) {
-        boost::ignore_unused(session);
+    void unsubscribe_all_client_handler(const request &request) {
 
-        if (validators::unsubscribe_all_client_validator(transaction_id, response, data, timestamp)) {
-            const auto _params = data.at("params").as_object();
+        if (validators::unsubscribe_all_client_validator(request)) {
+            const auto _params = request.data.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
 
-            const std::size_t _count = state->unsubscribe_all_client(_client_id);
+            const std::size_t _count = request.state->unsubscribe_all_client(_client_id);
 
             const auto _status = _count > 0 ? "ok" : "no effect";
 
-            response->set_data(
-                transaction_id,
+            request.response->set_data(
+                request.transaction_id,
                 _status,
-                timestamp,
+                request.timestamp,
                 {
                     {"count", _count}
                 });

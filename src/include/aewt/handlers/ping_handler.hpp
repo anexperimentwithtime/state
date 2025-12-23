@@ -18,24 +18,19 @@
 #ifndef AEWT_HANDLERS_PING_HANDLER_HPP
 #define AEWT_HANDLERS_PING_HANDLER_HPP
 
-#include <boost/uuid/uuid.hpp>
-#include <memory>
-
 namespace aewt {
     /**
-     * Forward Response
+     * Forward Request
      */
-    class response;
+    struct request;
 
     namespace handlers {
         /**
          * Ping Handler
          *
-         * @param transaction_id
-         * @param response
-         * @param timestamp
+         * @param request
          */
-        void ping_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response, long timestamp);
+        void ping_handler(const request &request);
     }
 } // namespace aewt
 

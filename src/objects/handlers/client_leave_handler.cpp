@@ -20,6 +20,7 @@
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
+#include <aewt/request.hpp>
 
 #include <aewt/utils.hpp>
 #include <aewt/distribute.hpp>
@@ -27,29 +28,27 @@
 #include <boost/core/ignore_unused.hpp>
 
 namespace aewt::handlers {
-    void client_leave_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                              const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
-                              const boost::json::object &data, const long timestamp) {
-        if (validators::clients_validator(transaction_id, response, data, timestamp)) {
-            auto _params = data.at("params").as_object();
+    void client_leave_handler(const request &request) {
+        if (validators::clients_validator(request)) {
+            auto _params = request.data.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
             const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
 
-            const auto _is_local = session->get_id() == _session_id;
-            const auto _removed = state->remove_client(_client_id);
+            const auto _is_local = request.session->get_id() == _session_id;
+            const auto _removed = request.state->remove_client(_client_id);
 
             std::size_t _count = 0;
             if (_is_local) {
-                _count = distribute_to_others(state, data);
+                _count = distribute_to_others(request.state, request.data);
             }
 
             const auto _status = _removed ? "ok" : "no effect";
-            response->set_data(
-                transaction_id,
+            request.response->set_data(
+                request.transaction_id,
                 _status,
-                timestamp,
+                request.timestamp,
                 {
-                    {"timestamp", timestamp},
+                    {"timestamp", request.timestamp},
                     {"count", _count}
                 });
         }

@@ -18,28 +18,20 @@
 #ifndef AEWT_VALIDATORS_IS_SUBSCRIBED_VALIDATOR_HPP
 #define AEWT_VALIDATORS_IS_SUBSCRIBED_VALIDATOR_HPP
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/json/object.hpp>
-#include <memory>
-
 namespace aewt {
     /**
-     * Forward Response
+     * Forward Request
      */
-    class response;
+    struct request;
 
     namespace validators {
         /**
          * Is Subscribed Validator
          *
-         * @param transaction_id
-         * @param response
-         * @param data
-         * @param timestamp
+         * @param request
          * @return bool
          */
-        bool is_subscribed_validator(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                                     const boost::json::object &data, long timestamp);
+        bool is_subscribed_validator(const request &request);
     }
 } // namespace aewt
 

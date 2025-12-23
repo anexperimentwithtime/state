@@ -24,34 +24,17 @@
 
 namespace aewt {
     /**
-     * Forward Response
+     * Forward Request
      */
-    class response;
-
-    /**
-     * Forward Session
-     */
-    class session;
-
-    /**
-     * Forward State
-     */
-    class state;
+    struct request;
 
     namespace handlers {
         /**
          * Publish Handler
          *
-         * @param transaction_id
-         * @param response
-         * @param state
-         * @param session
-         * @param data
-         * @param timestamp
+         * @param request
          */
-        void publish_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                             const std::shared_ptr<state> &state,
-                             const std::shared_ptr<session> &session, const boost::json::object &data, long timestamp);
+        void publish_handler(const request &request);
     }
 } // namespace aewt
 

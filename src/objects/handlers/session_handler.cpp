@@ -20,22 +20,21 @@
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
+#include <aewt/request.hpp>
 
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
-    void session_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                         const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
-                         const boost::json::object &data, const long timestamp) {
-        if (validators::session_id_validator(transaction_id, response, data, timestamp)) {
-            const auto _params = data.at("params").as_object();
+    void session_handler(const request & request) {
+        if (validators::session_id_validator(request)) {
+            const auto _params = request.data.at("params").as_object();
             const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
 
-            if (const auto _session = state->get_session(_session_id); _session.has_value()) {
+            if (const auto _session = request.state->get_session(_session_id); _session.has_value()) {
                 const auto &_socket = _session.value()->get_socket();
 
                 boost::json::object _data = {
-                    {"id", to_string(session->get_id())},
+                    {"id", to_string(request.session->get_id())},
                     {"is_open", _socket.is_open()},
                 };
 
@@ -48,9 +47,9 @@ namespace aewt::handlers {
                     _data["port"] = nullptr;
                 }
 
-                response->set_data(transaction_id, "ok", timestamp, _data);
+                request.response->set_data(request.transaction_id, "ok", request.timestamp, _data);
             } else {
-                response->set_data(transaction_id, "no effect", timestamp);
+                request.response->set_data(request.transaction_id, "no effect", request.timestamp);
             }
         }
     }
