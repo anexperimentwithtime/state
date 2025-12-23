@@ -15,7 +15,7 @@
 
 #include <aewt/handlers/session_client_exists_handler.hpp>
 
-#include <aewt/validators/clients.hpp>
+#include <aewt/validators/clients_validator.hpp>
 
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
@@ -31,7 +31,7 @@ namespace aewt::handlers {
 
         boost::ignore_unused(session);
 
-        if (validators::clients(transaction_id, response, data)) {
+        if (validators::clients_validator(transaction_id, response, data)) {
             auto _params = data.at("params").as_object();
             const auto _client_id = boost::lexical_cast<boost::uuids::uuid>(
             std::string{_params.at("client_id").as_string()});

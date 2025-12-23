@@ -19,7 +19,7 @@
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
 
-#include <aewt/validators/unsubscribe_all_client.hpp>
+#include <aewt/validators/unsubscribe_all_client_validator.hpp>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/core/ignore_unused.hpp>
@@ -31,7 +31,7 @@ namespace aewt::handlers {
                                   const std::shared_ptr<session> &session, const boost::json::object &data) {
         boost::ignore_unused(session);
 
-        if (validators::unsubscribe_all_client(transaction_id, response, data)) {
+        if (validators::unsubscribe_all_client_validator(transaction_id, response, data)) {
             const auto _client_id = boost::lexical_cast<boost::uuids::uuid>(
                     std::string{data.at("params").as_object().at("client_id").as_string()});
 

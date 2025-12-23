@@ -19,7 +19,7 @@
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 
-#include <aewt/validators/session_id.hpp>
+#include <aewt/validators/session_id_validator.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
 
@@ -27,7 +27,7 @@ namespace aewt::handlers {
     void session_clients_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
                             const std::shared_ptr<state> &state,
                             const std::shared_ptr<session> &session, const boost::json::object &data) {
-        if (validators::session_id(transaction_id, response, data)) {
+        if (validators::session_id_validator(transaction_id, response, data)) {
             const auto _timestamp = std::chrono::system_clock::now();
             auto _clients = state->get_clients_by_session(session->get_id());
             boost::json::array _clients_array;

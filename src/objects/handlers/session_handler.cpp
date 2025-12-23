@@ -15,7 +15,7 @@
 
 #include <aewt/handlers/session_handler.hpp>
 
-#include <aewt/validators/session_id.hpp>
+#include <aewt/validators/session_id_validator.hpp>
 
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
@@ -29,7 +29,7 @@ namespace aewt::handlers {
                          const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
                          const boost::json::object &data) {
         const auto _timestamp = std::chrono::system_clock::now();
-        if (validators::session_id(transaction_id, response, data)) {
+        if (validators::session_id_validator(transaction_id, response, data)) {
             const auto _session_id = boost::lexical_cast<boost::uuids::uuid>(std::string{
                 data.at("params").as_object().at("session_id").as_string()
             });

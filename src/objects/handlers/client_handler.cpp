@@ -15,7 +15,7 @@
 
 #include <aewt/handlers/client_handler.hpp>
 
-#include <aewt/validators/client_id.hpp>
+#include <aewt/validators/client_id_validator.hpp>
 
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
@@ -33,7 +33,7 @@ namespace aewt::handlers {
 
         const auto _timestamp = std::chrono::system_clock::now();
 
-        if (validators::client_id(transaction_id, response, data)) {
+        if (validators::client_id_validator(transaction_id, response, data)) {
             const auto _client_id = boost::lexical_cast<boost::uuids::uuid>(std::string{
                 data.at("params").as_object().at("client_id").as_string()
             });
