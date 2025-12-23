@@ -24,19 +24,7 @@
 
 namespace aewt::handlers {
     void whoami_handler(const request &request) {
-        const auto &_socket = request.session_->get_socket();
-        boost::json::object _data = {
-            {"id", to_string(request.session_->get_id())},
-            {"is_open", _socket.is_open()},
-        };
-        if (_socket.is_open()) {
-            const auto _remote_endpoint = _socket.remote_endpoint();
-            _data["ip"] = _remote_endpoint.address().to_string();
-            _data["port"] = _remote_endpoint.port();
-        } else {
-            _data["ip"] = nullptr;
-            _data["port"] = nullptr;
-        }
+        const boost::json::object _data = make_session_object(request.session_);
 
         next(request, "ok", _data);
     }

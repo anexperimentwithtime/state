@@ -65,9 +65,9 @@ TEST(handlers_client_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("session_id").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("session_id").as_string(), to_string(_session->get_id()));
 
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("client_id"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("client_id").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("client_id").as_string(), _client_id);
+    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("id"));
+    ASSERT_TRUE(_response->get_data().at("data").as_object().at("id").is_string());
+    ASSERT_EQ(_response->get_data().at("data").as_object().at("id").as_string(), _client_id);
 
     ASSERT_TRUE(_response->get_data().contains("runtime"));
     ASSERT_TRUE(_response->get_data().at("runtime").is_number());

@@ -30,15 +30,11 @@ namespace aewt::handlers {
             const auto &_params = get_params(request);
             const auto &_session_id = get_param_as_id(_params, "session_id");
 
-            auto _clients = request.state_->get_clients_by_session(_session_id);
-
-            boost::json::array _clients_array;
-            for (const auto &client: _clients) {
-                _clients_array.push_back(to_string(client).data());
-            }
+            const auto _clients = request.state_->get_clients_by_session(_session_id);
 
             const boost::json::object _data = {
-                {"clients", _clients_array},
+                {"id", to_string(_session_id)},
+                {"clients", make_array_of_ids(_clients)},
             };
 
             next(request, "ok", _data);
