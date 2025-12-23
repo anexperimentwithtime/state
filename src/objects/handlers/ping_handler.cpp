@@ -15,11 +15,10 @@
 
 #include <aewt/handlers/ping_handler.hpp>
 
-#include <aewt/response.hpp>
-#include <aewt/request.hpp>
+#include <aewt/utils.hpp>
 
 namespace aewt::handlers {
     void ping_handler(const request &request) {
-        request.response_->set_data(request.transaction_id_, "pong", request.timestamp_);
+        next(request, "pong");
     }
 }

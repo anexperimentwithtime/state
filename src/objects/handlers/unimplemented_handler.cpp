@@ -18,10 +18,10 @@
 #include <aewt/response.hpp>
 #include <aewt/request.hpp>
 
+#include <aewt/utils.hpp>
+
 namespace aewt::handlers {
     void unimplemented_handler(const request &request) {
-        request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_, {
-                                     {"action", "action attribute isn't implemented"}
-                                 });
+        mark_as_invalid(request, "action", "action attribute isn't implemented");
     }
 }

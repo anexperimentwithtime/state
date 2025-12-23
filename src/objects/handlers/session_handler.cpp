@@ -27,8 +27,8 @@
 namespace aewt::handlers {
     void session_handler(const request & request) {
         if (validators::session_id_validator(request)) {
-            const auto _params = request.data_.at("params").as_object();
-            const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
+            const auto &_params = get_params(request);
+            const auto &_session_id = get_param_as_id(_params, "session_id");
 
             if (const auto _session = request.state_->get_session(_session_id); _session.has_value()) {
                 const auto &_socket = _session.value()->get_socket();
@@ -47,9 +47,9 @@ namespace aewt::handlers {
                     _data["port"] = nullptr;
                 }
 
-                request.response_->set_data(request.transaction_id_, "ok", request.timestamp_, _data);
+                next(request, "ok", _data);
             } else {
-                request.response_->set_data(request.transaction_id_, "no effect", request.timestamp_);
+                next(request, "no effect");
             }
         }
     }

@@ -21,6 +21,8 @@
 
 #include <boost/uuid/uuid_io.hpp>
 
+#include <aewt/utils.hpp>
+
 namespace aewt::handlers {
     void clients_handler(const request &request) {
         auto _clients = request.state_->get_clients();
@@ -34,6 +36,6 @@ namespace aewt::handlers {
             {"clients", _clients_array},
         };
 
-        request.response_->set_data(request.transaction_id_, "ok", request.timestamp_, _data);
+        next(request, "ok", _data);
     }
 }

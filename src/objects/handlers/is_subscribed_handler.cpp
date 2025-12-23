@@ -27,16 +27,16 @@
 namespace aewt::handlers {
     void is_subscribed_handler(const request &request) {
         if (validators::is_subscribed_validator(request)) {
-            const auto _params = request.data_.at("params").as_object();
-            const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
-            const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
-            const std::string _channel{_params.at("channel").as_string()};
+            const auto &_params = get_params(request);
+            const auto &_client_id = get_param_as_id(_params, "client_id");
+            const auto &_session_id = get_param_as_id(_params, "session_id");
+            const std::string _channel = get_param_as_string(_params, "channel");
 
             const bool _success = request.state_->is_subscribed(_session_id, _client_id, _channel);
 
             const auto _status = _success ? "yes" : "no";
 
-            request.response_->set_data(request.transaction_id_, _status, request.timestamp_);
+            next(request, _status);
         }
     }
 }

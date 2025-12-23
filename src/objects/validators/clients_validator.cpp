@@ -19,57 +19,51 @@
 #include <aewt/request.hpp>
 #include <aewt/validator.hpp>
 
+#include <aewt/utils.hpp>
+
 namespace aewt::validators {
     bool clients_validator(const request &request) {
         if (!request.data_.contains("params")) {
-            request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_,
-                                             {{"params", "params attribute must be present"}});
+            mark_as_invalid(request, "params", "params attribute must be present");
             return false;
         }
 
-        const boost::json::value _params = request.data_.at("params");
+        const boost::json::value &_params = get_params_as_value(request);
         if (!_params.is_object()) {
-            request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_,
-                                             {{"params", "params attribute must be object"}});
+            mark_as_invalid(request, "params", "params attribute must be object");
             return false;
         }
 
-        const boost::json::object _params_object = _params.as_object();
+        const boost::json::object &_params_object = _params.as_object();
         if (!_params_object.contains("client_id")) {
-            request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_,
-                                             {{"params", "params client_id attribute must be present"}});
+            mark_as_invalid(request, "params", "params client_id attribute must be present");
             return false;
         }
 
-        const boost::json::value _client_id = _params_object.at("client_id");
+        const boost::json::value &_client_id = _params_object.at("client_id");
         if (!_client_id.is_string()) {
-            request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_,
-                                             {{"params", "params client_id attribute must be string"}});
+            mark_as_invalid(request, "params", "params client_id attribute must be string");
             return false;
         }
 
         if (!validator::is_uuid(_client_id.as_string().c_str())) {
-            request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_,
-                                             {{"params", "params client_id attribute must be uuid"}});
+            mark_as_invalid(request, "params", "params client_id attribute must be uuid");
             return false;
         }
 
         if (!_params_object.contains("session_id")) {
-            request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_,
-                                             {{"params", "params session_id attribute must be present"}});
+            mark_as_invalid(request, "params", "params session_id attribute must be present");
             return false;
         }
 
-        const boost::json::value _session_id = _params_object.at("session_id");
+        const boost::json::value &_session_id = _params_object.at("session_id");
         if (!_session_id.is_string()) {
-            request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_,
-                                             {{"params", "params session_id attribute must be string"}});
+            mark_as_invalid(request, "params", "params session_id attribute must be string");
             return false;
         }
 
         if (!validator::is_uuid(_session_id.as_string().c_str())) {
-            request.response_->mark_as_failed(request.transaction_id_, "unprocessable entity", request.timestamp_,
-                                             {{"params", "params session_id attribute must be uuid"}});
+            mark_as_invalid(request, "params", "params session_id attribute must be uuid");
             return false;
         }
 

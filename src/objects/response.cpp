@@ -68,7 +68,7 @@ namespace aewt {
     }
 
 
-    void response::set_data(boost::uuids::uuid transaction_id, const char *message, long timestamp,
+    void response::set_data(const boost::uuids::uuid transaction_id, const char *message, long timestamp,
                             const boost::json::object &data) {
         const auto _current_timestamp = std::chrono::system_clock::now().time_since_epoch().count();
 
