@@ -18,11 +18,12 @@
 #ifndef AEWT_HANDLERS_SESSION_HANDLER_HPP
 #define AEWT_HANDLERS_SESSION_HANDLER_HPP
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/json/object.hpp>
-#include <memory>
-
 namespace aewt {
+    /**
+     * Forward Request
+     */
+    struct request;
+
     /**
      * Forward Response
      */
@@ -42,16 +43,9 @@ namespace aewt {
         /**
          * Session Handler
          *
-         * @param transaction_id
-         * @param response
-         * @param state
-         * @param session
-         * @param data
-         * @param timestamp
+         * @param request
          */
-        void session_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                             const std::shared_ptr<state> &state,
-                             const std::shared_ptr<session> &session, const boost::json::object &data, long timestamp);
+        void session_handler(const request &request);
     }
 } // namespace aewt
 

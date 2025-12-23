@@ -18,39 +18,19 @@
 #ifndef AEWT_HANDLERS_CLIENTS_HANDLERS_HPP
 #define AEWT_HANDLERS_CLIENTS_HANDLERS_HPP
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/json/object.hpp>
-#include <memory>
-
 namespace aewt {
     /**
-     * Forward Response
+     * Forward Request
      */
-    class response;
-
-    /**
-     * Forward Session
-     */
-    class session;
-
-    /**
-     * Forward State
-     */
-    class state;
+    struct request;
 
     namespace handlers {
         /**
          * Clients Handler
          *
-         * @param transaction_id
-         * @param response
-         * @param state
-         * @param session
-         * @param timestamp
+         * @param request
          */
-        void clients_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                             const std::shared_ptr<state> &state,
-                             const std::shared_ptr<session> &session, long timestamp);
+        void clients_handler(const request &request);
     }
 } // namespace aewt
 

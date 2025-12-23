@@ -18,28 +18,20 @@
 #ifndef AEWT_VALIDATORS_BROADCAST_VALIDATOR_HPP
 #define AEWT_VALIDATORS_BROADCAST_VALIDATOR_HPP
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/json/object.hpp>
-#include <memory>
-
 namespace aewt {
     /**
-     * Forward Response
+     * Forward Request
      */
-    class response;
+    struct request;
 
     namespace validators {
         /**
          * Broadcast Validator
          *
-         * @param transaction_id
-         * @param response
-         * @param data
-         * @param timestamp
+         * @param request
          * @return bool
          */
-        bool broadcast_validator(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                                 const boost::json::object &data, long timestamp);
+        bool broadcast_validator(const request &request);
     }
 } // namespace aewt
 

@@ -15,24 +15,26 @@
 
 #pragma once
 
-#ifndef AEWT_VALIDATORS_UNSUBSCRIBE_ALL_SESSION_VALIDATOR_HPP
-#define AEWT_VALIDATORS_UNSUBSCRIBE_ALL_SESSION_VALIDATOR_HPP
+#ifndef AEWT_REQUEST_HPP
+#define AEWT_REQUEST_HPP
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/json/object.hpp>
+#include <memory>
+
+#include <aewt/response.hpp>
+#include <aewt/state.hpp>
+#include <aewt/session.hpp>
 
 namespace aewt {
-    /**
-     * Forward Request
-     */
-    struct request;
-
-    namespace validators {
-        /**
-         * Unsubscribe All Session Validator
-         *
-         * @param request
-         * @return bool
-         */
-        bool unsubscribe_all_session_validator(const request &request);
-    }
+    struct request {
+        const boost::uuids::uuid transaction_id_;
+        std::shared_ptr<aewt::response> &response_;
+        const std::shared_ptr<aewt::state> &state_;
+        const std::shared_ptr<aewt::session> &session_;
+        boost::json::object &data_;
+        long timestamp_;
+    };
 } // namespace aewt
 
-#endif  // AEWT_VALIDATORS_UNSUBSCRIBE_ALL_SESSION_VALIDATOR_HPP
+#endif  // AEWT_REQUEST_HPP

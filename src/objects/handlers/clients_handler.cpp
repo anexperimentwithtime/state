@@ -17,28 +17,23 @@
 
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
-#include <aewt/session.hpp>
-#include <boost/core/ignore_unused.hpp>
+#include <aewt/request.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
-    void clients_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                         const std::shared_ptr<state> &state,
-                         const std::shared_ptr<session> &session, const long timestamp) {
-        boost::ignore_unused(session);
-
-        auto _clients = state->get_clients();
+    void clients_handler(const request &request) {
+        auto _clients = request.state_->get_clients();
 
         boost::json::array _clients_array;
-        for (const auto &client: _clients) {
-            _clients_array.push_back(to_string(client).data());
+        for (const auto &_client: _clients) {
+            _clients_array.push_back(to_string(_client).data());
         }
 
         const boost::json::object _data = {
             {"clients", _clients_array},
         };
 
-        response->set_data(transaction_id, "ok", timestamp, _data);
+        request.response_->set_data(request.transaction_id_, "ok", request.timestamp_, _data);
     }
 }

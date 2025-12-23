@@ -20,26 +20,21 @@
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
-
-#include <boost/core/ignore_unused.hpp>
+#include <aewt/request.hpp>
 
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
-    void session_client_exists_handler(const boost::uuids::uuid transaction_id,
-                                       const std::shared_ptr<response> &response,
-                                       const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
-                                       const boost::json::object &data, const long timestamp) {
-        boost::ignore_unused(session);
+    void session_client_exists_handler(const request &request) {
 
-        if (validators::clients_validator(transaction_id, response, data, timestamp)) {
-            auto _params = data.at("params").as_object();
+        if (validators::clients_validator(request)) {
+            auto _params = request.data_.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
             const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
 
-            const auto _status = state->get_client_exists_on_session(_client_id, _session_id) ? "yes" : "no";
+            const auto _status = request.state_->get_client_exists_on_session(_client_id, _session_id) ? "yes" : "no";
 
-            response->set_data(transaction_id, _status, timestamp);
+            request.response_->set_data(request.transaction_id_, _status, request.timestamp_);
         }
     }
 }

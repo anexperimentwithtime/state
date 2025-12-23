@@ -18,30 +18,29 @@
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
+#include <aewt/request.hpp>
 
 #include <aewt/validators/publish_validator.hpp>
 
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
-    void publish_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                         const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
-                         const boost::json::object &data, const long timestamp) {
-        if (validators::publish_validator(transaction_id, response, data, timestamp)) {
-            auto _params = data.at("params").as_object();
+    void publish_handler(const request &request) {
+        if (validators::publish_validator(request)) {
+            auto _params = request.data_.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
             const std::string _channel{_params.at("channel").as_string()};
             const auto _payload = _params.at("payload").as_object();
 
-            const std::size_t _count = state->
-                    publish(transaction_id, session->get_id(), _client_id, _channel, _payload);
+            const std::size_t _count = request.state_->
+                    publish(request.transaction_id_, request.session_->get_id(), _client_id, _channel, _payload);
 
             const auto _status = _count > 0 ? "ok" : "no effect";
 
-            response->set_data(
-                transaction_id,
+            request.response_->set_data(
+                request.transaction_id_,
                 _status,
-                timestamp,
+                request.timestamp_,
                 {
                     {"count", _count}
                 });

@@ -16,10 +16,10 @@
 #include <aewt/handlers/ping_handler.hpp>
 
 #include <aewt/response.hpp>
+#include <aewt/request.hpp>
 
 namespace aewt::handlers {
-    void ping_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                      const long timestamp) {
-        response->set_data(transaction_id, "pong", timestamp);
+    void ping_handler(const request &request) {
+        request.response_->set_data(request.transaction_id_, "pong", request.timestamp_);
     }
 }

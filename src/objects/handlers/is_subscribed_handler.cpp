@@ -18,31 +18,25 @@
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
+#include <aewt/request.hpp>
 
 #include <aewt/validators/is_subscribed_validator.hpp>
-
-#include <boost/core/ignore_unused.hpp>
 
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
-    void is_subscribed_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                               const std::shared_ptr<state> &state,
-                               const std::shared_ptr<session> &session, const boost::json::object &data,
-                               const long timestamp) {
-        boost::ignore_unused(session);
-
-        if (validators::is_subscribed_validator(transaction_id, response, data, timestamp)) {
-            const auto _params = data.at("params").as_object();
+    void is_subscribed_handler(const request &request) {
+        if (validators::is_subscribed_validator(request)) {
+            const auto _params = request.data_.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
             const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
             const std::string _channel{_params.at("channel").as_string()};
 
-            const bool _success = state->is_subscribed(_session_id, _client_id, _channel);
+            const bool _success = request.state_->is_subscribed(_session_id, _client_id, _channel);
 
             const auto _status = _success ? "yes" : "no";
 
-            response->set_data(transaction_id, _status, timestamp);
+            request.response_->set_data(request.transaction_id_, _status, request.timestamp_);
         }
     }
 }
