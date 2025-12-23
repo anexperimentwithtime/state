@@ -32,7 +32,7 @@ namespace aewt::handlers {
 
             const bool _success = request.state_->is_subscribed(_session_id, _client_id, _channel);
 
-            const auto _status = _success ? "yes" : "no";
+            const auto _status = get_status(_success, "yes", "no");
 
             next(request, _status);
         }

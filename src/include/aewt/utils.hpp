@@ -128,6 +128,16 @@ namespace aewt {
      * @return object
      */
     boost::json::object make_session_object(const std::shared_ptr<session>& session);
+
+    /**
+     * Get Effect
+     *
+     * @param gate
+     * @param on_true
+     * @param on_false
+     * @return char *
+     */
+    const char * get_status(bool gate, const char * on_true = "ok", const char * on_false = "no effect");
 }
 
 #endif // AEWT_UTILS_HPP

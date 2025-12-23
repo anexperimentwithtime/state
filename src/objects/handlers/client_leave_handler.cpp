@@ -35,16 +35,16 @@ namespace aewt::handlers {
             const auto _removed = request.state_->remove_client(_client_id);
 
             std::size_t _count = 0;
-            if (_is_local) {
-                _count = distribute_to_others(request.state_, request.data_);
-            }
 
-            const auto _status = _removed ? "ok" : "no effect";
+            if (_is_local && _removed)
+                _count = distribute_to_others(request.state_, request.data_);
+
+            const auto _status = get_status(_removed);
 
             next(request, _status, {
-                    {"timestamp", request.timestamp_},
-                    {"count", _count}
-                });
+                     {"timestamp", request.timestamp_},
+                     {"count", _count}
+                 });
         }
     }
 }

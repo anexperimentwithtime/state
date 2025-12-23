@@ -29,7 +29,7 @@ namespace aewt::handlers {
             const auto &_client_id = get_param_as_id(_params, "client_id");
 
             if (const auto _client_optional = request.state_->get_client(_client_id); _client_optional.has_value()) {
-                const auto& _client = _client_optional.value();
+                const auto &_client = _client_optional.value();
 
                 const boost::json::array _subscriptions = make_channels_array_of_subscriptions(
                     request.state_->get_client_subscriptions(_client_id)

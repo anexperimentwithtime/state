@@ -31,10 +31,15 @@ namespace aewt::handlers {
             const auto &_receiver_id = get_param_as_id(_params, "receiver_id");
             const auto &_payload = get_param_as_object(_params, "payload");
 
-            const bool _success = request.state_->send(request.transaction_id_, request.session_->get_id(), _sender_id,
-                                                      _receiver_id, _payload);
+            const bool _success = request.state_->send(
+                request.transaction_id_,
+                request.session_->get_id(),
+                _sender_id,
+                _receiver_id,
+                _payload
+            );
 
-            const auto _status = _success ? "ok" : "no effect";
+            const auto _status = get_status(_success);
 
             next(request, _status);
         }

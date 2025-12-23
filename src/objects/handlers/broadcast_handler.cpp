@@ -37,7 +37,7 @@ namespace aewt::handlers {
                 _payload
             );
 
-            const auto _status = _count > 0 ? "ok" : "no effect";
+            const auto _status = get_status(_count > 0);
 
             next(request, _status, {{"count", _count}});
         }

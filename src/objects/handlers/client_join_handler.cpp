@@ -25,12 +25,6 @@
 #include <aewt/distribute.hpp>
 
 namespace aewt::handlers {
-    /**
-     * @details
-     *
-     *  Aceptar a un cliente requiere que todas las sesiones sean informados.
-     *
-     */
     void client_join_handler(const request &request) {
         if (validators::clients_validator(request)) {
             const auto &_params = get_params(request);
@@ -40,9 +34,11 @@ namespace aewt::handlers {
             const auto _is_local = request.session_->get_id() == _session_id;
             const auto _inserted = request.state_->add_client(_client_id, _session_id, _is_local);
 
-            std::size_t _count = _is_local ? distribute_to_others(request.state_, request.data_) : 0;
+            std::size_t _count = _is_local && _inserted
+                                     ? distribute_to_others(request.state_, request.data_)
+                                     : 0;
 
-            const auto _status = _inserted ? "ok" : "no effect";
+            const auto _status = get_status(_inserted);
 
             next(request, _status, {{"count", _count}});
         }
