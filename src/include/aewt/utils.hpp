@@ -130,7 +130,7 @@ namespace aewt {
     boost::json::object make_session_object(const std::shared_ptr<session>& session);
 
     /**
-     * Get Effect
+     * Get Status
      *
      * @param gate
      * @param on_true
