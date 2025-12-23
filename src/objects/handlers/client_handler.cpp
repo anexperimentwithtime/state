@@ -38,18 +38,35 @@ namespace aewt::handlers {
                 data.at("params").as_object().at("client_id").as_string()
             });
 
-            if (state->get_client_exists(_client_id)) {
+            if (const auto _client_optional = state->get_client(_client_id); _client_optional.has_value()) {
+                const auto _client = _client_optional.value();
                 auto _client_subscriptions = state->get_client_subscriptions(_client_id);
                 boost::json::array _subscriptions;
                 _subscriptions.reserve(_client_subscriptions.size());
                 for (const auto &_subscription: _client_subscriptions) {
                     _subscriptions.emplace_back(_subscription.channel_);
                 }
-                const boost::json::object _data = {
+
+                boost::json::object _data = {
                     {"timestamp", _timestamp.time_since_epoch().count()},
                     {"id", to_string(_client_id)},
                     {"subscriptions", _subscriptions},
+                    {"is_local", _client->get_is_local()},
                 };
+
+                if (const auto & _socket_optional = _client->get_socket(); _socket_optional.has_value()) {
+                    if (auto & _socket = _socket_optional.value(); _socket.is_open()) {
+                        _data["ip"] = _socket.remote_endpoint().address().to_string();
+                        _data["port"] = _socket.remote_endpoint().port();
+                    } else {
+                        _data["ip"] = nullptr;
+                        _data["port"] = nullptr;
+                    }
+                } else {
+                    _data["ip"] = nullptr;
+                    _data["port"] = nullptr;
+                }
+
                 response->set_data(transaction_id, "ok", _data);
             } else {
                 response->set_data(transaction_id, "no effect", {
