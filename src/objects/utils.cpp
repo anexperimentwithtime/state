@@ -79,10 +79,10 @@ namespace aewt {
      * @param clients
      * @return
      */
-    boost::json::array make_array_of_clients(const std::vector<std::shared_ptr<client>> &clients) {
+    boost::json::array make_array_of_clients(const std::vector<std::shared_ptr<client> > &clients) {
         boost::json::array _array;
         for (const auto &_client: clients) {
-            _array.push_back(boost::json::object {
+            _array.push_back(boost::json::object{
                 {"id", to_string(_client->get_id())}
             });
         }
@@ -135,17 +135,18 @@ namespace aewt {
     }
 
     boost::json::object make_broadcast_request_object(const request &request, const boost::uuids::uuid &session_id,
-        const boost::uuids::uuid &client_id, const boost::json::object & payload) {
+                                                      const boost::uuids::uuid &client_id,
+                                                      const boost::json::object &payload) {
         return {
-                {"transaction_id", to_string(request.transaction_id_)},
-                {"action", "broadcast"},
-                {
-                    "params", {
-                        {"client_id", to_string(client_id)},
-                        {"session_id", to_string(session_id)},
-                        {"payload", payload},
-                    }
+            {"transaction_id", to_string(request.transaction_id_)},
+            {"action", "broadcast"},
+            {
+                "params", {
+                    {"client_id", to_string(client_id)},
+                    {"session_id", to_string(session_id)},
+                    {"payload", payload},
                 }
+            }
         };
     }
 

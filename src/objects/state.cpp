@@ -67,12 +67,12 @@ namespace aewt {
         return _result;
     }
 
-    std::vector<std::shared_ptr<client>> state::get_clients() const {
+    std::vector<std::shared_ptr<client> > state::get_clients() const {
         std::shared_lock _lock(clients_mutex_);
 
         const auto &_index = clients_.get<clients_by_client>();
 
-        std::vector<std::shared_ptr<client>> _result;
+        std::vector<std::shared_ptr<client> > _result;
         _result.reserve(clients_.size());
 
         for (const auto &_client: _index)
@@ -222,7 +222,8 @@ namespace aewt {
     }
 
     std::size_t state::broadcast_to_sessions(const request &request, const boost::uuids::uuid session_id,
-                                 const boost::uuids::uuid client_id, const boost::json::object &data) const {
+                                             const boost::uuids::uuid client_id,
+                                             const boost::json::object &data) const {
         const auto _data = std::make_shared<boost::json::object>(
             make_broadcast_request_object(request, session_id, client_id, data)
         );
@@ -231,7 +232,7 @@ namespace aewt {
     }
 
     std::size_t state::broadcast_to_clients(const request &request, const boost::uuids::uuid session_id,
-                             const boost::uuids::uuid client_id, const boost::json::object &data) const {
+                                            const boost::uuids::uuid client_id, const boost::json::object &data) const {
         const auto _data = std::make_shared<boost::json::object>(
             make_broadcast_request_object(request, session_id, client_id, data)
         );
@@ -313,8 +314,9 @@ namespace aewt {
         return false;
     }
 
-    std::size_t state::send_to_others_sessions(const std::shared_ptr<boost::json::object> &data, const boost::uuids::uuid except) const {
-        std::vector<std::shared_ptr<session>> _sessions = get_sessions();
+    std::size_t state::send_to_others_sessions(const std::shared_ptr<boost::json::object> &data,
+                                               const boost::uuids::uuid except) const {
+        std::vector<std::shared_ptr<session> > _sessions = get_sessions();
 
         std::size_t _count = 0;
         for (const auto &_session: _sessions) {
@@ -328,8 +330,9 @@ namespace aewt {
         return _count;
     }
 
-    std::size_t state::send_to_others_clients(const std::shared_ptr<boost::json::object> &data, const boost::uuids::uuid except) const {
-        std::vector<std::shared_ptr<client>> _clients = get_clients();
+    std::size_t state::send_to_others_clients(const std::shared_ptr<boost::json::object> &data,
+                                              const boost::uuids::uuid except) const {
+        std::vector<std::shared_ptr<client> > _clients = get_clients();
 
         std::size_t _count = 0;
         for (const auto &_client: _clients) {

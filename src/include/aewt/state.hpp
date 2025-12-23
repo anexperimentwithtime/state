@@ -91,7 +91,7 @@ namespace aewt {
          *
          * @return vector<uuid>
          */
-        std::vector<std::shared_ptr<client>> get_clients() const;
+        std::vector<std::shared_ptr<client> > get_clients() const;
 
         /**
          * Get Client Exists On Session
@@ -221,8 +221,8 @@ namespace aewt {
          *
          * @return size_t
          */
-        std::size_t broadcast_to_sessions(const request & request, boost::uuids::uuid session_id,
-                              boost::uuids::uuid client_id, const boost::json::object &data) const;
+        std::size_t broadcast_to_sessions(const request &request, boost::uuids::uuid session_id,
+                                          boost::uuids::uuid client_id, const boost::json::object &data) const;
 
         /**
          * Broadcast To Clients
@@ -234,8 +234,8 @@ namespace aewt {
          *
          * @return size_t
          */
-        std::size_t broadcast_to_clients(const request & request, boost::uuids::uuid session_id,
-                              boost::uuids::uuid client_id, const boost::json::object &data) const;
+        std::size_t broadcast_to_clients(const request &request, boost::uuids::uuid session_id,
+                                         boost::uuids::uuid client_id, const boost::json::object &data) const;
 
         /**
          * Publish
@@ -274,7 +274,6 @@ namespace aewt {
                   boost::uuids::uuid receiver_id, const boost::json::object &data) const;
 
     private:
-
         /**
          * Send To Others Sessions
          *
@@ -282,7 +281,8 @@ namespace aewt {
          * @param except
          * @return
          */
-        std::size_t send_to_others_sessions(const std::shared_ptr<boost::json::object> &data, boost::uuids::uuid except) const;
+        std::size_t send_to_others_sessions(const std::shared_ptr<boost::json::object> &data,
+                                            boost::uuids::uuid except) const;
 
         /**
          * Send To Clients
@@ -291,7 +291,8 @@ namespace aewt {
          * @param except
          * @return
          */
-        std::size_t send_to_others_clients(const std::shared_ptr<boost::json::object> &data, boost::uuids::uuid except) const;
+        std::size_t send_to_others_clients(const std::shared_ptr<boost::json::object> &data,
+                                           boost::uuids::uuid except) const;
 
         /**
          * ID
