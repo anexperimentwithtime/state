@@ -31,7 +31,7 @@ TEST(handlers_pong_handle_test, can_handle) {
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
-    auto _transaction_id = to_string(_state->get_generator()());
+    auto _transaction_id = to_string(boost::uuids::random_generator()());
     const boost::json::object _data = {{"action", "ping"}, {"transaction_id", _transaction_id}};
 
     const auto _response = kernel(_state, _session, _data);

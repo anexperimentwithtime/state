@@ -106,12 +106,12 @@ namespace aewt {
     boost::json::array make_channels_array_of_subscriptions(const std::vector<subscription> &subscriptions);
 
     /**
-     * Make Array Of Clients IDs
+     * Make Array Of Clients
      *
      * @param clients
-     * @return array
+     * @return
      */
-    boost::json::array make_array_of_clients_ids(const std::vector<boost::uuids::uuid> &clients);
+    boost::json::array make_array_of_clients(const std::vector<std::shared_ptr<client> > &clients);
 
     /**
      * Make Client Object
@@ -119,7 +119,8 @@ namespace aewt {
      * @param subscriptions
      * @return object
      */
-    boost::json::object make_client_object(const std::shared_ptr<client>& client, const boost::json::array & subscriptions);
+    boost::json::object make_client_object(const std::shared_ptr<client> &client,
+                                           const boost::json::array &subscriptions);
 
     /**
      * Make Session Object
@@ -127,7 +128,20 @@ namespace aewt {
      * @param session
      * @return object
      */
-    boost::json::object make_session_object(const std::shared_ptr<session>& session);
+    boost::json::object make_session_object(const std::shared_ptr<session> &session);
+
+    /**
+     * Make Broadcast Request Object
+     *
+     * @param request
+     * @param session_id
+     * @param client_id
+     * @param payload
+     * @return object
+     */
+    boost::json::object make_broadcast_request_object(const request &request, const boost::uuids::uuid &session_id,
+                                                      const boost::uuids::uuid &client_id,
+                                                      const boost::json::object &payload);
 
     /**
      * Get Status
@@ -137,7 +151,7 @@ namespace aewt {
      * @param on_false
      * @return char *
      */
-    const char * get_status(bool gate, const char * on_true = "ok", const char * on_false = "no effect");
+    const char *get_status(bool gate, const char *on_true = "ok", const char *on_false = "no effect");
 }
 
 #endif // AEWT_UTILS_HPP

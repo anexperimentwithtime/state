@@ -20,9 +20,9 @@
 
 TEST(state_test, can_be_created) {
     const auto _state = std::make_shared<aewt::state>();
-    ASSERT_TRUE(!_state->get_generator()().is_nil());
+    ASSERT_TRUE(!boost::uuids::random_generator()().is_nil());
     ASSERT_TRUE(!_state->get_id().is_nil());
-    ASSERT_TRUE(_state->get_generator()() != _state->get_id());
+    ASSERT_TRUE(boost::uuids::random_generator()() != _state->get_id());
     ASSERT_TRUE(std::chrono::system_clock::now() > _state->get_created_at());
 }
 

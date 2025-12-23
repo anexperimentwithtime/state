@@ -35,8 +35,8 @@ TEST(handlers_client_join_handler_test, can_handle) {
     _state->add_session(_session);
     _state->add_session(_other);
 
-    auto _client_id = to_string(_state->get_generator()());
-    auto _client_join_transaction_id = to_string(_state->get_generator()());
+    auto _client_id = to_string(boost::uuids::random_generator()());
+    auto _client_join_transaction_id = to_string(boost::uuids::random_generator()());
 
     const boost::json::object _data = {
         {"action", "client_join"}, {"transaction_id", _client_join_transaction_id},
@@ -82,8 +82,8 @@ TEST(handlers_client_join_handler_test, can_handle_no_effect) {
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
-    auto _client_id = to_string(_state->get_generator()());
-    auto _client_join_transaction_id = to_string(_state->get_generator()());
+    auto _client_id = to_string(boost::uuids::random_generator()());
+    auto _client_join_transaction_id = to_string(boost::uuids::random_generator()());
 
     const boost::json::object _data = {
         {"action", "client_join"}, {"transaction_id", _client_join_transaction_id},

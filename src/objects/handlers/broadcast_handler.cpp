@@ -28,18 +28,36 @@ namespace aewt::handlers {
         if (validators::broadcast_validator(request)) {
             auto &_params = get_params(request);
             const auto &_client_id = get_param_as_id(_params, "client_id");
+            const auto &_session_id = get_param_as_id(_params, "session_id");
             const auto &_payload = get_param_as_object(_params, "payload");
 
-            const std::size_t _count = request.state_->broadcast(
-                request.transaction_id_,
-                request.session_->get_id(),
+            const bool _is_local = request.session_->get_id() == _session_id;
+
+            const std::size_t _clients_count = request.state_->broadcast_to_clients(
+                request,
+                _session_id,
                 _client_id,
                 _payload
             );
 
+            const std::size_t _sessions_count = _is_local
+                                                    ? request.state_->broadcast_to_sessions(
+                                                        request,
+                                                        _session_id,
+                                                        _client_id,
+                                                        _payload
+                                                    )
+                                                    : 0;
+
+            const std::size_t _count = _clients_count + _sessions_count;
+
             const auto _status = get_status(_count > 0);
 
-            next(request, _status, {{"count", _count}});
+            next(request, _status, {
+                     {"clients_count", _clients_count},
+                     {"sessions_count", _sessions_count},
+                     {"count", _count}
+                 });
         }
     }
 }
