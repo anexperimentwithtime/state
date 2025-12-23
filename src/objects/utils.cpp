@@ -73,10 +73,18 @@ namespace aewt {
         return _array;
     }
 
-    boost::json::array make_array_of_clients_ids(const std::vector<boost::uuids::uuid> &clients) {
+    /**
+     * Make Array Of Clients
+     *
+     * @param clients
+     * @return
+     */
+    boost::json::array make_array_of_clients(const std::vector<std::shared_ptr<client>> &clients) {
         boost::json::array _array;
         for (const auto &_client: clients) {
-            _array.push_back(to_string(_client).data());
+            _array.push_back(boost::json::object {
+                {"id", to_string(_client->get_id())}
+            });
         }
         return _array;
     }
@@ -124,6 +132,21 @@ namespace aewt {
         }
 
         return _data;
+    }
+
+    boost::json::object make_broadcast_request_object(const request &request, const boost::uuids::uuid &session_id,
+        const boost::uuids::uuid &client_id, const boost::json::object & payload) {
+        return {
+                {"transaction_id", to_string(request.transaction_id_)},
+                {"action", "broadcast"},
+                {
+                    "params", {
+                        {"client_id", to_string(client_id)},
+                        {"session_id", to_string(session_id)},
+                        {"payload", payload},
+                    }
+                }
+        };
     }
 
     const char *get_status(const bool gate, const char *on_true, const char *on_false) {

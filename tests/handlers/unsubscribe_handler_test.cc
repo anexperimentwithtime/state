@@ -31,9 +31,9 @@ TEST(handlers_unsubscribe_handler_test, can_handle) {
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
-    auto _client_id = to_string(_state->get_generator()());
-    auto _subscribe_transaction_id = to_string(_state->get_generator()());
-    auto _unsubscribe_transaction_id = to_string(_state->get_generator()());
+    auto _client_id = to_string(boost::uuids::random_generator()());
+    auto _subscribe_transaction_id = to_string(boost::uuids::random_generator()());
+    auto _unsubscribe_transaction_id = to_string(boost::uuids::random_generator()());
 
     const boost::json::object _subscribe = {
         {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
@@ -85,8 +85,8 @@ TEST(kernel_test, can_handle_no_effect) {
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
-    auto _client_id = to_string(_state->get_generator()());
-    auto _unsubscribe_transaction_id = to_string(_state->get_generator()());
+    auto _client_id = to_string(boost::uuids::random_generator()());
+    auto _unsubscribe_transaction_id = to_string(boost::uuids::random_generator()());
 
     const boost::json::object _data = {
         {"action", "unsubscribe"}, {"transaction_id", _unsubscribe_transaction_id},

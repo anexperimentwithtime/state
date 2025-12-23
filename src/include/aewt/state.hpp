@@ -38,6 +38,11 @@ namespace aewt {
     class session;
 
     /**
+     * Forward Request
+     */
+    class request;
+
+    /**
      * Instance
      */
     class state : public std::enable_shared_from_this<state> {
@@ -51,13 +56,6 @@ namespace aewt {
          * Destructor
          */
         ~state();
-
-        /**
-         * Get Generator
-         *
-         * @return random_generator
-         */
-        boost::uuids::random_generator get_generator() const;
 
         /**
          * Get ID
@@ -93,7 +91,7 @@ namespace aewt {
          *
          * @return vector<uuid>
          */
-        std::vector<boost::uuids::uuid> get_clients() const;
+        std::vector<std::shared_ptr<client>> get_clients() const;
 
         /**
          * Get Client Exists On Session
@@ -214,17 +212,30 @@ namespace aewt {
         std::size_t unsubscribe_all_session(const boost::uuids::uuid &session_id);
 
         /**
-         * Broadcast
+         * Broadcast To Sessions
          *
-         * @param transaction_id
+         * @param request
          * @param session_id
          * @param client_id
          * @param data
          *
          * @return size_t
          */
-        std::size_t broadcast(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id,
-                              boost::uuids::uuid client_id, boost::json::object data) const;
+        std::size_t broadcast_to_sessions(const request & request, boost::uuids::uuid session_id,
+                              boost::uuids::uuid client_id, const boost::json::object &data) const;
+
+        /**
+         * Broadcast To Clients
+         *
+         * @param request
+         * @param session_id
+         * @param client_id
+         * @param data
+         *
+         * @return size_t
+         */
+        std::size_t broadcast_to_clients(const request & request, boost::uuids::uuid session_id,
+                              boost::uuids::uuid client_id, const boost::json::object &data) const;
 
         /**
          * Publish
@@ -263,10 +274,24 @@ namespace aewt {
                   boost::uuids::uuid receiver_id, const boost::json::object &data) const;
 
     private:
+
         /**
-         * Generator
+         * Send To Others Sessions
+         *
+         * @param data
+         * @param except
+         * @return
          */
-        boost::uuids::random_generator generator_;
+        std::size_t send_to_others_sessions(const std::shared_ptr<boost::json::object> &data, boost::uuids::uuid except) const;
+
+        /**
+         * Send To Clients
+         *
+         * @param data
+         * @param except
+         * @return
+         */
+        std::size_t send_to_others_clients(const std::shared_ptr<boost::json::object> &data, boost::uuids::uuid except) const;
 
         /**
          * ID

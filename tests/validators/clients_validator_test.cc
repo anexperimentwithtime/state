@@ -30,7 +30,7 @@ TEST(validators_clients_validator_test, can_handle_empty_params_client_id_on_cli
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
     for (const auto _action: {"client_join", "client_leave"}) {
-        auto _transaction_id = to_string(_state->get_generator()());
+        auto _transaction_id = to_string(boost::uuids::random_generator()());
         const boost::json::object _data = {
             {"action", _action}, {"transaction_id", _transaction_id},
             {"params", {{"session_id", to_string(_session->get_id())}}}
@@ -79,7 +79,7 @@ TEST(validators_clients_validator_test, can_handle_wrong_params_client_id_primiv
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
     for (const auto _action: {"client_join", "client_leave"}) {
-        auto _transaction_id = to_string(_state->get_generator()());
+        auto _transaction_id = to_string(boost::uuids::random_generator()());
         const boost::json::object _data = {
             {"action", _action}, {"transaction_id", _transaction_id},
             {"params", {{"session_id", to_string(_session->get_id())}, {"client_id", 7}}}
@@ -128,7 +128,7 @@ TEST(validators_clients_validator_test, can_handle_wrong_params_client_id_type_o
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
     for (const auto _action: {"client_join", "client_leave"}) {
-        auto _transaction_id = to_string(_state->get_generator()());
+        auto _transaction_id = to_string(boost::uuids::random_generator()());
         const boost::json::object _data = {
             {"action", _action}, {"transaction_id", _transaction_id},
             {"params", {{"session_id", to_string(_session->get_id())}, {"client_id", "7"}}}
@@ -177,8 +177,8 @@ TEST(validators_clients_validator_test, can_handle_empty_params_session_id_on_cl
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
     for (const auto _action: {"client_join", "client_leave"}) {
-        auto _transaction_id = to_string(_state->get_generator()());
-        auto _client_id = to_string(_state->get_generator()());
+        auto _transaction_id = to_string(boost::uuids::random_generator()());
+        auto _client_id = to_string(boost::uuids::random_generator()());
         const boost::json::object _data = {
             {"action", _action}, {"transaction_id", _transaction_id}, {"params", {{"client_id", _client_id}}}
         };
@@ -226,8 +226,8 @@ TEST(validators_clients_validator_test, can_handle_wrong_params_session_id_primi
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
     for (const auto _action: {"client_join", "client_leave"}) {
-        auto _transaction_id = to_string(_state->get_generator()());
-        auto _client_id = to_string(_state->get_generator()());
+        auto _transaction_id = to_string(boost::uuids::random_generator()());
+        auto _client_id = to_string(boost::uuids::random_generator()());
         const boost::json::object _data = {
             {"action", _action}, {"transaction_id", _transaction_id},
             {"params", {{"session_id", 7}, {"client_id", _client_id}}}
@@ -275,8 +275,8 @@ TEST(validators_clients_validator_test, can_handle_wrong_params_session_id_type_
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
     for (const auto _action: {"client_join", "client_leave"}) {
-        auto _transaction_id = to_string(_state->get_generator()());
-        auto _client_id = to_string(_state->get_generator()());
+        auto _transaction_id = to_string(boost::uuids::random_generator()());
+        auto _client_id = to_string(boost::uuids::random_generator()());
         const boost::json::object _data = {
             {"action", _action}, {"transaction_id", _transaction_id},
             {"params", {{"session_id", "7"}, {"client_id", _client_id}}}
@@ -325,8 +325,8 @@ TEST(validators_clients_validator_test, can_handle_empty_params_on_clients) {
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
     for (const auto _action: {"client_join", "client_leave"}) {
-        auto _transaction_id = to_string(_state->get_generator()());
-        auto _client_id = to_string(_state->get_generator()());
+        auto _transaction_id = to_string(boost::uuids::random_generator()());
+        auto _client_id = to_string(boost::uuids::random_generator()());
         const boost::json::object _data = {{"action", _action}, {"transaction_id", _transaction_id}};
         const auto _response = kernel(_state, _session, _data);
 
@@ -371,8 +371,8 @@ TEST(validators_clients_validator_test, can_handle_wrong_params_primivite_on_cli
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
     for (const auto _action: {"client_join", "client_leave"}) {
-        auto _transaction_id = to_string(_state->get_generator()());
-        auto _client_id = to_string(_state->get_generator()());
+        auto _transaction_id = to_string(boost::uuids::random_generator()());
+        auto _client_id = to_string(boost::uuids::random_generator()());
         const boost::json::object _data = {{"action", _action}, {"transaction_id", _transaction_id}, {"params", 7}};
         const auto _response = kernel(_state, _session, _data);
 
