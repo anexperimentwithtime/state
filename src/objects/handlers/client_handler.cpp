@@ -25,22 +25,22 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include <aewt/utils.hpp>
+
 namespace aewt::handlers {
     void client_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
-                const boost::json::object &data) {
+                        const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
+                        const boost::json::object &data, const long timestamp) {
         boost::ignore_unused(session);
 
-        const auto _timestamp = std::chrono::system_clock::now();
-
-        if (validators::client_id_validator(transaction_id, response, data)) {
-            const auto _client_id = boost::lexical_cast<boost::uuids::uuid>(std::string{
-                data.at("params").as_object().at("client_id").as_string()
-            });
+        if (validators::client_id_validator(transaction_id, response, data, timestamp)) {
+            auto _params = data.at("params").as_object();
+            const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
 
             if (const auto _client_optional = state->get_client(_client_id); _client_optional.has_value()) {
                 const auto _client = _client_optional.value();
                 auto _client_subscriptions = state->get_client_subscriptions(_client_id);
+
                 boost::json::array _subscriptions;
                 _subscriptions.reserve(_client_subscriptions.size());
                 for (const auto &_subscription: _client_subscriptions) {
@@ -48,14 +48,14 @@ namespace aewt::handlers {
                 }
 
                 boost::json::object _data = {
-                    {"timestamp", _timestamp.time_since_epoch().count()},
-                    {"id", to_string(_client_id)},
+                    {"client_id", to_string(_client_id)},
+                    {"session_id", to_string(_client->get_session_id())},
                     {"subscriptions", _subscriptions},
                     {"is_local", _client->get_is_local()},
                 };
 
-                if (const auto & _socket_optional = _client->get_socket(); _socket_optional.has_value()) {
-                    if (auto & _socket = _socket_optional.value(); _socket.is_open()) {
+                if (const auto &_socket_optional = _client->get_socket(); _socket_optional.has_value()) {
+                    if (auto &_socket = _socket_optional.value(); _socket.is_open()) {
                         _data["ip"] = _socket.remote_endpoint().address().to_string();
                         _data["port"] = _socket.remote_endpoint().port();
                     } else {
@@ -67,11 +67,9 @@ namespace aewt::handlers {
                     _data["port"] = nullptr;
                 }
 
-                response->set_data(transaction_id, "ok", _data);
+                response->set_data(transaction_id, "ok", timestamp, _data);
             } else {
-                response->set_data(transaction_id, "no effect", {
-                                  {"timestamp", _timestamp.time_since_epoch().count()},
-                              });
+                response->set_data(transaction_id, "no effect", timestamp);
             }
         }
     }

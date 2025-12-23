@@ -45,8 +45,8 @@ namespace aewt {
      * @param data
      * @return shared_ptr<response>
      */
-    std::shared_ptr<response> kernel(const std::shared_ptr<state>& state,
-                                     const std::shared_ptr<session>& session,
+    std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
+                                     const std::shared_ptr<session> &session,
                                      boost::json::object data);
 } // namespace aewt
 

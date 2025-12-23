@@ -39,9 +39,10 @@ namespace aewt {
          * @param transaction_id
          * @param response
          * @param session
+         * @param timestamp
          */
         void whoami_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                    const std::shared_ptr<session> &session);
+                            const std::shared_ptr<session> &session, long timestamp);
     }
 } // namespace aewt
 

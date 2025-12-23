@@ -42,8 +42,8 @@ namespace aewt {
          * Is Local
          */
         bool is_local_;
-    public:
 
+    public:
         /**
          * Constructor
          * @param id
@@ -77,7 +77,7 @@ namespace aewt {
          *
          * @return tcp::socket
          */
-        std::optional<boost::asio::ip::tcp::socket>& get_socket();
+        std::optional<boost::asio::ip::tcp::socket> &get_socket();
 
         /**
          * Send
@@ -92,6 +92,7 @@ namespace aewt {
          * @return
          */
         bool get_is_local() const;
+
     private:
         /**
          * Socket

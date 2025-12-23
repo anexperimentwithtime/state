@@ -62,6 +62,7 @@ namespace aewt {
          * @param data
          */
         void send(std::shared_ptr<boost::json::object> data);
+
     private:
         /**
          * ID

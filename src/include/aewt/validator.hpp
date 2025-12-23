@@ -64,7 +64,7 @@ namespace aewt {
          * @param uuid
          * @return
          */
-        static bool is_uuid(const char * uuid);
+        static bool is_uuid(const char *uuid);
     };
 } // namespace aewt
 

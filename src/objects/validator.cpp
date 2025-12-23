@@ -52,7 +52,7 @@ namespace aewt {
 
     std::map<std::string, std::string> validator::get_bag() const { return bag_; }
 
-    bool validator::is_uuid(const char * uuid) {
+    bool validator::is_uuid(const char *uuid) {
         try {
             constexpr boost::uuids::string_generator _generator;
             const boost::optional<boost::uuids::uuid> _uuid = _generator(uuid);

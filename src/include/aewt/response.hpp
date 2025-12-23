@@ -71,9 +71,11 @@ namespace aewt {
          *
          * @param transaction_id
          * @param error
+         * @param timestamp
          * @param bag
          */
-        void mark_as_failed(boost::uuids::uuid transaction_id, const char *error, const std::map<std::string, std::string> &bag);
+        void mark_as_failed(boost::uuids::uuid transaction_id, const char *error, long timestamp,
+                            const std::map<std::string, std::string> &bag);
 
         /**
          * Mark As Processed
@@ -85,9 +87,11 @@ namespace aewt {
          *
          * @param transaction_id
          * @param message
+         * @param timestamp
          * @param data
          */
-        void set_data(boost::uuids::uuid transaction_id, const char *message, const boost::json::object &data = {});
+        void set_data(boost::uuids::uuid transaction_id, const char *message, long timestamp = 0,
+                      const boost::json::object &data = {});
     };
 } // namespace aewt
 

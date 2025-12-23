@@ -21,25 +21,23 @@
 
 #include <aewt/validators/send_validator.hpp>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include <aewt/utils.hpp>
 
 namespace aewt::handlers {
     void send_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-       const std::shared_ptr<state> &state, const std::shared_ptr<session> &session, const boost::json::object &data) {
-        if (validators::send_validator(transaction_id, response, data)) {
+                      const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
+                      const boost::json::object &data, const long timestamp) {
+        if (validators::send_validator(transaction_id, response, data, timestamp)) {
             auto _params = data.at("params").as_object();
-            const auto _sender_id = boost::lexical_cast<boost::uuids::uuid>(
-                std::string{_params.at("sender_id").as_string()});
-            const auto _receiver_id = boost::lexical_cast<boost::uuids::uuid>(
-                std::string{_params.at("receiver_id").as_string()});
+            const auto _sender_id = GET_PARAM_AS_ID(_params, "sender_id");
+            const auto _receiver_id = GET_PARAM_AS_ID(_params, "receiver_id");
             const auto _payload = _params.at("payload").as_object();
 
-            const auto _timestamp = std::chrono::system_clock::now();
             const bool _success = state->send(transaction_id, session->get_id(), _sender_id, _receiver_id, _payload);
-            response->set_data(transaction_id, _success ? "ok" : "no effect", {
-                                   {"timestamp", _timestamp.time_since_epoch().count()},
-                               });
+
+            const auto _status = _success ? "ok" : "no effect";
+
+            response->set_data(transaction_id, _status, timestamp);
         }
     }
 }

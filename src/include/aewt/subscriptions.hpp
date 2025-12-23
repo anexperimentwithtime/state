@@ -31,22 +31,26 @@ namespace aewt {
     /**
      * Subscriptions By Session
      */
-    struct subscriptions_by_session {};
+    struct subscriptions_by_session {
+    };
 
     /**
      * Subscriptions By Client
      */
-    struct subscriptions_by_client  {};
+    struct subscriptions_by_client {
+    };
 
     /**
      * Subscriptions By Channel
      */
-    struct subscriptions_by_channel {};
+    struct subscriptions_by_channel {
+    };
 
     /**
      * Subscriptions By Session, Client and Channel
      */
-    struct subscriptions_by_session_client_channel {};
+    struct subscriptions_by_session_client_channel {
+    };
 
     /**
      * Subscriptions
@@ -72,7 +76,7 @@ namespace aewt {
                     subscription,
                     boost::multi_index::member<subscription, boost::uuids::uuid, &subscription::session_id_>,
                     boost::multi_index::member<subscription, boost::uuids::uuid, &subscription::client_id_>,
-                    boost::multi_index::member<subscription, std::string,        &subscription::channel_>
+                    boost::multi_index::member<subscription, std::string, &subscription::channel_>
                 >
             >
         >

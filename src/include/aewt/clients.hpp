@@ -32,17 +32,20 @@ namespace aewt {
     /**
      * Clients By Session
      */
-    struct clients_by_session {};
+    struct clients_by_session {
+    };
 
     /**
      * Clients By Client
      */
-    struct clients_by_client  {};
+    struct clients_by_client {
+    };
 
     /**
      * Clients By Client and Session
      */
-    struct clients_by_client_session {};
+    struct clients_by_client_session {
+    };
 
     using namespace boost::multi_index;
 

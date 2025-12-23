@@ -47,10 +47,13 @@ namespace aewt {
          * @param state
          * @param session
          * @param data
+         * @param timestamp
          */
-        void unsubscribe_all_client_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                                    const std::shared_ptr<state> &state,
-                                    const std::shared_ptr<session> &session, const boost::json::object &data);
+        void unsubscribe_all_client_handler(boost::uuids::uuid transaction_id,
+                                            const std::shared_ptr<response> &response,
+                                            const std::shared_ptr<state> &state,
+                                            const std::shared_ptr<session> &session, const boost::json::object &data,
+                                            long timestamp);
     }
 } // namespace aewt
 

@@ -18,9 +18,10 @@
 #include <aewt/response.hpp>
 
 namespace aewt::handlers {
-    void unimplemented_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response) {
-        response->mark_as_failed(transaction_id, "unprocessable entity", {
-                                         {"action", "action attribute isn't implemented"}
-                                     });
+    void unimplemented_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+                               const long timestamp) {
+        response->mark_as_failed(transaction_id, "unprocessable entity", timestamp, {
+                                     {"action", "action attribute isn't implemented"}
+                                 });
     }
 }

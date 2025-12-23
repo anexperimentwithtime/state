@@ -32,8 +32,10 @@ namespace aewt {
          *
          * @param transaction_id
          * @param response
+         * @param timestamp
          */
-        void unimplemented_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response);
+        void unimplemented_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+                                   long timestamp);
     }
 } // namespace aewt
 

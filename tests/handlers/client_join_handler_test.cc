@@ -30,16 +30,23 @@ TEST(handlers_client_join_handler_test, can_handle) {
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
+    const auto _other = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
 
+    _state->add_session(_session);
+    _state->add_session(_other);
 
     auto _client_id = to_string(_state->get_generator()());
     auto _client_join_transaction_id = to_string(_state->get_generator()());
 
-    const boost::json::object _data = {{"action", "client_join"}, {"transaction_id", _client_join_transaction_id}, {"params", {{"client_id", _client_id}, {"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "client_join"}, {"transaction_id", _client_join_transaction_id},
+        {"params", {{"client_id", _client_id}, {"session_id", to_string(_session->get_id())}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(!_response->get_failed());
@@ -52,8 +59,16 @@ TEST(handlers_client_join_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -70,12 +85,16 @@ TEST(handlers_client_join_handler_test, can_handle_no_effect) {
     auto _client_id = to_string(_state->get_generator()());
     auto _client_join_transaction_id = to_string(_state->get_generator()());
 
-    const boost::json::object _data = {{"action", "client_join"}, {"transaction_id", _client_join_transaction_id}, {"params", {{"client_id", _client_id}, {"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "client_join"}, {"transaction_id", _client_join_transaction_id},
+        {"params", {{"client_id", _client_id}, {"session_id", to_string(_session->get_id())}}}
+    };
 
     kernel(_state, _session, _data);
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(!_response->get_failed());
@@ -88,8 +107,19 @@ TEST(handlers_client_join_handler_test, can_handle_no_effect) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("count"));
+    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").is_number());
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());

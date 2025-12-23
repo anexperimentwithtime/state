@@ -21,25 +21,32 @@
 
 #include <aewt/validators/session_id_validator.hpp>
 
-#include <boost/uuid/uuid_io.hpp>
+#include <aewt/utils.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 namespace aewt::handlers {
     void session_clients_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                            const std::shared_ptr<state> &state,
-                            const std::shared_ptr<session> &session, const boost::json::object &data) {
-        if (validators::session_id_validator(transaction_id, response, data)) {
-            const auto _timestamp = std::chrono::system_clock::now();
-            auto _clients = state->get_clients_by_session(session->get_id());
+                                 const std::shared_ptr<state> &state,
+                                 const std::shared_ptr<session> &session, const boost::json::object &data,
+                                 const long timestamp) {
+        boost::ignore_unused(session);
+
+        if (validators::session_id_validator(transaction_id, response, data, timestamp)) {
+            const auto _params = data.at("params").as_object();
+            const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
+
+            auto _clients = state->get_clients_by_session(_session_id);
+
             boost::json::array _clients_array;
-            for (const auto &client : _clients) {
+            for (const auto &client: _clients) {
                 _clients_array.push_back(to_string(client).data());
             }
+
             const boost::json::object _data = {
-                   {"timestamp", _timestamp.time_since_epoch().count()},
                 {"clients", _clients_array},
             };
-            response->set_data(transaction_id, "ok", _data);
+
+            response->set_data(transaction_id, "ok", timestamp, _data);
         }
     }
-
 }

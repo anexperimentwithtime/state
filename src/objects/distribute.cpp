@@ -13,30 +13,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include <aewt/distribute.hpp>
+#include <aewt/state.hpp>
 #include <aewt/session.hpp>
 
-#include <aewt/logger.hpp>
-#include <boost/core/ignore_unused.hpp>
-
-#include <boost/uuid/uuid_io.hpp>
-
 namespace aewt {
-    session::session(const boost::uuids::uuid id,
-                     boost::asio::ip::tcp::socket socket)
-        : id_(id), socket_(std::move(socket)) {
-        LOG_INFO("session {} allocated", to_string(id_));
-    }
-
-    session::~session() { LOG_INFO("session {} released", to_string(id_)); }
-
-    boost::uuids::uuid session::get_id() const { return id_; }
-
-    boost::asio::ip::tcp::socket &session::get_socket() { return socket_; }
-
-    void session::send(std::shared_ptr<boost::json::object> data) {
-        boost::ignore_unused(data);
-
-        if (socket_.is_open()) {
+    std::size_t distribute_to_others(const std::shared_ptr<state> &state, const boost::json::object &data) {
+        auto _count = 0;
+        for (auto _sessions = state->get_sessions(); const auto &_session: _sessions) {
+            _session->send(std::make_shared<boost::json::object>(data));
+            _count++;
         }
+        return _count;
     }
 } // namespace aewt

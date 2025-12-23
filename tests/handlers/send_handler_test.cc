@@ -72,8 +72,16 @@ TEST(handlers_send_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -121,8 +129,16 @@ TEST(handlers_send_handler_test, can_handle_no_effect) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -161,6 +177,17 @@ TEST(handlers_send_handler_test, can_handle_send_on_empty_data_params) {
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params attribute must be present");
 
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
+
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _send_transaction_id);
@@ -197,6 +224,17 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_primitive)
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params attribute must be object");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -245,6 +283,17 @@ TEST(handlers_send_handler_test, can_handle_send_on_empty_data_params_session_id
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params session_id attribute must be present");
 
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
+
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
     ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _send_transaction_id);
@@ -289,7 +338,18 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_session_id
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params session_id attribute must be string");
+              "params session_id attribute must be string");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -335,7 +395,18 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_session_id
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params session_id attribute must be uuid");
+              "params session_id attribute must be uuid");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -381,7 +452,18 @@ TEST(handlers_send_handler_test, can_handle_send_on_empty_data_params_sender_id)
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params sender_id attribute must be present");
+              "params sender_id attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -427,7 +509,18 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_sender_id_
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params sender_id attribute must be string");
+              "params sender_id attribute must be string");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -473,7 +566,18 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_sender_id_
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params sender_id attribute must be uuid");
+              "params sender_id attribute must be uuid");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -519,7 +623,18 @@ TEST(handlers_send_handler_test, can_handle_send_on_empty_data_params_receiver_i
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params receiver_id attribute must be present");
+              "params receiver_id attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -565,7 +680,18 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_receiver_i
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params receiver_id attribute must be string");
+              "params receiver_id attribute must be string");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -611,7 +737,18 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_receiver_i
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params receiver_id attribute must be uuid");
+              "params receiver_id attribute must be uuid");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -654,7 +791,18 @@ TEST(handlers_send_handler_test, can_handle_send_on_empty_data_params_payload) {
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params payload attribute must be present");
+              "params payload attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -699,7 +847,18 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_payload_pr
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params payload attribute must be object");
+              "params payload attribute must be object");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());

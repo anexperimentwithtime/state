@@ -21,25 +21,33 @@
 
 #include <aewt/validators/unsubscribe_all_session_validator.hpp>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/uuid/uuid_io.hpp>
+
+#include <aewt/utils.hpp>
 
 namespace aewt::handlers {
-    void unsubscribe_all_session_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                                 const std::shared_ptr<state> &state,
-                                 const std::shared_ptr<session> &session, const boost::json::object &data) {
+    void unsubscribe_all_session_handler(const boost::uuids::uuid transaction_id,
+                                         const std::shared_ptr<response> &response,
+                                         const std::shared_ptr<state> &state,
+                                         const std::shared_ptr<session> &session, const boost::json::object &data,
+                                         const long timestamp) {
         boost::ignore_unused(session);
 
-        if (validators::unsubscribe_all_session_validator(transaction_id, response, data)) {
-            const auto _session_id = boost::lexical_cast<boost::uuids::uuid>(
-                std::string{data.at("params").as_object().at("session_id").as_string()});
-            const auto _timestamp = std::chrono::system_clock::now();
+        if (validators::unsubscribe_all_session_validator(transaction_id, response, data, timestamp)) {
+            const auto _params = data.at("params").as_object();
+            const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
+
             const std::size_t _count = state->unsubscribe_all_session(_session_id);
-            response->set_data(transaction_id, _count > 0 ? "ok" : "no effect", {
-                                   {"timestamp", _timestamp.time_since_epoch().count()},
-                                   {"count", _count}
-                               });
+
+            const auto _status = _count > 0 ? "ok" : "no effect";
+
+            response->set_data(
+                transaction_id,
+                _status,
+                timestamp,
+                {
+                    {"count", _count}
+                });
         }
     }
 }

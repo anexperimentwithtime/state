@@ -29,14 +29,15 @@ TEST(validators_client_id_validator_test, can_handle_empty_params_client_id_on_c
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    for (const auto _action : {"client"}) {
+    for (const auto _action: {"client"}) {
         auto _transaction_id = to_string(_state->get_generator()());
         auto _client_id = to_string(_state->get_generator()());
         const boost::json::object _data = {{"action", _action}, {"transaction_id", _transaction_id}, {"params", {}}};
 
         const auto _response = kernel(_state, _session, _data);
 
-        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+                 serialize(_response->get_data()));
 
         ASSERT_TRUE(_response->get_processed());
         ASSERT_TRUE(_response->get_failed());
@@ -53,6 +54,17 @@ TEST(validators_client_id_validator_test, can_handle_empty_params_client_id_on_c
         ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
                   "params client_id attribute must be present");
 
+        ASSERT_TRUE(_response->get_data().contains("runtime"));
+        ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+        ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+        ASSERT_TRUE(_response->get_data().contains("timestamp"));
+        ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+        ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+        ASSERT_TRUE(
+            _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+            time_since_epoch().count());
+
         ASSERT_TRUE(_response->get_data().contains("transaction_id"));
         ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
         ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _transaction_id);
@@ -64,12 +76,15 @@ TEST(validators_client_id_validator_test, can_handle_wrong_params_client_id_prim
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    for (const auto _action : {"client"}) {
+    for (const auto _action: {"client"}) {
         auto _transaction_id = to_string(_state->get_generator()());
-        const boost::json::object _data = {{"action", _action}, {"transaction_id", _transaction_id}, {"params", {{"client_id", 7}}}};
+        const boost::json::object _data = {
+            {"action", _action}, {"transaction_id", _transaction_id}, {"params", {{"client_id", 7}}}
+        };
         const auto _response = kernel(_state, _session, _data);
 
-        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+                 serialize(_response->get_data()));
 
         ASSERT_TRUE(_response->get_processed());
         ASSERT_TRUE(_response->get_failed());
@@ -86,6 +101,17 @@ TEST(validators_client_id_validator_test, can_handle_wrong_params_client_id_prim
         ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
                   "params client_id attribute must be string");
 
+        ASSERT_TRUE(_response->get_data().contains("runtime"));
+        ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+        ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+        ASSERT_TRUE(_response->get_data().contains("timestamp"));
+        ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+        ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+        ASSERT_TRUE(
+            _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+            time_since_epoch().count());
+
         ASSERT_TRUE(_response->get_data().contains("transaction_id"));
         ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
         ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _transaction_id);
@@ -97,13 +123,16 @@ TEST(validators_client_id_validator_test, can_handle_wrong_params_client_id_type
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    for (const auto _action : {"client"}) {
+    for (const auto _action: {"client"}) {
         auto _transaction_id = to_string(_state->get_generator()());
-        const boost::json::object _data = {{"action", _action}, {"transaction_id", _transaction_id}, {"params", {{"client_id", "7"}}}};
+        const boost::json::object _data = {
+            {"action", _action}, {"transaction_id", _transaction_id}, {"params", {{"client_id", "7"}}}
+        };
 
         const auto _response = kernel(_state, _session, _data);
 
-        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+                 serialize(_response->get_data()));
 
         ASSERT_TRUE(_response->get_processed());
         ASSERT_TRUE(_response->get_failed());
@@ -120,6 +149,17 @@ TEST(validators_client_id_validator_test, can_handle_wrong_params_client_id_type
         ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
                   "params client_id attribute must be uuid");
 
+        ASSERT_TRUE(_response->get_data().contains("runtime"));
+        ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+        ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+        ASSERT_TRUE(_response->get_data().contains("timestamp"));
+        ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+        ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+        ASSERT_TRUE(
+            _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+            time_since_epoch().count());
+
         ASSERT_TRUE(_response->get_data().contains("transaction_id"));
         ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
         ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _transaction_id);
@@ -131,12 +171,13 @@ TEST(validators_client_id_validator_test, can_handle_empty_params_on_client_id) 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    for (const auto _action : {"client"}) {
+    for (const auto _action: {"client"}) {
         auto _transaction_id = to_string(_state->get_generator()());
         const boost::json::object _data = {{"action", _action}, {"transaction_id", _transaction_id}};
         const auto _response = kernel(_state, _session, _data);
 
-        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+                 serialize(_response->get_data()));
 
         ASSERT_TRUE(_response->get_processed());
         ASSERT_TRUE(_response->get_failed());
@@ -153,6 +194,17 @@ TEST(validators_client_id_validator_test, can_handle_empty_params_on_client_id) 
         ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
                   "params attribute must be present");
 
+        ASSERT_TRUE(_response->get_data().contains("runtime"));
+        ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+        ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+        ASSERT_TRUE(_response->get_data().contains("timestamp"));
+        ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+        ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+        ASSERT_TRUE(
+            _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+            time_since_epoch().count());
+
         ASSERT_TRUE(_response->get_data().contains("transaction_id"));
         ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
         ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _transaction_id);
@@ -164,12 +216,13 @@ TEST(validators_client_id_validator_test, can_handle_wrong_params_primivite_on_c
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    for (const auto _action : {"client"}) {
+    for (const auto _action: {"client"}) {
         auto _transaction_id = to_string(_state->get_generator()());
         const boost::json::object _data = {{"action", _action}, {"transaction_id", _transaction_id}, {"params", 7}};
         const auto _response = kernel(_state, _session, _data);
 
-        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+                 serialize(_response->get_data()));
 
         ASSERT_TRUE(_response->get_processed());
         ASSERT_TRUE(_response->get_failed());
@@ -185,6 +238,17 @@ TEST(validators_client_id_validator_test, can_handle_wrong_params_primivite_on_c
         ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
         ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
                   "params attribute must be object");
+
+        ASSERT_TRUE(_response->get_data().contains("runtime"));
+        ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+        ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+        ASSERT_TRUE(_response->get_data().contains("timestamp"));
+        ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+        ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+        ASSERT_TRUE(
+            _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+            time_since_epoch().count());
 
         ASSERT_TRUE(_response->get_data().contains("transaction_id"));
         ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());

@@ -39,11 +39,15 @@ TEST(handlers_session_handler_test, can_handle) {
     _state->add_session(_session);
     _state->add_client(boost::lexical_cast<boost::uuids::uuid>(_client_id), _session->get_id());
 
-    const boost::json::object _data = {{"action", "session"}, {"transaction_id", _transaction_id}, {"params", boost::json::object{{"session_id",to_string(_session->get_id()) } } } };
+    const boost::json::object _data = {
+        {"action", "session"}, {"transaction_id", _transaction_id},
+        {"params", boost::json::object{{"session_id", to_string(_session->get_id())}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(!_response->get_failed());
@@ -56,8 +60,16 @@ TEST(handlers_session_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -74,12 +86,16 @@ TEST(handlers_session_handler_test, can_handle_no_effect) {
     auto _client_id = to_string(_state->get_generator()());
     auto _transaction_id = to_string(_state->get_generator()());
 
-    const boost::json::object _data = {{"action", "session"}, {"transaction_id", _transaction_id}, {"params", {{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "session"}, {"transaction_id", _transaction_id},
+        {"params", {{"session_id", to_string(_session->get_id())}}}
+    };
 
     kernel(_state, _session, _data);
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(!_response->get_failed());
@@ -92,8 +108,16 @@ TEST(handlers_session_handler_test, can_handle_no_effect) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
