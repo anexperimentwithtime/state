@@ -20,7 +20,7 @@ namespace aewt {
      * @param status
      * @param data
      */
-    void next(const request & request, const char * status, const boost::json::object & data = {});
+    void next(const request &request, const char *status, const boost::json::object &data = {});
 
     /**
      * Mark As Invalid
@@ -29,7 +29,7 @@ namespace aewt {
      * @param field
      * @param argument
      */
-    void mark_as_invalid(const request & request, const char * field, const char * argument);
+    void mark_as_invalid(const request &request, const char *field, const char *argument);
 
     /**
      * Get Param As String
@@ -38,7 +38,7 @@ namespace aewt {
      * @param field
      * @return string
      */
-    std::string get_param_as_string(const boost::json::object & params, const char * field);
+    std::string get_param_as_string(const boost::json::object &params, const char *field);
 
     /**
      * Get Params
@@ -46,7 +46,7 @@ namespace aewt {
      * @param request
      * @return object
      */
-    const boost::json::object &get_params(const request & request);
+    const boost::json::object &get_params(const request &request);
 
     /**
      * Get Param As Object
@@ -55,7 +55,7 @@ namespace aewt {
      * @param field
      * @return object
      */
-    const boost::json::object &get_param_as_object(const boost::json::object & params, const char * field);
+    const boost::json::object &get_param_as_object(const boost::json::object &params, const char *field);
 
     /**
      * Get Params As Value
@@ -63,7 +63,7 @@ namespace aewt {
      * @param request
      * @return value
      */
-    const boost::json::value &get_params_as_value(const request & request);
+    const boost::json::value &get_params_as_value(const request &request);
 
     /**
      * Get Params As ID
@@ -72,7 +72,7 @@ namespace aewt {
      * @param field
      * @return uuid
      */
-    boost::uuids::uuid get_param_as_id(const boost::json::object & params, const char * field);
+    boost::uuids::uuid get_param_as_id(const boost::json::object &params, const char *field);
 }
 
 #endif // AEWT_UTILS_HPP
