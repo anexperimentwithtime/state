@@ -22,6 +22,7 @@
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>
+#include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/composite_key.hpp>
 
@@ -43,26 +44,28 @@ namespace aewt {
      */
     struct clients_by_client_session {};
 
+    using namespace boost::multi_index;
+
     /**
      * Clients
      */
-    using clients = boost::multi_index::multi_index_container<
-        client,
-        boost::multi_index::indexed_by<
-            boost::multi_index::ordered_non_unique<
-                boost::multi_index::tag<clients_by_session>,
-                boost::multi_index::member<client, boost::uuids::uuid, &client::session_id_>
+    using clients = multi_index_container<
+        std::shared_ptr<client>,
+        indexed_by<
+            ordered_non_unique<
+                tag<clients_by_session>,
+                const_mem_fun<client, boost::uuids::uuid, &client::get_session_id>
             >,
-            boost::multi_index::ordered_non_unique<
-                boost::multi_index::tag<clients_by_client>,
-                boost::multi_index::member<client, boost::uuids::uuid, &client::client_id_>
+            ordered_non_unique<
+                tag<clients_by_client>,
+                const_mem_fun<client, boost::uuids::uuid, &client::get_id>
             >,
-            boost::multi_index::ordered_unique<
-                boost::multi_index::tag<clients_by_client_session>,
-                boost::multi_index::composite_key<
-                    client,
-                    boost::multi_index::member<client, boost::uuids::uuid, &client::client_id_>,
-                    boost::multi_index::member<client, boost::uuids::uuid, &client::session_id_>
+            ordered_unique<
+                tag<clients_by_client_session>,
+                composite_key<
+                    std::shared_ptr<client>,
+                    const_mem_fun<client, boost::uuids::uuid, &client::get_id>,
+                    const_mem_fun<client, boost::uuids::uuid, &client::get_session_id>
                 >
             >
         >

@@ -30,10 +30,12 @@ TEST(handlers_broadcast_handler_test, can_handle) {
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
+    const auto _other = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
     auto _broadcast_transaction_id = to_string(_state->get_generator()());
     auto _client_id = to_string(_state->get_generator()());
 
     _state->add_session(_session);
+    _state->add_session(_other);
 
     const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", _broadcast_transaction_id}, {"params", { {"client_id", _client_id},{"session_id", to_string(_session->get_id())}, {"payload", boost::json::object({{"message", "EHLO"}})}}}};
 

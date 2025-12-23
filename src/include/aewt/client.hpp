@@ -19,21 +19,77 @@
 #define AEWT_CLIENT_HPP
 
 #include <boost/uuid/uuid.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/json/object.hpp>
+#include <memory>
 
 namespace aewt {
     /**
      * Client
      */
-    struct client {
+    class client : public std::enable_shared_from_this<client> {
+        /**
+         * Client ID
+         */
+        boost::uuids::uuid id_;
+
         /**
          * Session ID
          */
         boost::uuids::uuid session_id_;
 
         /**
-         * Client ID
+         * Is Local
          */
-        boost::uuids::uuid client_id_;
+        bool is_local_;
+    public:
+
+        /**
+         * Constructor
+         * @param id
+         * @param session_id
+         * @param is_local
+         */
+        client(boost::uuids::uuid id, boost::uuids::uuid session_id, bool is_local = false);
+
+
+        /**
+         * Destructor
+         */
+        ~client();
+
+        /**
+         * Get ID
+         *
+         * @return uuid
+         */
+        boost::uuids::uuid get_id() const;
+
+        /**
+         * Get Session ID
+         *
+         * @return uuid
+         */
+        boost::uuids::uuid get_session_id() const;
+
+        /**
+         * Get Socket
+         *
+         * @return tcp::socket
+         */
+        std::optional<boost::asio::ip::tcp::socket>& get_socket();
+
+        /**
+         * Send
+         *
+         * @param data
+         */
+        void send(std::shared_ptr<boost::json::object> data);
+    private:
+        /**
+         * Socket
+         */
+        std::optional<boost::asio::ip::tcp::socket> socket_;
     };
 } // namespace aewt
 
