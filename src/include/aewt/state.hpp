@@ -122,6 +122,15 @@ namespace aewt {
             boost::uuids::uuid id) const;
 
         /**
+         * Get Client
+         *
+         * @param id uuid
+         * @return optional<shared_ptr<client>>
+         */
+        std::optional<std::shared_ptr<client> > get_client(
+            boost::uuids::uuid id) const;
+
+        /**
          * Add Session
          *
          * @param session shared_ptr<session>

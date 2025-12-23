@@ -56,7 +56,7 @@ namespace aewt {
                 tag<clients_by_session>,
                 const_mem_fun<client, boost::uuids::uuid, &client::get_session_id>
             >,
-            ordered_non_unique<
+            ordered_unique<
                 tag<clients_by_client>,
                 const_mem_fun<client, boost::uuids::uuid, &client::get_id>
             >,

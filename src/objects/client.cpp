@@ -33,6 +33,10 @@ namespace aewt {
         return session_id_;
     }
 
+    bool client::get_is_local() const {
+        return is_local_;
+    }
+
     std::optional<boost::asio::ip::tcp::socket>& client::get_socket() { return socket_; }
 
     void client::send(std::shared_ptr<boost::json::object> data) {

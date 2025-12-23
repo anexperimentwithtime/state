@@ -108,6 +108,20 @@ namespace aewt {
         return _iterator->second;
     }
 
+    std::optional<std::shared_ptr<client>> state::get_client(
+        const boost::uuids::uuid id) const {
+        std::shared_lock _lock(clients_mutex_);
+
+        auto &_index = clients_.get<clients_by_client>();
+
+        const auto _iterator = _index.find(id);
+
+        if (_iterator == _index.end()) {
+            return std::nullopt;
+        }
+        return *_iterator;
+    }
+
     bool state::add_session(std::shared_ptr<session> session) {
         std::unique_lock _lock(sessions_mutex_);
         auto [_, _inserted] = sessions_.emplace(session->get_id(), std::move(session));

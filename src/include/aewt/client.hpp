@@ -85,6 +85,13 @@ namespace aewt {
          * @param data
          */
         void send(std::shared_ptr<boost::json::object> data);
+
+        /**
+         * Get Is Local
+         *
+         * @return
+         */
+        bool get_is_local() const;
     private:
         /**
          * Socket
