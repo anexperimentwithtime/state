@@ -26,7 +26,6 @@
 
 namespace aewt::handlers {
     void client_handler(const request &request) {
-
         if (validators::client_id_validator(request)) {
             auto _params = request.data.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");

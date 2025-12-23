@@ -31,7 +31,7 @@ namespace aewt {
          * @param request
          * @return bool
          */
-        bool broadcast_validator(const request& request);
+        bool broadcast_validator(const request &request);
     }
 } // namespace aewt
 

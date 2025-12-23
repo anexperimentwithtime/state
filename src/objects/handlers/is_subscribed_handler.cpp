@@ -27,7 +27,6 @@
 
 namespace aewt::handlers {
     void is_subscribed_handler(const request &request) {
-
         if (validators::is_subscribed_validator(request)) {
             const auto _params = request.data.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");

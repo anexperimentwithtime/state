@@ -23,7 +23,6 @@
 
 namespace aewt::handlers {
     void clients_handler(const request &request) {
-
         auto _clients = request.state->get_clients();
 
         boost::json::array _clients_array;

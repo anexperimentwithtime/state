@@ -25,8 +25,7 @@
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
-    void session_clients_handler(const request & request) {
-
+    void session_clients_handler(const request &request) {
         if (validators::session_id_validator(request)) {
             const auto _params = request.data.at("params").as_object();
             const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");

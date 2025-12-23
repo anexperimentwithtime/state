@@ -64,8 +64,7 @@ namespace aewt {
 
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
-
-            const auto _request = request {
+            const auto _request = request{
                 .transaction_id = GET_PARAM_AS_ID(data, "transaction_id"),
                 .response = _response,
                 .state = state,

@@ -23,14 +23,14 @@ namespace aewt::validators {
     bool session_id_validator(const request &request) {
         if (!request.data.contains("params")) {
             request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
-                                     {{"params", "params attribute must be present"}});
+                                             {{"params", "params attribute must be present"}});
             return false;
         }
 
         const boost::json::value _params = request.data.at("params");
         if (!_params.is_object()) {
             request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
-                                     {{"params", "params attribute must be object"}});
+                                             {{"params", "params attribute must be object"}});
             return false;
         }
 
@@ -38,20 +38,20 @@ namespace aewt::validators {
 
         if (!_params_object.contains("session_id")) {
             request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
-                                     {{"params", "params session_id attribute must be present"}});
+                                             {{"params", "params session_id attribute must be present"}});
             return false;
         }
 
         const boost::json::value _session_id = _params_object.at("session_id");
         if (!_session_id.is_string()) {
             request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
-                                     {{"params", "params session_id attribute must be string"}});
+                                             {{"params", "params session_id attribute must be string"}});
             return false;
         }
 
         if (!validator::is_uuid(_session_id.as_string().c_str())) {
             request.response->mark_as_failed(request.transaction_id, "unprocessable entity", request.timestamp,
-                                     {{"params", "params session_id attribute must be uuid"}});
+                                             {{"params", "params session_id attribute must be uuid"}});
             return false;
         }
 
