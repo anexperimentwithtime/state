@@ -20,6 +20,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid.hpp>
 
 namespace aewt {
     void next(const request &request, const char *status, const boost::json::object &data) {
@@ -52,5 +53,74 @@ namespace aewt {
 
     boost::uuids::uuid get_param_as_id(const boost::json::object &params, const char *field) {
         return boost::lexical_cast<boost::uuids::uuid>(std::string{ params.at(field).as_string() });
+    }
+
+    boost::json::array make_array_of_ids(const std::vector<boost::uuids::uuid> &vector) {
+        boost::json::array _array;
+        for (const auto &_item: vector) {
+            _array.push_back(to_string(_item).data());
+        }
+        return _array;
+    }
+
+    boost::json::array make_channels_array_of_subscriptions(const std::vector<subscription> &subscriptions) {
+        boost::json::array _array;
+        _array.reserve(subscriptions.size());
+        for (const auto &_subscription: subscriptions) {
+            _array.emplace_back(_subscription.channel_);
+        }
+        return _array;
+    }
+
+    boost::json::array make_array_of_clients_ids(const std::vector<boost::uuids::uuid> &clients) {
+        boost::json::array _array;
+        for (const auto &_client: clients) {
+            _array.push_back(to_string(_client).data());
+        }
+        return _array;
+    }
+
+    boost::json::object make_client_object(const std::shared_ptr<client>& client, const boost::json::array & subscriptions) {
+        boost::json::object _data = {
+            {"id", to_string(client->get_id())},
+            {"session_id", to_string(client->get_session_id())},
+            {"subscriptions", subscriptions },
+            {"is_local", client->get_is_local()},
+        };
+
+        if (const auto &_socket_optional = client->get_socket(); _socket_optional.has_value()) {
+            if (auto &_socket = _socket_optional.value(); _socket.is_open()) {
+                _data["ip"] = _socket.remote_endpoint().address().to_string();
+                _data["port"] = _socket.remote_endpoint().port();
+            } else {
+                _data["ip"] = nullptr;
+                _data["port"] = nullptr;
+            }
+        } else {
+            _data["ip"] = nullptr;
+            _data["port"] = nullptr;
+        }
+
+        return _data;
+    }
+
+    boost::json::object make_session_object(const std::shared_ptr<session> &session) {
+        const auto &_socket = session->get_socket();
+
+        boost::json::object _data = {
+            {"id", to_string(session->get_id())},
+            {"is_open", _socket.is_open()},
+        };
+
+        if (_socket.is_open()) {
+            const auto _remote_endpoint = _socket.remote_endpoint();
+            _data["ip"] = _remote_endpoint.address().to_string();
+            _data["port"] = _remote_endpoint.port();
+        } else {
+            _data["ip"] = nullptr;
+            _data["port"] = nullptr;
+        }
+
+        return _data;
     }
 } // namespace aewt

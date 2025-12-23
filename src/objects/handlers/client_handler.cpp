@@ -18,12 +18,9 @@
 #include <aewt/validators/client_id_validator.hpp>
 
 #include <aewt/state.hpp>
-#include <aewt/session.hpp>
 #include <aewt/request.hpp>
 
 #include <aewt/utils.hpp>
-
-#include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
     void client_handler(const request &request) {
@@ -33,33 +30,12 @@ namespace aewt::handlers {
 
             if (const auto _client_optional = request.state_->get_client(_client_id); _client_optional.has_value()) {
                 const auto& _client = _client_optional.value();
-                auto _client_subscriptions = request.state_->get_client_subscriptions(_client_id);
 
-                boost::json::array _subscriptions;
-                _subscriptions.reserve(_client_subscriptions.size());
-                for (const auto &_subscription: _client_subscriptions) {
-                    _subscriptions.emplace_back(_subscription.channel_);
-                }
+                const boost::json::array _subscriptions = make_channels_array_of_subscriptions(
+                    request.state_->get_client_subscriptions(_client_id)
+                );
 
-                boost::json::object _data = {
-                    {"client_id", to_string(_client_id)},
-                    {"session_id", to_string(_client->get_session_id())},
-                    {"subscriptions", _subscriptions},
-                    {"is_local", _client->get_is_local()},
-                };
-
-                if (const auto &_socket_optional = _client->get_socket(); _socket_optional.has_value()) {
-                    if (auto &_socket = _socket_optional.value(); _socket.is_open()) {
-                        _data["ip"] = _socket.remote_endpoint().address().to_string();
-                        _data["port"] = _socket.remote_endpoint().port();
-                    } else {
-                        _data["ip"] = nullptr;
-                        _data["port"] = nullptr;
-                    }
-                } else {
-                    _data["ip"] = nullptr;
-                    _data["port"] = nullptr;
-                }
+                const boost::json::object _data = make_client_object(_client, _subscriptions);
 
                 next(request, "ok", _data);
             } else {

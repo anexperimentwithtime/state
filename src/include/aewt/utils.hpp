@@ -14,6 +14,21 @@ namespace aewt {
     struct request;
 
     /**
+     * Forward Subscription
+     */
+    class subscription;
+
+    /**
+     * Forward Client
+     */
+    class client;
+
+    /**
+     * Forward Session
+     */
+    class session;
+
+    /**
      * Next
      *
      * @param request
@@ -73,6 +88,37 @@ namespace aewt {
      * @return uuid
      */
     boost::uuids::uuid get_param_as_id(const boost::json::object &params, const char *field);
+
+    /**
+     * Make Array Of IDs
+     *
+     * @param vector
+     * @return
+     */
+    boost::json::array make_array_of_ids(const std::vector<boost::uuids::uuid> &vector);
+
+    /**
+     * Make Channels Array Of Subscriptions
+     * @param subscriptions
+     * @return
+     */
+    boost::json::array make_channels_array_of_subscriptions(const std::vector<subscription> &subscriptions);
+
+    /**
+     * Make
+     * @param clients
+     * @return
+     */
+    boost::json::array make_array_of_clients_ids(const std::vector<boost::uuids::uuid> &clients);
+
+    /**
+     * Make Client Object
+     * @param client
+     * @param subscriptions
+     * @return
+     */
+    boost::json::object make_client_object(const std::shared_ptr<client>& client, const boost::json::array & subscriptions);
+    boost::json::object make_session_object(const std::shared_ptr<session>& session);
 }
 
 #endif // AEWT_UTILS_HPP

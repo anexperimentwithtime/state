@@ -32,21 +32,7 @@ namespace aewt::handlers {
             const auto &_session_id = get_param_as_id(_params, "session_id");
 
             if (const auto _session = request.state_->get_session(_session_id); _session.has_value()) {
-                const auto &_socket = _session.value()->get_socket();
-
-                boost::json::object _data = {
-                    {"id", to_string(request.session_->get_id())},
-                    {"is_open", _socket.is_open()},
-                };
-
-                if (_socket.is_open()) {
-                    const auto _remote_endpoint = _socket.remote_endpoint();
-                    _data["ip"] = _remote_endpoint.address().to_string();
-                    _data["port"] = _remote_endpoint.port();
-                } else {
-                    _data["ip"] = nullptr;
-                    _data["port"] = nullptr;
-                }
+                const boost::json::object _data = make_session_object(_session.value());
 
                 next(request, "ok", _data);
             } else {

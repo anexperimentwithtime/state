@@ -24,15 +24,10 @@
 
 namespace aewt::handlers {
     void clients_handler(const request &request) {
-        auto _clients = request.state_->get_clients();
-
-        boost::json::array _clients_array;
-        for (const auto &_client: _clients) {
-            _clients_array.push_back(to_string(_client).data());
-        }
+        const auto _clients = request.state_->get_clients();
 
         const boost::json::object _data = {
-            {"clients", _clients_array},
+            {"clients", make_array_of_ids(_clients)},
         };
 
         next(request, "ok", _data);
