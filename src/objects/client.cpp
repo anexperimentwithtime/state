@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/session.hpp>
+#include <aewt/client.hpp>
 
 #include <aewt/logger.hpp>
 #include <boost/core/ignore_unused.hpp>
@@ -21,21 +21,27 @@
 #include <boost/uuid/uuid_io.hpp>
 
 namespace aewt {
-    session::session(const boost::uuids::uuid id,
-                     boost::asio::ip::tcp::socket socket)
-        : id_(id), socket_(std::move(socket)) {
-        LOG_INFO("session {} allocated", to_string(id_));
+    client::client(const boost::uuids::uuid id, const boost::uuids::uuid session_id, const bool is_local)  : id_(id), session_id_(session_id), is_local_(is_local) {
+        LOG_INFO("client {} allocated", to_string(id_));
     }
 
-    session::~session() { LOG_INFO("session {} released", to_string(id_)); }
+    client::~client() { LOG_INFO("client {} released", to_string(id_)); }
 
-    boost::uuids::uuid session::get_id() const { return id_; }
+    boost::uuids::uuid client::get_id() const { return id_; }
 
-    boost::asio::ip::tcp::socket &session::get_socket() { return socket_; }
+    boost::uuids::uuid client::get_session_id() const {
+        return session_id_;
+    }
 
-    void session::send(std::shared_ptr<boost::json::object> data) {
+    std::optional<boost::asio::ip::tcp::socket>& client::get_socket() { return socket_; }
+
+    void client::send(std::shared_ptr<boost::json::object> data) {
         boost::ignore_unused(data);
 
-        if (socket_.is_open()) {}
+        if (socket_.has_value()) {
+            if (const auto & _socket = socket_.value(); _socket.is_open()) {
+
+            }
+        }
     }
 } // namespace aewt

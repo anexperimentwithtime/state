@@ -63,7 +63,7 @@ namespace aewt {
         _result.reserve(std::distance(_begin, _end));
 
         for (auto it = _begin; it != _end; ++it)
-            _result.push_back(it->client_id_);
+            _result.push_back((*it)->get_id());
 
         return _result;
     }
@@ -77,7 +77,7 @@ namespace aewt {
         _result.reserve(clients_.size());
 
         for (const auto &_client: _index)
-            _result.push_back(_client.client_id_);
+            _result.push_back(_client->get_id());
 
         return _result;
     }
@@ -124,10 +124,7 @@ namespace aewt {
 
         auto &_index = clients_.get<clients_by_client_session>();
         auto [_it, _inserted] =
-                _index.insert(client{
-                    session_id,
-                    client_id
-                });
+                _index.insert(std::make_shared<client>(client_id, session_id));
 
         return _inserted;
     }
@@ -210,6 +207,15 @@ namespace aewt {
         return _count;
     }
 
+    /**
+     * @details
+     *
+     * Un cliente dentro de una sesión puede enviar un mensaje a todos los clientes en todas las sesiones.
+     *
+     * Cada sesión se encarga de transmitir ese mensaje a sus clientes.
+     *
+     * La sesión se encarga de notificar el éxito a esta sesión.
+     */
     std::size_t state::broadcast(const boost::uuids::uuid transaction_id, const boost::uuids::uuid session_id,
                                  const boost::uuids::uuid client_id, boost::json::object data) const {
         std::shared_lock _lock(subscriptions_mutex_);
@@ -231,6 +237,21 @@ namespace aewt {
         }));
 
         for (const auto &_session: _sessions) {
+            if (_session->get_id() == session_id) {
+                const auto _to_this_client = std::make_shared<boost::json::object>(boost::json::object({
+                    {"transaction_id", to_string(transaction_id)},
+                    {"action", "broadcast"},
+                    {
+                        "params", {
+                            {"session_id", to_string(session_id)},
+                            {"client_id", to_string(client_id)},
+                            {"payload", data},
+                            {"count", _count}
+                        }
+                    }
+                }));
+                continue;
+            }
             _session->send(_data);
         }
 
