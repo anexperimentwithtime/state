@@ -18,6 +18,9 @@
 #include <aewt/request.hpp>
 #include <aewt/response.hpp>
 
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 namespace aewt {
     void next(const request &request, const char *status, const boost::json::object &data) {
         request.response_->set_data(

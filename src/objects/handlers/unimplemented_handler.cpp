@@ -15,9 +15,6 @@
 
 #include <aewt/handlers/unimplemented_handler.hpp>
 
-#include <aewt/response.hpp>
-#include <aewt/request.hpp>
-
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {

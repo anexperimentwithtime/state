@@ -15,7 +15,6 @@
 
 #include <aewt/handlers/clients_handler.hpp>
 
-#include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 

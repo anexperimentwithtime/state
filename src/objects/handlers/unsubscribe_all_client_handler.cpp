@@ -15,8 +15,6 @@
 
 #include <aewt/handlers/unsubscribe_all_client_handler.hpp>
 
-#include <aewt/response.hpp>
-#include <aewt/session.hpp>
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 

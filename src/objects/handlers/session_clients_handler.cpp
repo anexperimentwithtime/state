@@ -15,14 +15,14 @@
 
 #include <aewt/handlers/session_clients_handler.hpp>
 
-#include <aewt/response.hpp>
 #include <aewt/state.hpp>
-#include <aewt/session.hpp>
 #include <aewt/request.hpp>
 
 #include <aewt/validators/session_id_validator.hpp>
 
 #include <aewt/utils.hpp>
+
+#include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
     void session_clients_handler(const request &request) {

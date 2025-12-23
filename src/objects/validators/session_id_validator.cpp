@@ -15,7 +15,6 @@
 
 #include <aewt/validators/session_id_validator.hpp>
 
-#include <aewt/response.hpp>
 #include <aewt/request.hpp>
 #include <aewt/validator.hpp>
 
