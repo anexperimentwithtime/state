@@ -119,8 +119,7 @@ TEST(kernel_test, can_handle_empty_transaction_id_on_data) {
     ASSERT_EQ(_response->get_data().at("data").as_object().at("transaction_id").as_string(), "transaction_id attribute must be present");
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_NE(_response->get_data().at("transaction_id").as_string(), "78dbde63-817c-46bc-a470-71d066eb3eed");
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_null());
 }
 
 TEST(kernel_test, can_handle_wrong_transaction_id_primitive_on_data) {
@@ -151,8 +150,7 @@ TEST(kernel_test, can_handle_wrong_transaction_id_primitive_on_data) {
     ASSERT_EQ(_response->get_data().at("data").as_object().at("transaction_id").as_string(), "transaction_id attribute must be string");
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_NE(_response->get_data().at("transaction_id").as_string(), "7");
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_null());
 }
 
 
@@ -184,8 +182,7 @@ TEST(kernel_test, can_handle_wrong_transaction_id_value_on_data) {
     ASSERT_EQ(_response->get_data().at("data").as_object().at("transaction_id").as_string(), "transaction_id attribute must be uuid");
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_NE(_response->get_data().at("transaction_id").as_string(), "7");
+    ASSERT_TRUE(_response->get_data().at("transaction_id").is_null());
 }
 
 TEST(kernel_test, can_handle_non_implemented_action) {
