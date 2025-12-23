@@ -108,7 +108,7 @@ namespace aewt {
         return _iterator->second;
     }
 
-    std::optional<std::shared_ptr<client>> state::get_client(
+    std::optional<std::shared_ptr<client> > state::get_client(
         const boost::uuids::uuid id) const {
         std::shared_lock _lock(clients_mutex_);
 
@@ -133,12 +133,13 @@ namespace aewt {
         return sessions_.erase(id) > 0;
     }
 
-    bool state::add_client(const boost::uuids::uuid client_id, const boost::uuids::uuid session_id) {
+    bool state::add_client(const boost::uuids::uuid client_id, const boost::uuids::uuid session_id,
+                           const bool is_local) {
         std::unique_lock _lock(clients_mutex_);
 
         auto &_index = clients_.get<clients_by_client_session>();
         auto [_it, _inserted] =
-                _index.insert(std::make_shared<client>(client_id, session_id));
+                _index.insert(std::make_shared<client>(client_id, session_id, is_local));
 
         return _inserted;
     }

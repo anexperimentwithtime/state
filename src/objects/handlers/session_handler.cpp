@@ -21,25 +21,24 @@
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include <aewt/utils.hpp>
 
 namespace aewt::handlers {
     void session_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
                          const std::shared_ptr<state> &state, const std::shared_ptr<session> &session,
-                         const boost::json::object &data) {
-        const auto _timestamp = std::chrono::system_clock::now();
-        if (validators::session_id_validator(transaction_id, response, data)) {
-            const auto _session_id = boost::lexical_cast<boost::uuids::uuid>(std::string{
-                data.at("params").as_object().at("session_id").as_string()
-            });
+                         const boost::json::object &data, const long timestamp) {
+        if (validators::session_id_validator(transaction_id, response, data, timestamp)) {
+            const auto _params = data.at("params").as_object();
+            const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
+
             if (const auto _session = state->get_session(_session_id); _session.has_value()) {
                 const auto &_socket = _session.value()->get_socket();
+
                 boost::json::object _data = {
-                    {"timestamp", _timestamp.time_since_epoch().count()},
                     {"id", to_string(session->get_id())},
                     {"is_open", _socket.is_open()},
                 };
+
                 if (_socket.is_open()) {
                     const auto _remote_endpoint = _socket.remote_endpoint();
                     _data["ip"] = _remote_endpoint.address().to_string();
@@ -48,11 +47,10 @@ namespace aewt::handlers {
                     _data["ip"] = nullptr;
                     _data["port"] = nullptr;
                 }
-                response->set_data(transaction_id, "ok", _data);
+
+                response->set_data(transaction_id, "ok", timestamp, _data);
             } else {
-                response->set_data(transaction_id, "no effect", {
-                                       {"timestamp", _timestamp.time_since_epoch().count()},
-                                   });
+                response->set_data(transaction_id, "no effect", timestamp);
             }
         }
     }

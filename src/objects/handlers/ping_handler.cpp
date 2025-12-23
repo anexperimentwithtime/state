@@ -17,13 +17,9 @@
 
 #include <aewt/response.hpp>
 
-#include <boost/uuid/uuid_io.hpp>
-
 namespace aewt::handlers {
-    void ping_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response) {
-        response->set_data(transaction_id, "pong", {
-                               {"transaction_id", to_string(transaction_id)},
-                               {"timestamp", std::chrono::system_clock::now().time_since_epoch().count()}
-                           });
+    void ping_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
+                      const long timestamp) {
+        response->set_data(transaction_id, "pong", timestamp);
     }
 }

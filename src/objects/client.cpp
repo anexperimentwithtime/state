@@ -21,7 +21,8 @@
 #include <boost/uuid/uuid_io.hpp>
 
 namespace aewt {
-    client::client(const boost::uuids::uuid id, const boost::uuids::uuid session_id, const bool is_local)  : id_(id), session_id_(session_id), is_local_(is_local) {
+    client::client(const boost::uuids::uuid id, const boost::uuids::uuid session_id,
+                   const bool is_local) : id_(id), session_id_(session_id), is_local_(is_local) {
         LOG_INFO("client {} allocated", to_string(id_));
     }
 
@@ -37,14 +38,13 @@ namespace aewt {
         return is_local_;
     }
 
-    std::optional<boost::asio::ip::tcp::socket>& client::get_socket() { return socket_; }
+    std::optional<boost::asio::ip::tcp::socket> &client::get_socket() { return socket_; }
 
     void client::send(std::shared_ptr<boost::json::object> data) {
         boost::ignore_unused(data);
 
         if (socket_.has_value()) {
-            if (const auto & _socket = socket_.value(); _socket.is_open()) {
-
+            if (const auto &_socket = socket_.value(); _socket.is_open()) {
             }
         }
     }

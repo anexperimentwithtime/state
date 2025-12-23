@@ -33,8 +33,9 @@ namespace aewt {
          *
          * @param transaction_id
          * @param response
+         * @param timestamp
          */
-        void ping_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response);
+        void ping_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response, long timestamp);
     }
 } // namespace aewt
 

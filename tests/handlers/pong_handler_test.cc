@@ -36,7 +36,8 @@ TEST(handlers_pong_handle_test, can_handle) {
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(!_response->get_failed());
@@ -48,11 +49,16 @@ TEST(handlers_pong_handle_test, can_handle) {
     ASSERT_EQ(_response->get_data().at("message").as_string(), "pong");
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("timestamp").is_number());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("timestamp").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
     ASSERT_TRUE(
-        _response->get_data().at("data").as_object().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
         time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));

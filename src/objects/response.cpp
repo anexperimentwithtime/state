@@ -29,9 +29,12 @@ namespace aewt {
 
     boost::json::object response::get_data() const { return data_; }
 
-    void response::mark_as_failed(const boost::uuids::uuid transaction_id, const char *error,
-    const std::map<std::string, std::string> &bag)  {
+    void response::mark_as_failed(const boost::uuids::uuid transaction_id, const char *error, long timestamp,
+                                  const std::map<std::string, std::string> &bag) {
         failed_.store(true, std::memory_order_release);
+        const auto _current_timestamp = std::chrono::system_clock::now().time_since_epoch().count();
+
+        const auto _runtime = _current_timestamp - timestamp;
 
         boost::json::object _data;
         _data.reserve(bag.size());
@@ -41,11 +44,21 @@ namespace aewt {
 
         if (!transaction_id.is_nil()) {
             data_ = {
-                {"transaction_id", to_string(transaction_id)}, {"status", "failed"}, {"message", error}, {"data", _data}
+                {"transaction_id", to_string(transaction_id)},
+                {"status", "failed"},
+                {"message", error},
+                {"data", _data},
+                {"timestamp", timestamp},
+                {"runtime", _runtime}
             };
         } else {
             data_ = {
-                {"transaction_id", nullptr}, {"status", "failed"}, {"message", error}, {"data", _data}
+                {"transaction_id", nullptr},
+                {"status", "failed"},
+                {"message", error},
+                {"data", _data},
+                {"timestamp", timestamp},
+                {"runtime", _runtime}
             };
         }
     }
@@ -54,7 +67,16 @@ namespace aewt {
         processed_.store(true, std::memory_order_release);
     }
 
-    void response::set_data(boost::uuids::uuid transaction_id, const char *message, const boost::json::object &data) {
-        data_ = {{"transaction_id", to_string(transaction_id)}, {"status", "success"}, {"message", message}, {"data", data}};
+
+    void response::set_data(boost::uuids::uuid transaction_id, const char *message, long timestamp,
+                            const boost::json::object &data) {
+        const auto _current_timestamp = std::chrono::system_clock::now().time_since_epoch().count();
+
+        const auto _runtime = _current_timestamp - timestamp;
+
+        data_ = {
+            {"transaction_id", to_string(transaction_id)}, {"status", "success"}, {"message", message},
+            {"timestamp", timestamp}, {"runtime", _runtime}, {"data", data}
+        };
     }
 } // namespace aewt

@@ -35,9 +35,12 @@ namespace aewt {
          * @param transaction_id
          * @param response
          * @param data
+         * @param timestamp
          * @return bool
          */
-        bool unsubscribe_all_client_validator(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response, const boost::json::object &data);
+        bool unsubscribe_all_client_validator(boost::uuids::uuid transaction_id,
+                                              const std::shared_ptr<response> &response,
+                                              const boost::json::object &data, long timestamp);
     }
 } // namespace aewt
 

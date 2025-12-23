@@ -34,14 +34,21 @@ TEST(handlers_is_subscribed_handler_test, can_handle) {
     auto _is_subscribed_transaction_id = to_string(_state->get_generator()());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}, {"session_id", to_string(_session->get_id())}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(!_response->get_failed());
@@ -54,8 +61,16 @@ TEST(handlers_is_subscribed_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -74,14 +89,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
     const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}};
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
@@ -96,7 +115,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params attribute must be present");
+              "params attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -115,14 +145,20 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", 7}};
+    const boost::json::object _data = {
+        {"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", 7}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
@@ -137,7 +173,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params attribute must be object");
+              "params attribute must be object");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -156,14 +203,21 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _data = {
+        {"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
@@ -178,7 +232,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params session_id attribute must be present");
+              "params session_id attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -197,14 +262,21 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id},{"session_id", 7}}}};
+    const boost::json::object _data = {
+        {"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}, {"session_id", 7}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
@@ -219,7 +291,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params session_id attribute must be string");
+              "params session_id attribute must be string");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -238,14 +321,21 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id},{"session_id", "7"}}}};
+    const boost::json::object _data = {
+        {"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}, {"session_id", "7"}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
@@ -260,7 +350,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params session_id attribute must be uuid");
+              "params session_id attribute must be uuid");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -279,14 +380,21 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id},
+        {"params", {{"channel", "welcome"}, {"session_id", to_string(_session->get_id())}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
@@ -301,7 +409,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params client_id attribute must be present");
+              "params client_id attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -320,14 +439,21 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", 7},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", 7}, {"session_id", to_string(_session->get_id())}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
@@ -342,7 +468,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params client_id attribute must be string");
+              "params client_id attribute must be string");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -361,14 +498,21 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", "7"},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", "7"}, {"session_id", to_string(_session->get_id())}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
@@ -383,7 +527,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params client_id attribute must be uuid");
+              "params client_id attribute must be uuid");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -402,14 +557,21 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"client_id", _client_id},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id},
+        {"params", {{"client_id", _client_id}, {"session_id", to_string(_session->get_id())}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
@@ -424,7 +586,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params channel attribute must be present");
+              "params channel attribute must be present");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
@@ -443,14 +616,21 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     auto _session_id = to_string(_session->get_id());
     auto _client_id = to_string(_state->get_generator()());
 
-    const boost::json::object _subscribe = {{"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id}, {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}};
+    const boost::json::object _subscribe = {
+        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
+        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+    };
     kernel(_state, _session, _subscribe);
 
-    const boost::json::object _data = {{"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id}, {"params", {{"channel", 7}, {"client_id", _client_id},{"session_id", to_string(_session->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "is_subscribed"}, {"transaction_id", _is_subscribed_transaction_id},
+        {"params", {{"channel", 7}, {"client_id", _client_id}, {"session_id", to_string(_session->get_id())}}}
+    };
 
     const auto _response = kernel(_state, _session, _data);
 
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(), serialize(_response->get_data()));
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
@@ -465,7 +645,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-    "params channel attribute must be string");
+              "params channel attribute must be string");
+
+    ASSERT_TRUE(_response->get_data().contains("runtime"));
+    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
+    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
+
+    ASSERT_TRUE(_response->get_data().contains("timestamp"));
+    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
+    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
+    ASSERT_TRUE(
+        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
+        time_since_epoch().count());
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());

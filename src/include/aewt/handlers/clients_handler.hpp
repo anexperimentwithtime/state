@@ -46,11 +46,11 @@ namespace aewt {
          * @param response
          * @param state
          * @param session
-         * @param data
+         * @param timestamp
          */
         void clients_handler(boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                    const std::shared_ptr<state> &state,
-                    const std::shared_ptr<session> &session);
+                             const std::shared_ptr<state> &state,
+                             const std::shared_ptr<session> &session, long timestamp);
     }
 } // namespace aewt
 

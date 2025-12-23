@@ -24,21 +24,21 @@
 
 namespace aewt::handlers {
     void clients_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                            const std::shared_ptr<state> &state,
-                            const std::shared_ptr<session> &session) {
+                         const std::shared_ptr<state> &state,
+                         const std::shared_ptr<session> &session, const long timestamp) {
         boost::ignore_unused(session);
 
-        const auto _timestamp = std::chrono::system_clock::now();
         auto _clients = state->get_clients();
+
         boost::json::array _clients_array;
-        for (const auto &client : _clients) {
+        for (const auto &client: _clients) {
             _clients_array.push_back(to_string(client).data());
         }
+
         const boost::json::object _data = {
-            {"timestamp", _timestamp.time_since_epoch().count()},
             {"clients", _clients_array},
         };
-        response->set_data(transaction_id, "ok", _data);
-    }
 
+        response->set_data(transaction_id, "ok", timestamp, _data);
+    }
 }

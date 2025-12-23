@@ -151,9 +151,10 @@ namespace aewt {
          *
          * @param client_id
          * @param session_id
+         * @param is_local
          * @return
          */
-        bool add_client(boost::uuids::uuid client_id, boost::uuids::uuid session_id);
+        bool add_client(boost::uuids::uuid client_id, boost::uuids::uuid session_id, bool is_local = false);
 
         /**
          * Remove Client

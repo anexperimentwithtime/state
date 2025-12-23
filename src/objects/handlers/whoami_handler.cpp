@@ -22,7 +22,7 @@
 
 namespace aewt::handlers {
     void whoami_handler(const boost::uuids::uuid transaction_id, const std::shared_ptr<response> &response,
-                           const std::shared_ptr<session> &session) {
+                        const std::shared_ptr<session> &session, const long timestamp) {
         const auto &_socket = session->get_socket();
         boost::json::object _data = {
             {"id", to_string(session->get_id())},
@@ -36,7 +36,7 @@ namespace aewt::handlers {
             _data["ip"] = nullptr;
             _data["port"] = nullptr;
         }
-        response->set_data(transaction_id, "im", _data);
-    }
 
+        response->set_data(transaction_id, "ok", timestamp, _data);
+    }
 }

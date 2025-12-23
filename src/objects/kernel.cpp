@@ -48,10 +48,10 @@
 
 #include <aewt/handlers/unimplemented_handler.hpp>
 
-#include <boost/uuid/uuid_io.hpp>
+#include <aewt/utils.hpp>
+
 #include <boost/json/serialize.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/lexical_cast.hpp>
 
 namespace aewt {
     std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
@@ -59,58 +59,61 @@ namespace aewt {
                                      boost::json::object data) {
         boost::ignore_unused(state);
 
+        const auto _timestamp = std::chrono::system_clock::now().time_since_epoch().count();
+
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
             const auto transaction_id = boost::lexical_cast<boost::uuids::uuid>(std::string{
                 data.at("transaction_id").as_string()
             });
             if (const std::string _action{data.at("action").as_string()}; _action == "ping") {
-                handlers::ping_handler(transaction_id, _response);
+                handlers::ping_handler(transaction_id, _response, _timestamp);
             } else if (_action == "subscribe") {
-                handlers::subscribe_handler(transaction_id, _response, state, session, data);
+                handlers::subscribe_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "is_subscribed") {
-                handlers::is_subscribed_handler(transaction_id, _response, state, session, data);
+                handlers::is_subscribed_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "unsubscribe") {
-                handlers::unsubscribe_handler(transaction_id, _response, state, session, data);
+                handlers::unsubscribe_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "unsubscribe_all_client") {
-                handlers::unsubscribe_all_client_handler(transaction_id, _response, state, session, data);
+                handlers::unsubscribe_all_client_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "unsubscribe_all_session") {
-                handlers::unsubscribe_all_session_handler(transaction_id, _response, state, session, data);
+                handlers::unsubscribe_all_session_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "broadcast") {
-                handlers::broadcast_handler(transaction_id, _response, state, session, data);
+                handlers::broadcast_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "publish") {
-                handlers::publish_handler(transaction_id, _response, state, session, data);
+                handlers::publish_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "send") {
-                handlers::send_handler(transaction_id, _response, state, session, data);
+                handlers::send_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "client_join") {
-                handlers::client_join_handler(transaction_id, _response, state, session, data);
+                handlers::client_join_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "client") {
-                handlers::client_handler(transaction_id, _response, state, session, data);
+                handlers::client_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "client_leave") {
-                handlers::client_leave_handler(transaction_id, _response, state, session, data);
+                handlers::client_leave_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "session_clients") {
-                handlers::session_clients_handler(transaction_id, _response, state, session, data);
+                handlers::session_clients_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "clients") {
-                handlers::clients_handler(transaction_id, _response, state, session);
+                handlers::clients_handler(transaction_id, _response, state, session, _timestamp);
             } else if (_action == "client_exists") {
-                handlers::client_exists_handler(transaction_id, _response, state, session, data);
+                handlers::client_exists_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "session") {
-                handlers::session_handler(transaction_id, _response, state, session, data);
+                handlers::session_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "session_client_exists") {
-                handlers::session_client_exists_handler(transaction_id, _response, state, session, data);
+                handlers::session_client_exists_handler(transaction_id, _response, state, session, data, _timestamp);
             } else if (_action == "whoami") {
-                handlers::whoami_handler(transaction_id, _response, session);
+                handlers::whoami_handler(transaction_id, _response, session, _timestamp);
             } else {
-                handlers::unimplemented_handler(transaction_id, _response);
+                handlers::unimplemented_handler(transaction_id, _response, _timestamp);
             }
         } else {
             if (data.contains("transaction_id") && data.at("transaction_id").is_string() && validator::is_uuid(
                     data.at("transaction_id").as_string().c_str())) {
                 _response->mark_as_failed(
-                    boost::lexical_cast<boost::uuids::uuid>(std::string{data.at("transaction_id").as_string()}),
-                    "unprocessable entity", _validator.get_bag());
+                    GET_PARAM_AS_ID(data, "transaction_id"),
+                    "unprocessable entity", _timestamp, _validator.get_bag());
             } else {
-                _response->mark_as_failed(boost::uuids::uuid {}, "unprocessable entity", _validator.get_bag());
+                _response->mark_as_failed(boost::uuids::uuid{}, "unprocessable entity", _timestamp,
+                                          _validator.get_bag());
             }
         }
         _response->mark_as_processed();
