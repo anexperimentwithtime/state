@@ -65,12 +65,12 @@ namespace aewt {
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
             const auto _request = request{
-                .transaction_id = GET_PARAM_AS_ID(data, "transaction_id"),
-                .response = _response,
-                .state = state,
-                .session = session,
-                .data = data,
-                .timestamp = _timestamp,
+                .transaction_id_ = GET_PARAM_AS_ID(data, "transaction_id"),
+                .response_ = _response,
+                .state_ = state,
+                .session_ = session,
+                .data_ = data,
+                .timestamp_ = _timestamp,
             };
 
             const auto transaction_id = boost::lexical_cast<boost::uuids::uuid>(std::string{

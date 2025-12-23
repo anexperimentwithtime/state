@@ -20,6 +20,6 @@
 
 namespace aewt::handlers {
     void ping_handler(const request &request) {
-        request.response->set_data(request.transaction_id, "pong", request.timestamp);
+        request.response_->set_data(request.transaction_id_, "pong", request.timestamp_);
     }
 }

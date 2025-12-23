@@ -27,15 +27,15 @@
 namespace aewt::handlers {
     void unsubscribe_handler(const request &request) {
         if (validators::subscriptions_validator(request)) {
-            auto _params = request.data.at("params").as_object();
+            auto _params = request.data_.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
             const std::string _channel{_params.at("channel").as_string()};
 
-            const bool _success = request.state->unsubscribe(request.session->get_id(), _client_id, _channel);
+            const bool _success = request.state_->unsubscribe(request.session_->get_id(), _client_id, _channel);
 
             const auto _status = _success ? "ok" : "no effect";
 
-            request.response->set_data(request.transaction_id, _status, request.timestamp);
+            request.response_->set_data(request.transaction_id_, _status, request.timestamp_);
         }
     }
 }

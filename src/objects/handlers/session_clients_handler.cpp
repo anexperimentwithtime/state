@@ -27,10 +27,10 @@
 namespace aewt::handlers {
     void session_clients_handler(const request &request) {
         if (validators::session_id_validator(request)) {
-            const auto _params = request.data.at("params").as_object();
+            const auto _params = request.data_.at("params").as_object();
             const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
 
-            auto _clients = request.state->get_clients_by_session(_session_id);
+            auto _clients = request.state_->get_clients_by_session(_session_id);
 
             boost::json::array _clients_array;
             for (const auto &client: _clients) {
@@ -41,7 +41,7 @@ namespace aewt::handlers {
                 {"clients", _clients_array},
             };
 
-            request.response->set_data(request.transaction_id, "ok", request.timestamp, _data);
+            request.response_->set_data(request.transaction_id_, "ok", request.timestamp_, _data);
         }
     }
 }

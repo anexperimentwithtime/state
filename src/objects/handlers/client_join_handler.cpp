@@ -34,21 +34,21 @@ namespace aewt::handlers {
      */
     void client_join_handler(const request &request) {
         if (validators::clients_validator(request)) {
-            auto _params = request.data.at("params").as_object();
+            auto _params = request.data_.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
             const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
 
-            const auto _is_local = request.session->get_id() == _session_id;
-            const auto _inserted = request.state->add_client(_client_id, _session_id, _is_local);
+            const auto _is_local = request.session_->get_id() == _session_id;
+            const auto _inserted = request.state_->add_client(_client_id, _session_id, _is_local);
 
-            std::size_t _count = _is_local ? distribute_to_others(request.state, request.data) : 0;
+            std::size_t _count = _is_local ? distribute_to_others(request.state_, request.data_) : 0;
 
             const auto _status = _inserted ? "ok" : "no effect";
 
-            request.response->set_data(
-                request.transaction_id,
+            request.response_->set_data(
+                request.transaction_id_,
                 _status,
-                request.timestamp,
+                request.timestamp_,
                 {
                     {"count", _count}
                 });

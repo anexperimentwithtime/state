@@ -27,17 +27,17 @@
 namespace aewt::handlers {
     void send_handler(const request &request) {
         if (validators::send_validator(request)) {
-            auto _params = request.data.at("params").as_object();
+            auto _params = request.data_.at("params").as_object();
             const auto _sender_id = GET_PARAM_AS_ID(_params, "sender_id");
             const auto _receiver_id = GET_PARAM_AS_ID(_params, "receiver_id");
             const auto _payload = _params.at("payload").as_object();
 
-            const bool _success = request.state->send(request.transaction_id, request.session->get_id(), _sender_id,
+            const bool _success = request.state_->send(request.transaction_id_, request.session_->get_id(), _sender_id,
                                                       _receiver_id, _payload);
 
             const auto _status = _success ? "ok" : "no effect";
 
-            request.response->set_data(request.transaction_id, _status, request.timestamp);
+            request.response_->set_data(request.transaction_id_, _status, request.timestamp_);
         }
     }
 }

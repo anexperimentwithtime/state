@@ -27,14 +27,14 @@
 namespace aewt::handlers {
     void session_handler(const request & request) {
         if (validators::session_id_validator(request)) {
-            const auto _params = request.data.at("params").as_object();
+            const auto _params = request.data_.at("params").as_object();
             const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
 
-            if (const auto _session = request.state->get_session(_session_id); _session.has_value()) {
+            if (const auto _session = request.state_->get_session(_session_id); _session.has_value()) {
                 const auto &_socket = _session.value()->get_socket();
 
                 boost::json::object _data = {
-                    {"id", to_string(request.session->get_id())},
+                    {"id", to_string(request.session_->get_id())},
                     {"is_open", _socket.is_open()},
                 };
 
@@ -47,9 +47,9 @@ namespace aewt::handlers {
                     _data["port"] = nullptr;
                 }
 
-                request.response->set_data(request.transaction_id, "ok", request.timestamp, _data);
+                request.response_->set_data(request.transaction_id_, "ok", request.timestamp_, _data);
             } else {
-                request.response->set_data(request.transaction_id, "no effect", request.timestamp);
+                request.response_->set_data(request.transaction_id_, "no effect", request.timestamp_);
             }
         }
     }

@@ -27,12 +27,12 @@
 namespace aewt::handlers {
     void client_handler(const request &request) {
         if (validators::client_id_validator(request)) {
-            auto _params = request.data.at("params").as_object();
+            auto _params = request.data_.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
 
-            if (const auto _client_optional = request.state->get_client(_client_id); _client_optional.has_value()) {
+            if (const auto _client_optional = request.state_->get_client(_client_id); _client_optional.has_value()) {
                 const auto _client = _client_optional.value();
-                auto _client_subscriptions = request.state->get_client_subscriptions(_client_id);
+                auto _client_subscriptions = request.state_->get_client_subscriptions(_client_id);
 
                 boost::json::array _subscriptions;
                 _subscriptions.reserve(_client_subscriptions.size());
@@ -60,9 +60,9 @@ namespace aewt::handlers {
                     _data["port"] = nullptr;
                 }
 
-                request.response->set_data(request.transaction_id, "ok", request.timestamp, _data);
+                request.response_->set_data(request.transaction_id_, "ok", request.timestamp_, _data);
             } else {
-                request.response->set_data(request.transaction_id, "no effect", request.timestamp);
+                request.response_->set_data(request.transaction_id_, "no effect", request.timestamp_);
             }
         }
     }

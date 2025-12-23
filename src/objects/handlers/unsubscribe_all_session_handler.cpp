@@ -28,17 +28,17 @@ namespace aewt::handlers {
     void unsubscribe_all_session_handler(const request &request) {
 
         if (validators::unsubscribe_all_session_validator(request)) {
-            const auto _params = request.data.at("params").as_object();
+            const auto _params = request.data_.at("params").as_object();
             const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
 
-            const std::size_t _count = request.state->unsubscribe_all_session(_session_id);
+            const std::size_t _count = request.state_->unsubscribe_all_session(_session_id);
 
             const auto _status = _count > 0 ? "ok" : "no effect";
 
-            request.response->set_data(
-                request.transaction_id,
+            request.response_->set_data(
+                request.transaction_id_,
                 _status,
-                request.timestamp,
+                request.timestamp_,
                 {
                     {"count", _count}
                 });

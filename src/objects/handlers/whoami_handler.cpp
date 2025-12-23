@@ -23,9 +23,9 @@
 
 namespace aewt::handlers {
     void whoami_handler(const request &request) {
-        const auto &_socket = request.session->get_socket();
+        const auto &_socket = request.session_->get_socket();
         boost::json::object _data = {
-            {"id", to_string(request.session->get_id())},
+            {"id", to_string(request.session_->get_id())},
             {"is_open", _socket.is_open()},
         };
         if (_socket.is_open()) {
@@ -37,6 +37,6 @@ namespace aewt::handlers {
             _data["port"] = nullptr;
         }
 
-        request.response->set_data(request.transaction_id, "ok", request.timestamp, _data);
+        request.response_->set_data(request.transaction_id_, "ok", request.timestamp_, _data);
     }
 }

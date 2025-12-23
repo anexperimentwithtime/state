@@ -27,20 +27,20 @@
 namespace aewt::handlers {
     void publish_handler(const request &request) {
         if (validators::publish_validator(request)) {
-            auto _params = request.data.at("params").as_object();
+            auto _params = request.data_.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
             const std::string _channel{_params.at("channel").as_string()};
             const auto _payload = _params.at("payload").as_object();
 
-            const std::size_t _count = request.state->
-                    publish(request.transaction_id, request.session->get_id(), _client_id, _channel, _payload);
+            const std::size_t _count = request.state_->
+                    publish(request.transaction_id_, request.session_->get_id(), _client_id, _channel, _payload);
 
             const auto _status = _count > 0 ? "ok" : "no effect";
 
-            request.response->set_data(
-                request.transaction_id,
+            request.response_->set_data(
+                request.transaction_id_,
                 _status,
-                request.timestamp,
+                request.timestamp_,
                 {
                     {"count", _count}
                 });

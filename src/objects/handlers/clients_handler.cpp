@@ -23,7 +23,7 @@
 
 namespace aewt::handlers {
     void clients_handler(const request &request) {
-        auto _clients = request.state->get_clients();
+        auto _clients = request.state_->get_clients();
 
         boost::json::array _clients_array;
         for (const auto &_client: _clients) {
@@ -34,6 +34,6 @@ namespace aewt::handlers {
             {"clients", _clients_array},
         };
 
-        request.response->set_data(request.transaction_id, "ok", request.timestamp, _data);
+        request.response_->set_data(request.transaction_id_, "ok", request.timestamp_, _data);
     }
 }

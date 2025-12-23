@@ -27,12 +27,12 @@
 namespace aewt::handlers {
     void client_exists_handler(const request &request) {
         if (validators::clients_validator(request)) {
-            auto _params = request.data.at("params").as_object();
+            auto _params = request.data_.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
 
-            const auto _status = request.state->get_client_exists(_client_id) ? "yes" : "no";
+            const auto _status = request.state_->get_client_exists(_client_id) ? "yes" : "no";
 
-            request.response->set_data(request.transaction_id, _status, request.timestamp);
+            request.response_->set_data(request.transaction_id_, _status, request.timestamp_);
         }
     }
 }

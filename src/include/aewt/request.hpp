@@ -28,12 +28,12 @@
 
 namespace aewt {
     struct request {
-        const boost::uuids::uuid transaction_id;
-        std::shared_ptr<aewt::response> &response;
-        const std::shared_ptr<aewt::state> &state;
-        const std::shared_ptr<aewt::session> &session;
-        boost::json::object &data;
-        long timestamp;
+        const boost::uuids::uuid transaction_id_;
+        std::shared_ptr<aewt::response> &response_;
+        const std::shared_ptr<aewt::state> &state_;
+        const std::shared_ptr<aewt::session> &session_;
+        boost::json::object &data_;
+        long timestamp_;
     };
 } // namespace aewt
 

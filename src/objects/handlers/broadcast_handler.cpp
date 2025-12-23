@@ -27,23 +27,23 @@
 namespace aewt::handlers {
     void broadcast_handler(const request &request) {
         if (validators::broadcast_validator(request)) {
-            auto _params = request.data.at("params").as_object();
+            auto _params = request.data_.at("params").as_object();
             const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
             const auto _payload = _params.at("payload").as_object();
 
-            const std::size_t _count = request.state->broadcast(
-                request.transaction_id,
-                request.session->get_id(),
+            const std::size_t _count = request.state_->broadcast(
+                request.transaction_id_,
+                request.session_->get_id(),
                 _client_id,
                 _payload
             );
 
             const auto _status = _count > 0 ? "ok" : "no effect";
 
-            request.response->set_data(
-                request.transaction_id,
+            request.response_->set_data(
+                request.transaction_id_,
                 _status,
-                request.timestamp,
+                request.timestamp_,
                 {
                     {"count", _count}
                 });
