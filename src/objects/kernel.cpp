@@ -65,7 +65,7 @@ namespace aewt {
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
             const auto _request = request{
-                .transaction_id_ = GET_PARAM_AS_ID(data, "transaction_id"),
+                .transaction_id_ = get_param_as_id(data, "transaction_id"),
                 .response_ = _response,
                 .state_ = state,
                 .session_ = session,
@@ -73,9 +73,6 @@ namespace aewt {
                 .timestamp_ = _timestamp,
             };
 
-            const auto transaction_id = boost::lexical_cast<boost::uuids::uuid>(std::string{
-                data.at("transaction_id").as_string()
-            });
             if (const std::string _action{data.at("action").as_string()}; _action == "ping") {
                 handlers::ping_handler(_request);
             } else if (_action == "subscribe") {
@@ -119,7 +116,7 @@ namespace aewt {
             if (data.contains("transaction_id") && data.at("transaction_id").is_string() && validator::is_uuid(
                     data.at("transaction_id").as_string().c_str())) {
                 _response->mark_as_failed(
-                    GET_PARAM_AS_ID(data, "transaction_id"),
+                    get_param_as_id(data, "transaction_id"),
                     "unprocessable entity", _timestamp, _validator.get_bag());
             } else {
                 _response->mark_as_failed(boost::uuids::uuid{}, "unprocessable entity", _timestamp,

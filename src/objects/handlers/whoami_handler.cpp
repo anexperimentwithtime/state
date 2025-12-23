@@ -15,11 +15,12 @@
 
 #include <aewt/handlers/whoami_handler.hpp>
 
-#include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/request.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
+
+#include <aewt/utils.hpp>
 
 namespace aewt::handlers {
     void whoami_handler(const request &request) {
@@ -37,6 +38,6 @@ namespace aewt::handlers {
             _data["port"] = nullptr;
         }
 
-        request.response_->set_data(request.transaction_id_, "ok", request.timestamp_, _data);
+        next(request, "ok", _data);
     }
 }

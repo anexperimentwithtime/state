@@ -15,8 +15,6 @@
 
 #include <aewt/handlers/unsubscribe_all_client_handler.hpp>
 
-#include <aewt/response.hpp>
-#include <aewt/session.hpp>
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 
@@ -28,18 +26,14 @@ namespace aewt::handlers {
     void unsubscribe_all_client_handler(const request &request) {
 
         if (validators::unsubscribe_all_client_validator(request)) {
-            const auto _params = request.data_.at("params").as_object();
-            const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
+            const auto &_params = get_params(request);
+            const auto &_client_id = get_param_as_id(_params, "client_id");
 
             const std::size_t _count = request.state_->unsubscribe_all_client(_client_id);
 
             const auto _status = _count > 0 ? "ok" : "no effect";
 
-            request.response_->set_data(
-                request.transaction_id_,
-                _status,
-                request.timestamp_,
-                {
+            next(request, _status, {
                     {"count", _count}
                 });
         }

@@ -15,7 +15,6 @@
 
 #include <aewt/handlers/send_handler.hpp>
 
-#include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 #include <aewt/request.hpp>
@@ -27,17 +26,17 @@
 namespace aewt::handlers {
     void send_handler(const request &request) {
         if (validators::send_validator(request)) {
-            auto _params = request.data_.at("params").as_object();
-            const auto _sender_id = GET_PARAM_AS_ID(_params, "sender_id");
-            const auto _receiver_id = GET_PARAM_AS_ID(_params, "receiver_id");
-            const auto _payload = _params.at("payload").as_object();
+            const auto &_params = get_params(request);
+            const auto &_sender_id = get_param_as_id(_params, "sender_id");
+            const auto &_receiver_id = get_param_as_id(_params, "receiver_id");
+            const auto &_payload = get_param_as_object(_params, "payload");
 
             const bool _success = request.state_->send(request.transaction_id_, request.session_->get_id(), _sender_id,
                                                       _receiver_id, _payload);
 
             const auto _status = _success ? "ok" : "no effect";
 
-            request.response_->set_data(request.transaction_id_, _status, request.timestamp_);
+            next(request, _status);
         }
     }
 }

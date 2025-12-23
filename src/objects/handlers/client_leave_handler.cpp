@@ -17,7 +17,6 @@
 
 #include <aewt/validators/clients_validator.hpp>
 
-#include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 #include <aewt/request.hpp>
@@ -28,9 +27,9 @@
 namespace aewt::handlers {
     void client_leave_handler(const request &request) {
         if (validators::clients_validator(request)) {
-            auto _params = request.data_.at("params").as_object();
-            const auto _client_id = GET_PARAM_AS_ID(_params, "client_id");
-            const auto _session_id = GET_PARAM_AS_ID(_params, "session_id");
+            const auto &_params = get_params(request);
+            const auto &_client_id = get_param_as_id(_params, "client_id");
+            const auto &_session_id = get_param_as_id(_params, "session_id");
 
             const auto _is_local = request.session_->get_id() == _session_id;
             const auto _removed = request.state_->remove_client(_client_id);
@@ -41,11 +40,8 @@ namespace aewt::handlers {
             }
 
             const auto _status = _removed ? "ok" : "no effect";
-            request.response_->set_data(
-                request.transaction_id_,
-                _status,
-                request.timestamp_,
-                {
+
+            next(request, _status, {
                     {"timestamp", request.timestamp_},
                     {"count", _count}
                 });
