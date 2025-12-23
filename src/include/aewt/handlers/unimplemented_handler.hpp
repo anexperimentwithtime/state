@@ -18,18 +18,11 @@
 #ifndef AEWT_HANDLERS_UNIMPLEMENTED_HPP
 #define AEWT_HANDLERS_UNIMPLEMENTED_HPP
 
-#include <boost/uuid/uuid.hpp>
-
 namespace aewt {
     /**
      * Forward Request
      */
     struct request;
-
-    /**
-     * Forward Response
-     */
-    class response;
 
     namespace handlers {
         /**

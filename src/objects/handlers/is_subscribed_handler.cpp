@@ -22,7 +22,6 @@
 
 #include <aewt/validators/is_subscribed_validator.hpp>
 
-
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {

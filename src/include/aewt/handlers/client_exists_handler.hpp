@@ -18,10 +18,6 @@
 #ifndef AEWT_HANDLERS_CLIENT_EXISTS_HANDLER_HPP
 #define AEWT_HANDLERS_CLIENT_EXISTS_HANDLER_HPP
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/json/object.hpp>
-#include <memory>
-
 namespace aewt {
     /**
      * Forward Request

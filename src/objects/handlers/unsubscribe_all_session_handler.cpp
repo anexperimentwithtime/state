@@ -22,8 +22,6 @@
 
 #include <aewt/validators/unsubscribe_all_session_validator.hpp>
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {

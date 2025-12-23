@@ -22,8 +22,6 @@
 #include <aewt/session.hpp>
 #include <aewt/request.hpp>
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {

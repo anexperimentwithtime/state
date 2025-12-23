@@ -25,8 +25,6 @@
 #include <aewt/utils.hpp>
 #include <aewt/distribute.hpp>
 
-#include <boost/core/ignore_unused.hpp>
-
 namespace aewt::handlers {
     void client_leave_handler(const request &request) {
         if (validators::clients_validator(request)) {

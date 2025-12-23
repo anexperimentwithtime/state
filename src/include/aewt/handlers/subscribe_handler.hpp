@@ -18,8 +18,6 @@
 #ifndef AEWT_HANDLERS_SUBSCRIBE_HANDLER_HPP
 #define AEWT_HANDLERS_SUBSCRIBE_HANDLER_HPP
 
-#include <aewt/request.hpp>
-
 namespace aewt {
     /**
      * Forward Request
