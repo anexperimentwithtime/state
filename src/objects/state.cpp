@@ -314,6 +314,16 @@ namespace aewt {
         return false;
     }
 
+    bool state::push_client(const std::shared_ptr<client> &client) {
+        std::unique_lock _lock(clients_mutex_);
+
+        auto &_index = clients_.get<clients_by_client_session>();
+        auto [_it, _inserted] =
+                _index.insert(client);
+
+        return _inserted;
+    }
+
     std::size_t state::send_to_others_sessions(const std::shared_ptr<boost::json::object> &data,
                                                const boost::uuids::uuid except) const {
         std::vector<std::shared_ptr<session> > _sessions = get_sessions();

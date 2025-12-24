@@ -32,7 +32,7 @@ namespace aewt::handlers {
             const auto &_session_id = get_param_as_id(_params, "session_id");
 
             const auto _is_local = request.session_->get_id() == _session_id;
-            const auto _inserted = request.state_->add_client(_client_id, _session_id, _is_local);
+            const auto _inserted = add_client(_is_local, request, _session_id, _client_id);
 
             std::size_t _count = _is_local && _inserted
                                      ? distribute_to_others(request.state_, request.data_)

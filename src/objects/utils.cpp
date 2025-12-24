@@ -155,4 +155,10 @@ namespace aewt {
                    ? on_true
                    : on_false;
     }
+
+    bool add_client(const bool local, const request &request, const boost::uuids::uuid session_id, const boost::uuids::uuid client_id) {
+        return local
+            ? request.state_->push_client(request.client_)
+            : request.state_->add_client(client_id, session_id, local);
+    }
 } // namespace aewt

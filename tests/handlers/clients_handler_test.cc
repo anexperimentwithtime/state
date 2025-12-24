@@ -31,16 +31,27 @@ TEST(handlers_clients_handler_test, can_handle) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
+    boost::asio::ip::tcp::socket _other_socket(_io_context);
+    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
+    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_other_socket));
 
-    auto _client_id = to_string(boost::uuids::random_generator()());
-    auto _transaction_id = to_string(boost::uuids::random_generator()());
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _current_session->get_id(), true);
+    boost::asio::ip::tcp::socket _local_client_socket(_io_context);
+    _local_client->get_socket().emplace(std::move(_local_client_socket));
 
-    _state->add_client(boost::lexical_cast<boost::uuids::uuid>(_client_id), _session->get_id());
+    const auto _remote_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _remote_session->get_id(), false);
+    boost::asio::ip::tcp::socket _remote_client_socket(_io_context);
+    _remote_client->get_socket().emplace(std::move(_remote_client_socket));
 
-    const boost::json::object _data = {{"action", "clients"}, {"transaction_id", _transaction_id}};
+    _state->add_session(_current_session);
+    _state->add_session(_remote_session);
+    _state->add_client(_local_client->get_id(), _current_session->get_id());
+    _state->add_client(_remote_client->get_id(), _current_session->get_id());
 
-    const auto _response = kernel(_state, _session, _data);
+    auto _transaction_id = boost::uuids::random_generator()();
+    const boost::json::object _data = {{"action", "clients"}, {"transaction_id", to_string(_transaction_id)}};
+
+    const auto _response = kernel(_state, _current_session, _local_client, _data);
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -73,5 +84,5 @@ TEST(handlers_clients_handler_test, can_handle) {
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _transaction_id);
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }

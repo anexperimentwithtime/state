@@ -29,18 +29,18 @@ TEST(handlers_subscribe_handler_test, can_handle) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
+    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _current_session->get_id(), true);
+    _state->add_session(_current_session);
+    _state->push_client(_local_client);
 
-
-    auto _client_id = to_string(boost::uuids::random_generator()());
-    auto _subscribe_transaction_id = to_string(boost::uuids::random_generator()());
-
+    auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
-        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+        {"action", "subscribe"}, {"transaction_id", to_string(_transaction_id)},
+        {"params", {{"channel", "welcome"}, {"client_id", to_string(_local_client->get_id())}}}
     };
 
-    const auto _response = kernel(_state, _session, _data);
+    const auto _response = kernel(_state, _current_session, _local_client, _data);
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -69,7 +69,7 @@ TEST(handlers_subscribe_handler_test, can_handle) {
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _subscribe_transaction_id);
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }
 
 TEST(handlers_subscribe_handler_test, can_handle_no_effect) {
@@ -77,24 +77,19 @@ TEST(handlers_subscribe_handler_test, can_handle_no_effect) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
+    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _current_session->get_id(), true);
+    _state->add_session(_current_session);
+    _state->push_client(_local_client);
+    _state->subscribe(_current_session->get_id(), _local_client->get_id(), "welcome");
 
-    auto _client_id = to_string(boost::uuids::random_generator()());
-    auto _subscribe_transaction_id = to_string(boost::uuids::random_generator()());
-    auto _repeat_subscribe_transaction_id = to_string(boost::uuids::random_generator()());
-
-    const boost::json::object _subscribe = {
-        {"action", "subscribe"}, {"transaction_id", _subscribe_transaction_id},
-        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
-    };
-    kernel(_state, _session, _subscribe);
-
+    auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "subscribe"}, {"transaction_id", _repeat_subscribe_transaction_id},
-        {"params", {{"channel", "welcome"}, {"client_id", _client_id}}}
+        {"action", "subscribe"}, {"transaction_id", to_string(_transaction_id)},
+        {"params", {{"channel", "welcome"}, {"client_id", to_string(_local_client->get_id())}}}
     };
 
-    const auto _response = kernel(_state, _session, _data);
+    const auto _response = kernel(_state, _current_session, _local_client, _data);
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -123,5 +118,5 @@ TEST(handlers_subscribe_handler_test, can_handle_no_effect) {
 
     ASSERT_TRUE(_response->get_data().contains("transaction_id"));
     ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), _repeat_subscribe_transaction_id);
+    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }
