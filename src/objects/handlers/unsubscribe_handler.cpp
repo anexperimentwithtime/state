@@ -28,12 +28,9 @@ namespace aewt::handlers {
         if (validators::subscriptions_validator(request)) {
             const auto &_params = get_params(request);
             const auto &_client_id = get_param_as_id(_params, "client_id");
-            const std::string _channel = get_param_as_string(_params, "channel");
-
+            const auto _channel = get_param_as_string(_params, "channel");
             const bool _success = request.state_->unsubscribe(request.session_->get_id(), _client_id, _channel);
-
             const auto _status = get_status(_success);
-
             next(request, _status);
         }
     }

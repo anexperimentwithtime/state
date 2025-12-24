@@ -27,11 +27,8 @@ namespace aewt::handlers {
         if (validators::unsubscribe_all_session_validator(request)) {
             const auto &_params = get_params(request);
             const auto &_session_id = get_param_as_id(_params, "session_id");
-
-            const std::size_t _count = request.state_->unsubscribe_all_session(_session_id);
-
+            const auto _count = request.state_->unsubscribe_all_session(_session_id);
             const auto _status = get_status(_count > 0);
-
             next(request, _status, {{"count", _count}});
         }
     }

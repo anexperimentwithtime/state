@@ -26,11 +26,11 @@
 
 namespace aewt::handlers {
     void session_clients_handler(const request &request) {
+        const auto &_state = request.state_;
         if (validators::session_id_validator(request)) {
             const auto &_params = get_params(request);
             const auto &_session_id = get_param_as_id(_params, "session_id");
-
-            const auto _clients = request.state_->get_clients_by_session(_session_id);
+            const auto _clients = _state->get_clients_by_session(_session_id);
 
             const boost::json::object _data = {
                 {"id", to_string(_session_id)},

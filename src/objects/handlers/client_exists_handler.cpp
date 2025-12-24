@@ -24,12 +24,14 @@
 
 namespace aewt::handlers {
     void client_exists_handler(const request &request) {
+        auto &_state = request.state_;
+
         if (validators::clients_validator(request)) {
             const auto &_params = get_params(request);
             const auto &_client_id = get_param_as_id(_params, "client_id");
 
             const auto _status = get_status(
-                request.state_->get_client_exists(_client_id),
+                _state->get_client_exists(_client_id),
                 "yes",
                 "no"
             );

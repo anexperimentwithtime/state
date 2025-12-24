@@ -31,11 +31,11 @@ namespace aewt::handlers {
             if (const auto _client_optional = request.state_->get_client(_client_id); _client_optional.has_value()) {
                 const auto &_client = _client_optional.value();
 
-                const boost::json::array _subscriptions = make_channels_array_of_subscriptions(
+                const auto _subscriptions = make_channels_array_of_subscriptions(
                     request.state_->get_client_subscriptions(_client_id)
                 );
 
-                const boost::json::object _data = make_client_object(_client, _subscriptions);
+                const auto _data = make_client_object(_client, _subscriptions);
 
                 next(request, "ok", _data);
             } else {

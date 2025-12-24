@@ -24,8 +24,7 @@
 
 namespace aewt::handlers {
     void whoami_handler(const request &request) {
-        const boost::json::object _data = make_session_object(request.session_);
-
+        const auto _data = make_session_object(request.session_);
         next(request, "ok", _data);
     }
 }
