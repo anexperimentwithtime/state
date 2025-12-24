@@ -273,6 +273,14 @@ namespace aewt {
         bool send(boost::uuids::uuid transaction_id, boost::uuids::uuid session_id, boost::uuids::uuid sender_id,
                   boost::uuids::uuid receiver_id, const boost::json::object &data) const;
 
+        /**
+         *  Push Client
+         *
+         * @param client
+         * @return bool
+         */
+        bool push_client(const std::shared_ptr<client> & client);
+
     private:
         /**
          * Send To Others Sessions

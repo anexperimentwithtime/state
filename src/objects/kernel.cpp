@@ -20,6 +20,7 @@
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
+#include <aewt/client.hpp>
 #include <aewt/validator.hpp>
 
 #include <aewt/handlers/ping_handler.hpp>
@@ -57,7 +58,8 @@
 namespace aewt {
     std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
                                      const std::shared_ptr<session> &session,
-                                     boost::json::object data) {
+                                     const std::shared_ptr<client> &client,
+                                     const boost::json::object & data) {
         boost::ignore_unused(state);
 
         const auto _timestamp = std::chrono::system_clock::now().time_since_epoch().count();
@@ -69,6 +71,7 @@ namespace aewt {
                 .response_ = _response,
                 .state_ = state,
                 .session_ = session,
+                .client_ = client,
                 .data_ = data,
                 .timestamp_ = _timestamp,
             };

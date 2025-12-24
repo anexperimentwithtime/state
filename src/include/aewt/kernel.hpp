@@ -19,6 +19,7 @@
 #define AEWT_KERNEL_HPP
 
 #include <boost/json/object.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <memory>
 
 namespace aewt {
@@ -33,6 +34,11 @@ namespace aewt {
     class session;
 
     /**
+     * Forward Client
+     */
+    class client;
+
+    /**
      * Forward Response
      */
     class response;
@@ -42,12 +48,14 @@ namespace aewt {
      *
      * @param state
      * @param session
+     * @param client
      * @param data
      * @return shared_ptr<response>
      */
     std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
                                      const std::shared_ptr<session> &session,
-                                     boost::json::object data);
+                                     const std::shared_ptr<client> &client,
+                                     const boost::json::object & data);
 } // namespace aewt
 
 #endif  // AEWT_KERNEL_HPP

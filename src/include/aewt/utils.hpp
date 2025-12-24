@@ -152,6 +152,17 @@ namespace aewt {
      * @return char *
      */
     const char *get_status(bool gate, const char *on_true = "ok", const char *on_false = "no effect");
+
+    /**
+     * Add Client
+     *
+     * @param local
+     * @param request
+     * @param session_id
+     * @param client_id
+     * @return
+     */
+    bool add_client(bool local, const request & request, boost::uuids::uuid session_id, boost::uuids::uuid client_id);
 }
 
 #endif // AEWT_UTILS_HPP

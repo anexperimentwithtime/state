@@ -25,6 +25,7 @@
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
+#include <aewt/client.hpp>
 
 namespace aewt {
     struct request {
@@ -32,7 +33,8 @@ namespace aewt {
         std::shared_ptr<aewt::response> &response_;
         const std::shared_ptr<aewt::state> &state_;
         const std::shared_ptr<aewt::session> &session_;
-        boost::json::object &data_;
+        const std::shared_ptr<aewt::client> &client_;
+        const boost::json::object &data_;
         long timestamp_;
     };
 } // namespace aewt
