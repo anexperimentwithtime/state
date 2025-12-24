@@ -32,10 +32,14 @@ TEST(handlers_client_handler_test, can_handle) {
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     boost::asio::ip::tcp::socket _other_socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_other_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _current_session->get_id(), true);
-    const auto _remote_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _remote_session->get_id(), false);
+    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+                                                                  std::move(_socket));
+    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+                                                                 std::move(_other_socket));
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
+                                                              _current_session->get_id(), true);
+    const auto _remote_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
+                                                               _remote_session->get_id(), false);
     boost::asio::ip::tcp::socket _remote_client_socket(_io_context);
     _remote_client->get_socket().emplace(std::move(_remote_client_socket));
 
@@ -46,7 +50,8 @@ TEST(handlers_client_handler_test, can_handle) {
 
     auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "client"}, {"transaction_id", to_string(_transaction_id)}, {"params", {{"client_id", to_string(_remote_client->get_id())}}}
+        {"action", "client"}, {"transaction_id", to_string(_transaction_id)},
+        {"params", {{"client_id", to_string(_remote_client->get_id())}}}
     };
 
     const auto _response = kernel(_state, _current_session, _remote_client, _data);
@@ -67,7 +72,8 @@ TEST(handlers_client_handler_test, can_handle) {
 
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("session_id"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("session_id").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("session_id").as_string(), to_string(_remote_session->get_id()));
+    ASSERT_EQ(_response->get_data().at("data").as_object().at("session_id").as_string(),
+              to_string(_remote_session->get_id()));
 
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("id"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("id").is_string());
@@ -94,12 +100,15 @@ TEST(handlers_client_handler_test, can_handle_no_effect) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _current_session->get_id(), true);
+    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+                                                                  std::move(_socket));
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
+                                                              _current_session->get_id(), true);
     auto _transaction_id = boost::uuids::random_generator()();
 
     const boost::json::object _data = {
-        {"action", "client"}, {"transaction_id", to_string(_transaction_id)}, {"params", {{"client_id", to_string(_local_client->get_id())}}}
+        {"action", "client"}, {"transaction_id", to_string(_transaction_id)},
+        {"params", {{"client_id", to_string(_local_client->get_id())}}}
     };
 
     const auto _response = kernel(_state, _current_session, _local_client, _data);

@@ -31,15 +31,20 @@ TEST(handlers_session_client_exists_handler_test, can_handle) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _current_session->get_id(), true);
+    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+                                                                  std::move(_socket));
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
+                                                              _current_session->get_id(), true);
 
     _state->push_client(_local_client);
 
     auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "session_client_exists"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_current_session->get_id())}}}
+        {
+            "params",
+            {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_current_session->get_id())}}
+        }
     };
 
     const auto _response = kernel(_state, _current_session, _local_client, _data);

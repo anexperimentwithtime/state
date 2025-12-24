@@ -37,7 +37,7 @@ namespace aewt::handlers {
             std::size_t _count = 0;
 
             if (_is_local && _removed)
-                _count = distribute_to_others(request.state_, request.data_);
+                _count = distribute_to_others(request.state_, request.data_, _session_id);
 
             const auto _status = get_status(_removed);
 

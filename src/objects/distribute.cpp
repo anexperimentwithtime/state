@@ -18,11 +18,13 @@
 #include <aewt/session.hpp>
 
 namespace aewt {
-    std::size_t distribute_to_others(const std::shared_ptr<state> &state, const boost::json::object &data) {
+    std::size_t distribute_to_others(const std::shared_ptr<state> &state, const boost::json::object &data, const boost::uuids::uuid session_id) {
         auto _count = 0;
         for (auto _sessions = state->get_sessions(); const auto &_session: _sessions) {
-            _session->send(std::make_shared<boost::json::object>(data));
-            _count++;
+            if (_session->get_id() != session_id) {
+                _session->send(std::make_shared<boost::json::object>(data));
+                _count++;
+            }
         }
         return _count;
     }
