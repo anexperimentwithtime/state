@@ -31,8 +31,10 @@ TEST(handlers_session_clients_handler_test, can_handle) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _current_session->get_id(), true);
+    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+                                                                  std::move(_socket));
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
+                                                              _current_session->get_id(), true);
 
     _state->push_client(_local_client);
 

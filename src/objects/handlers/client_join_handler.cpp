@@ -35,7 +35,7 @@ namespace aewt::handlers {
             const auto _inserted = add_client(_is_local, request, _session_id, _client_id);
 
             std::size_t _count = _is_local && _inserted
-                                     ? distribute_to_others(request.state_, request.data_)
+                                     ? distribute_to_others(request.state_, request.data_, _session_id)
                                      : 0;
 
             const auto _status = get_status(_inserted);
