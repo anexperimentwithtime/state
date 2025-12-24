@@ -162,7 +162,7 @@ namespace aewt {
      * @param client_id
      * @return
      */
-    bool add_client(bool local, const request & request, boost::uuids::uuid session_id, boost::uuids::uuid client_id);
+    bool add_client(bool local, const request &request, boost::uuids::uuid session_id, boost::uuids::uuid client_id);
 }
 
 #endif // AEWT_UTILS_HPP

@@ -29,8 +29,10 @@ TEST(handlers_pong_handle_test, can_handle) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _current_session->get_id(), true);
+    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+                                                                  std::move(_socket));
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
+                                                              _current_session->get_id(), true);
 
     auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {{"action", "ping"}, {"transaction_id", to_string(_transaction_id)}};
