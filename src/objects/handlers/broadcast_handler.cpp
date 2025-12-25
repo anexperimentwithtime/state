@@ -25,7 +25,7 @@
 
 namespace aewt::handlers {
     void broadcast_handler(const request &request) {
-        auto & _state = request.state_;
+        auto &_state = request.state_;
 
         if (validators::broadcast_validator(request)) {
             auto &_params = get_params(request);
@@ -40,13 +40,13 @@ namespace aewt::handlers {
                 _payload
             );
             const auto _sessions_count = _is_local
-                                                    ? _state->broadcast_to_sessions(
-                                                        request,
-                                                        _session_id,
-                                                        _client_id,
-                                                        _payload
-                                                    )
-                                                    : std::size_t { 0 };
+                                             ? _state->broadcast_to_sessions(
+                                                 request,
+                                                 _session_id,
+                                                 _client_id,
+                                                 _payload
+                                             )
+                                             : std::size_t{0};
             const auto _count = _clients_count + _sessions_count;
 
             const auto _status = get_status(_count > 0);

@@ -24,6 +24,8 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include "../helpers.hpp"
+
 TEST(handlers_pong_handle_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
@@ -34,7 +36,7 @@ TEST(handlers_pong_handle_test, can_handle) {
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {{"action", "ping"}, {"transaction_id", to_string(_transaction_id)}};
 
     const auto _response = kernel(_state, _current_session, _local_client, _data);
@@ -44,6 +46,9 @@ TEST(handlers_pong_handle_test, can_handle) {
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(!_response->get_failed());
+
+    test_response_base_protocol_structure(_response, "success", "pong", _transaction_id);
+
     ASSERT_TRUE(_response->get_data().contains("status"));
     ASSERT_TRUE(_response->get_data().at("status").is_string());
     ASSERT_EQ(_response->get_data().at("status").as_string(), "success");

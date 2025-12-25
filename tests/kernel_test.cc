@@ -24,6 +24,8 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include "helpers.hpp"
+
 TEST(kernel_test, can_handle_empty_action_on_data) {
     const auto _state = std::make_shared<aewt::state>();
 
@@ -34,7 +36,7 @@ TEST(kernel_test, can_handle_empty_action_on_data) {
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {{"transaction_id", to_string(_transaction_id)}};
 
     const auto _response = kernel(_state, _current_session, _local_client, _data);
@@ -44,33 +46,15 @@ TEST(kernel_test, can_handle_empty_action_on_data) {
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
-    ASSERT_TRUE(_response->get_data().contains("status"));
-    ASSERT_TRUE(_response->get_data().at("status").is_string());
-    ASSERT_EQ(_response->get_data().at("status").as_string(), "failed");
-    ASSERT_TRUE(_response->get_data().contains("message"));
-    ASSERT_TRUE(_response->get_data().at("message").is_string());
-    ASSERT_EQ(_response->get_data().at("message").as_string(), "unprocessable entity");
+
+    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
+
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("action"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("action").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("action").as_string(),
               "action attribute must be present");
-
-    ASSERT_TRUE(_response->get_data().contains("runtime"));
-    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
-    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
-
-    ASSERT_TRUE(_response->get_data().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
-    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
-    ASSERT_TRUE(
-        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
-        time_since_epoch().count());
-
-    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }
 
 TEST(kernel_test, can_handle_wrong_action_primitive_on_data) {
@@ -83,7 +67,7 @@ TEST(kernel_test, can_handle_wrong_action_primitive_on_data) {
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {{"transaction_id", to_string(_transaction_id)}, {"action", 7}};
 
     const auto _response = kernel(_state, _current_session, _local_client, _data);
@@ -93,32 +77,14 @@ TEST(kernel_test, can_handle_wrong_action_primitive_on_data) {
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
-    ASSERT_TRUE(_response->get_data().contains("status"));
-    ASSERT_TRUE(_response->get_data().at("status").is_string());
-    ASSERT_EQ(_response->get_data().at("status").as_string(), "failed");
-    ASSERT_TRUE(_response->get_data().contains("message"));
-    ASSERT_TRUE(_response->get_data().at("message").is_string());
-    ASSERT_EQ(_response->get_data().at("message").as_string(), "unprocessable entity");
+
+    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
+
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("action"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("action").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("action").as_string(), "action attribute must be string");
-
-    ASSERT_TRUE(_response->get_data().contains("runtime"));
-    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
-    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
-
-    ASSERT_TRUE(_response->get_data().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
-    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
-    ASSERT_TRUE(
-        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
-        time_since_epoch().count());
-
-    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }
 
 TEST(kernel_test, can_handle_empty_transaction_id_on_data) {
@@ -273,7 +239,7 @@ TEST(kernel_test, can_handle_non_implemented_action) {
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {{"action", "invalid"}, {"transaction_id", to_string(_transaction_id)}};
 
     const auto _response = kernel(_state, _current_session, _local_client, _data);

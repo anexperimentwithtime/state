@@ -26,6 +26,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include "../helpers.hpp"
+
 TEST(handlers_session_clients_handler_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
@@ -38,7 +40,7 @@ TEST(handlers_session_clients_handler_test, can_handle) {
 
     _state->push_client(_local_client);
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "session_clients"}, {"transaction_id", to_string(_transaction_id)},
         {"params", boost::json::object{{"session_id", to_string(_current_session->get_id())}}}
@@ -51,31 +53,13 @@ TEST(handlers_session_clients_handler_test, can_handle) {
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(!_response->get_failed());
-    ASSERT_TRUE(_response->get_data().contains("status"));
-    ASSERT_TRUE(_response->get_data().at("status").is_string());
-    ASSERT_EQ(_response->get_data().at("status").as_string(), "success");
-    ASSERT_TRUE(_response->get_data().contains("message"));
-    ASSERT_TRUE(_response->get_data().at("message").is_string());
-    ASSERT_EQ(_response->get_data().at("message").as_string(), "ok");
+
+    test_response_base_protocol_structure(_response, "success", "ok", _transaction_id);
+
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("clients"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients").is_array());
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients").as_array().size() > 0);
-
-    ASSERT_TRUE(_response->get_data().contains("runtime"));
-    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
-    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
-
-    ASSERT_TRUE(_response->get_data().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
-    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
-    ASSERT_TRUE(
-        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
-        time_since_epoch().count());
-
-    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }
