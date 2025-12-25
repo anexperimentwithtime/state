@@ -34,7 +34,7 @@ namespace aewt::handlers {
             const auto _is_local = request.session_->get_id() == _session_id;
             const auto _removed = request.state_->remove_client(_client_id);
 
-            std::size_t _count = 0;
+            auto _count = std::size_t { 0 };
 
             if (_is_local && _removed)
                 _count = distribute_to_others(request.state_, request.data_, _session_id);

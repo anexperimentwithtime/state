@@ -25,22 +25,16 @@
 
 namespace aewt::handlers {
     void send_handler(const request &request) {
+        const auto &_state = request.state_;
+        const auto &_transaction_id = request.transaction_id_;
+        const auto &_session = request.session_;
         if (validators::send_validator(request)) {
             const auto &_params = get_params(request);
             const auto &_sender_id = get_param_as_id(_params, "sender_id");
             const auto &_receiver_id = get_param_as_id(_params, "receiver_id");
             const auto &_payload = get_param_as_object(_params, "payload");
-
-            const bool _success = request.state_->send(
-                request.transaction_id_,
-                request.session_->get_id(),
-                _sender_id,
-                _receiver_id,
-                _payload
-            );
-
+            const bool _success = _state->send(_transaction_id, _session->get_id(), _sender_id, _receiver_id, _payload);
             const auto _status = get_status(_success);
-
             next(request, _status);
         }
     }

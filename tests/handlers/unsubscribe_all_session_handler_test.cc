@@ -24,6 +24,8 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include "../helpers.hpp"
+
 TEST(handlers_unsubscribe_all_session_handler_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
@@ -36,7 +38,7 @@ TEST(handlers_unsubscribe_all_session_handler_test, can_handle) {
     _state->add_session(_current_session);
     _state->subscribe(_current_session->get_id(), _local_client->get_id(), "welcome");
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "unsubscribe_all_session"}, {"transaction_id", to_string(_transaction_id)},
         {"params", {{"session_id", to_string(_current_session->get_id())}}}
@@ -49,29 +51,11 @@ TEST(handlers_unsubscribe_all_session_handler_test, can_handle) {
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(!_response->get_failed());
-    ASSERT_TRUE(_response->get_data().contains("status"));
-    ASSERT_TRUE(_response->get_data().at("status").is_string());
-    ASSERT_EQ(_response->get_data().at("status").as_string(), "success");
-    ASSERT_TRUE(_response->get_data().contains("message"));
-    ASSERT_TRUE(_response->get_data().at("message").is_string());
-    ASSERT_EQ(_response->get_data().at("message").as_string(), "ok");
+
+    test_response_base_protocol_structure(_response, "success", "ok", _transaction_id);
+
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
-
-    ASSERT_TRUE(_response->get_data().contains("runtime"));
-    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
-    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
-
-    ASSERT_TRUE(_response->get_data().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
-    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
-    ASSERT_TRUE(
-        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
-        time_since_epoch().count());
-
-    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }
 
 TEST(handlers_unsubscribe_all_session_handler_test, can_handle_unsubscribe_all_session_on_empty_data_params) {
@@ -84,7 +68,7 @@ TEST(handlers_unsubscribe_all_session_handler_test, can_handle_unsubscribe_all_s
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "unsubscribe_all_session"}, {"transaction_id", to_string(_transaction_id)}
     };
@@ -96,33 +80,15 @@ TEST(handlers_unsubscribe_all_session_handler_test, can_handle_unsubscribe_all_s
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
-    ASSERT_TRUE(_response->get_data().contains("status"));
-    ASSERT_TRUE(_response->get_data().at("status").is_string());
-    ASSERT_EQ(_response->get_data().at("status").as_string(), "failed");
-    ASSERT_TRUE(_response->get_data().contains("message"));
-    ASSERT_TRUE(_response->get_data().at("message").is_string());
-    ASSERT_EQ(_response->get_data().at("message").as_string(), "unprocessable entity");
+
+    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
+
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params attribute must be present");
-
-    ASSERT_TRUE(_response->get_data().contains("runtime"));
-    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
-    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
-
-    ASSERT_TRUE(_response->get_data().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
-    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
-    ASSERT_TRUE(
-        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
-        time_since_epoch().count());
-
-    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }
 
 TEST(handlers_unsubscribe_all_session_handler_test, can_handle_unsubscribe_all_session_on_wrong_data_params_primitive) {
@@ -135,7 +101,7 @@ TEST(handlers_unsubscribe_all_session_handler_test, can_handle_unsubscribe_all_s
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "unsubscribe_all_session"}, {"transaction_id", to_string(_transaction_id)},
         {"params", 3}
@@ -148,33 +114,15 @@ TEST(handlers_unsubscribe_all_session_handler_test, can_handle_unsubscribe_all_s
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
-    ASSERT_TRUE(_response->get_data().contains("status"));
-    ASSERT_TRUE(_response->get_data().at("status").is_string());
-    ASSERT_EQ(_response->get_data().at("status").as_string(), "failed");
-    ASSERT_TRUE(_response->get_data().contains("message"));
-    ASSERT_TRUE(_response->get_data().at("message").is_string());
-    ASSERT_EQ(_response->get_data().at("message").as_string(), "unprocessable entity");
+
+    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
+
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params attribute must be object");
-
-    ASSERT_TRUE(_response->get_data().contains("runtime"));
-    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
-    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
-
-    ASSERT_TRUE(_response->get_data().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
-    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
-    ASSERT_TRUE(
-        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
-        time_since_epoch().count());
-
-    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }
 
 TEST(handlers_unsubscribe_all_session_handler_test,
@@ -188,7 +136,7 @@ TEST(handlers_unsubscribe_all_session_handler_test,
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "unsubscribe_all_session"}, {"transaction_id", to_string(_transaction_id)},
         {"params", boost::json::object{}}
@@ -201,6 +149,9 @@ TEST(handlers_unsubscribe_all_session_handler_test,
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
+
+    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
+
     ASSERT_TRUE(_response->get_data().contains("status"));
     ASSERT_TRUE(_response->get_data().at("status").is_string());
     ASSERT_EQ(_response->get_data().at("status").as_string(), "failed");
@@ -241,7 +192,7 @@ TEST(handlers_unsubscribe_all_session_handler_test,
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "unsubscribe_all_session"}, {"transaction_id", to_string(_transaction_id)},
         {"params", boost::json::object{{"session_id", 7}}}
@@ -254,33 +205,15 @@ TEST(handlers_unsubscribe_all_session_handler_test,
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
-    ASSERT_TRUE(_response->get_data().contains("status"));
-    ASSERT_TRUE(_response->get_data().at("status").is_string());
-    ASSERT_EQ(_response->get_data().at("status").as_string(), "failed");
-    ASSERT_TRUE(_response->get_data().contains("message"));
-    ASSERT_TRUE(_response->get_data().at("message").is_string());
-    ASSERT_EQ(_response->get_data().at("message").as_string(), "unprocessable entity");
+
+    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
+
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params session_id attribute must be string");
-
-    ASSERT_TRUE(_response->get_data().contains("runtime"));
-    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
-    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
-
-    ASSERT_TRUE(_response->get_data().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
-    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
-    ASSERT_TRUE(
-        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
-        time_since_epoch().count());
-
-    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }
 
 TEST(handlers_unsubscribe_all_session_handler_test,
@@ -294,7 +227,7 @@ TEST(handlers_unsubscribe_all_session_handler_test,
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    auto _transaction_id = boost::uuids::random_generator()();
+    const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "unsubscribe_all_session"}, {"transaction_id", to_string(_transaction_id)},
         {"params", boost::json::object{{"session_id", "7"}}}
@@ -307,31 +240,13 @@ TEST(handlers_unsubscribe_all_session_handler_test,
 
     ASSERT_TRUE(_response->get_processed());
     ASSERT_TRUE(_response->get_failed());
-    ASSERT_TRUE(_response->get_data().contains("status"));
-    ASSERT_TRUE(_response->get_data().at("status").is_string());
-    ASSERT_EQ(_response->get_data().at("status").as_string(), "failed");
-    ASSERT_TRUE(_response->get_data().contains("message"));
-    ASSERT_TRUE(_response->get_data().at("message").is_string());
-    ASSERT_EQ(_response->get_data().at("message").as_string(), "unprocessable entity");
+
+    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
+
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
               "params session_id attribute must be uuid");
-
-    ASSERT_TRUE(_response->get_data().contains("runtime"));
-    ASSERT_TRUE(_response->get_data().at("runtime").is_number());
-    ASSERT_TRUE(_response->get_data().at("runtime").as_int64() > 0);
-
-    ASSERT_TRUE(_response->get_data().contains("timestamp"));
-    ASSERT_TRUE(_response->get_data().at("timestamp").is_number());
-    ASSERT_TRUE(_response->get_data().at("timestamp").as_int64() > 0);
-    ASSERT_TRUE(
-        _response->get_data().at("timestamp").as_int64() < std::chrono::system_clock::now().
-        time_since_epoch().count());
-
-    ASSERT_TRUE(_response->get_data().contains("transaction_id"));
-    ASSERT_TRUE(_response->get_data().at("transaction_id").is_string());
-    ASSERT_EQ(_response->get_data().at("transaction_id").as_string(), to_string(_transaction_id));
 }
