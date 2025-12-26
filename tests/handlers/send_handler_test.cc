@@ -123,6 +123,7 @@ TEST(handlers_send_handler_test, can_handle_no_effect) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
+    _state->remove_session(_current_session->get_id());
     _state->remove_client(_local_client->get_id());
 }
 

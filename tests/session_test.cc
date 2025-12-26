@@ -31,4 +31,6 @@ TEST(session_test, can_be_created) {
 
     ASSERT_TRUE(!_session->get_id().is_nil());
     ASSERT_TRUE(&_session->get_socket() == &_session->get_socket());
+
+    _state->remove_session(_session->get_id());
 }
