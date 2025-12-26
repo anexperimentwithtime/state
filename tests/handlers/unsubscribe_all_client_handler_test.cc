@@ -31,10 +31,11 @@ TEST(handlers_unsubscribe_all_client_handler_test, can_handle) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);;
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
+
     _state->add_session(_current_session);
     _state->subscribe(_current_session->get_id(), _local_client->get_id(), "welcome");
 
@@ -56,6 +57,8 @@ TEST(handlers_unsubscribe_all_client_handler_test, can_handle) {
 
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
+
+    _state->remove_session(_current_session->get_id());
 }
 
 TEST(handlers_unsubscribe_all_client_handler_test, can_handle_unsubscribe_all_client_on_empty_data_params) {
@@ -63,7 +66,7 @@ TEST(handlers_unsubscribe_all_client_handler_test, can_handle_unsubscribe_all_cl
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
@@ -96,7 +99,7 @@ TEST(handlers_unsubscribe_all_client_handler_test, can_handle_unsubscribe_all_cl
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
@@ -129,7 +132,7 @@ TEST(handlers_unsubscribe_all_client_handler_test, can_handle_unsubscribe_all_cl
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
@@ -164,7 +167,7 @@ TEST(handlers_unsubscribe_all_client_handler_test,
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
@@ -199,7 +202,7 @@ TEST(handlers_unsubscribe_all_client_handler_test,
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);

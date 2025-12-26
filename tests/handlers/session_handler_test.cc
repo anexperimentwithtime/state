@@ -34,12 +34,13 @@ TEST(handlers_session_handler_test, can_handle) {
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     boost::asio::ip::tcp::socket _remote_socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
-    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _remote_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                  std::move(_remote_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
+
     _state->add_session(_current_session);
     _state->add_session(_remote_session);
 
@@ -62,6 +63,10 @@ TEST(handlers_session_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
+
+    _state->remove_session(_current_session->get_id());
+    _state->remove_session(_remote_session->get_id());
+
     // TODO add id and is_open attributes of data
 }
 
@@ -71,12 +76,13 @@ TEST(handlers_session_handler_test, can_handle_no_effect) {
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     boost::asio::ip::tcp::socket _remote_socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
-    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _remote_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                  std::move(_remote_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
+
     _state->add_session(_current_session);
 
     const auto _transaction_id = boost::uuids::random_generator()();
@@ -97,4 +103,6 @@ TEST(handlers_session_handler_test, can_handle_no_effect) {
 
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
+
+    _state->remove_session(_current_session->get_id());
 }

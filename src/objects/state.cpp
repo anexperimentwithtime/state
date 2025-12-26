@@ -21,6 +21,7 @@
 #include <aewt/request.hpp>
 
 #include <boost/uuid/random_generator.hpp>
+#include <boost/json/serialize.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <ranges>
 #include <unordered_set>
@@ -33,7 +34,9 @@ namespace aewt {
         LOG_INFO("state {} allocated", to_string(id_));
     }
 
-    state::~state() { LOG_INFO("state {} released", to_string(id_)); }
+    state::~state() {
+        LOG_INFO("state {} released", to_string(id_));
+    }
 
     boost::uuids::uuid state::get_id() const { return id_; }
 
@@ -123,7 +126,7 @@ namespace aewt {
 
     bool state::add_session(std::shared_ptr<session> session) {
         std::unique_lock _lock(sessions_mutex_);
-        auto [_, _inserted] = sessions_.emplace(session->get_id(), std::move(session));
+        auto [_, _inserted] = sessions_.emplace(session->get_id(), session);
         return _inserted;
     }
 
@@ -132,13 +135,12 @@ namespace aewt {
         return sessions_.erase(id) > 0;
     }
 
-    bool state::add_client(const boost::uuids::uuid client_id, const boost::uuids::uuid session_id,
-                           const bool is_local) {
+    bool state::add_client(const std::shared_ptr<client> &client) {
         std::unique_lock _lock(clients_mutex_);
 
         auto &_index = clients_.get<clients_by_client_session>();
         auto [_it, _inserted] =
-                _index.insert(std::make_shared<client>(client_id, session_id, is_local));
+                _index.insert(client);
 
         return _inserted;
     }
@@ -224,9 +226,7 @@ namespace aewt {
     std::size_t state::broadcast_to_sessions(const request &request, const boost::uuids::uuid session_id,
                                              const boost::uuids::uuid client_id,
                                              const boost::json::object &data) const {
-        const auto _data = std::make_shared<boost::json::object>(
-            make_broadcast_request_object(request, session_id, client_id, data)
-        );
+        const auto _data = make_broadcast_request_object(request, session_id, client_id, data);
 
         return send_to_others_sessions(_data, session_id);
     }
@@ -256,7 +256,7 @@ namespace aewt {
             _count++;
         }
 
-        const auto _data = std::make_shared<boost::json::object>(boost::json::object({
+        const auto _data = boost::json::object({
             {"transaction_id", to_string(transaction_id)},
             {"action", "publish"},
             {
@@ -268,12 +268,14 @@ namespace aewt {
                     {"count", _count}
                 }
             }
-        }));
+        });
+
+        auto const _message = std::make_shared<std::string const>(serialize(_data));
 
         for (const auto &_session_id: _receivers) {
             if (auto _session = get_session(_session_id); _session.has_value()) {
                 const auto &_value = _session.value();
-                _value->send(_data);
+                _value->send(_message);
             }
         }
 
@@ -298,16 +300,19 @@ namespace aewt {
                      const boost::uuids::uuid sender_id, const boost::uuids::uuid receiver_id,
                      const boost::json::object &data) const {
         if (const auto _receiver = get_session(session_id); _receiver.has_value() && get_client_exists(receiver_id)) {
-            const auto _data = std::make_shared<boost::json::object>(boost::json::object({
+            const auto _data = boost::json::object({
                 {"transaction_id", to_string(transaction_id)},
                 {"action", "send"},
                 {"session_id", to_string(session_id)},
                 {"sender_id", to_string(sender_id)},
                 {"receiver_id", to_string(receiver_id)},
                 {"payload", data},
-            }));
+            });
+
+            auto const _message = std::make_shared<std::string const>(serialize(_data));
+
             const auto &_session = _receiver.value();
-            _session->send(_data);
+            _session->send(_message);
             return true;
         }
 
@@ -324,16 +329,19 @@ namespace aewt {
         return _inserted;
     }
 
-    std::size_t state::send_to_others_sessions(const std::shared_ptr<boost::json::object> &data,
+    std::size_t state::send_to_others_sessions(const boost::json::object &data,
                                                const boost::uuids::uuid except) const {
-        std::vector<std::shared_ptr<session> > _sessions = get_sessions();
+        auto _sessions = get_sessions();
+
+        std::string _output = serialize(data);
+        auto const _message = std::make_shared<std::string const>(_output);
 
         std::size_t _count = 0;
         for (const auto &_session: _sessions) {
             if (_session->get_id() == except)
                 continue;
 
-            _session->send(data);
+            _session->send(_message);
             _count++;
         }
 
@@ -342,7 +350,7 @@ namespace aewt {
 
     std::size_t state::send_to_others_clients(const std::shared_ptr<boost::json::object> &data,
                                               const boost::uuids::uuid except) const {
-        std::vector<std::shared_ptr<client> > _clients = get_clients();
+        auto _clients = get_clients();
 
         std::size_t _count = 0;
         for (const auto &_client: _clients) {

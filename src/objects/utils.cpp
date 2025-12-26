@@ -114,7 +114,7 @@ namespace aewt {
         return _data;
     }
 
-    boost::json::object make_session_object(const std::shared_ptr<session> &session) {
+    boost::json::object make_session_object(std::shared_ptr<session> session) {
         const auto &_socket = session->get_socket();
 
         boost::json::object _data = {
@@ -156,9 +156,12 @@ namespace aewt {
                    : on_false;
     }
 
-    bool add_client(const bool local, const request &request, const boost::uuids::uuid session_id, const boost::uuids::uuid client_id) {
-        return local
-            ? request.state_->push_client(request.client_)
-            : request.state_->add_client(client_id, session_id, local);
+    bool add_client(const bool local, const request &request, const boost::uuids::uuid session_id,
+                    const boost::uuids::uuid client_id) {
+        if (local) {
+            return request.state_->push_client(request.client_);
+        }
+
+        return request.state_->add_client(std::make_shared<client>(client_id, session_id, local));
     }
 } // namespace aewt

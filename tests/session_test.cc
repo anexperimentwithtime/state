@@ -16,12 +16,18 @@
 #include <gtest/gtest.h>
 
 #include <aewt/session.hpp>
+#include <aewt/state.hpp>
 #include <boost/uuid/random_generator.hpp>
 
 TEST(session_test, can_be_created) {
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), std::move(_socket));
+
+    const auto _state = std::make_shared<aewt::state>();
+    const auto _session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
+                                                          std::move(_socket));
+
+    _state->add_session(_session);
 
     ASSERT_TRUE(!_session->get_id().is_nil());
     ASSERT_TRUE(&_session->get_socket() == &_session->get_socket());

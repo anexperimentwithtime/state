@@ -24,6 +24,14 @@
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
+    std::size_t broadcast_to_sessions(const bool is_local, const std::shared_ptr<state> &state, const request &request,
+                                      const boost::uuids::uuid session_id, const boost::uuids::uuid client_id,
+                                      const boost::json::object &payload) {
+        return is_local
+                   ? state->broadcast_to_sessions(request, session_id, client_id, payload)
+                   : std::size_t{0};
+    }
+
     void broadcast_handler(const request &request) {
         auto &_state = request.state_;
 
@@ -33,20 +41,23 @@ namespace aewt::handlers {
             const auto &_session_id = get_param_as_id(_params, "session_id");
             const auto &_payload = get_param_as_object(_params, "payload");
             const bool _is_local = request.session_->get_id() == _session_id;
+
             const auto _clients_count = _state->broadcast_to_clients(
                 request,
                 _session_id,
                 _client_id,
                 _payload
             );
-            const auto _sessions_count = _is_local
-                                             ? _state->broadcast_to_sessions(
-                                                 request,
-                                                 _session_id,
-                                                 _client_id,
-                                                 _payload
-                                             )
-                                             : std::size_t{0};
+
+            const auto _sessions_count = broadcast_to_sessions(
+                _is_local,
+                _state,
+                request,
+                _session_id,
+                _client_id,
+                _payload
+            );
+
             const auto _count = _clients_count + _sessions_count;
 
             const auto _status = get_status(_count > 0);

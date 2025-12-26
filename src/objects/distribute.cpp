@@ -17,12 +17,16 @@
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 
+#include <boost/json/serialize.hpp>
+
 namespace aewt {
-    std::size_t distribute_to_others(const std::shared_ptr<state> &state, const boost::json::object &data, const boost::uuids::uuid session_id) {
+    std::size_t distribute_to_others(const std::shared_ptr<state> &state, const boost::json::object &data,
+                                     const boost::uuids::uuid session_id) {
         auto _count = 0;
+        auto const _message = std::make_shared<std::string const>(serialize(data));
         for (auto _sessions = state->get_sessions(); const auto &_session: _sessions) {
             if (_session->get_id() != session_id) {
-                _session->send(std::make_shared<boost::json::object>(data));
+                _session->send(_message);
                 _count++;
             }
         }
