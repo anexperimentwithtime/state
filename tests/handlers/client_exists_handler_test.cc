@@ -34,9 +34,9 @@ TEST(handlers_client_exists_handler_test, can_handle_yes) {
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
     boost::asio::ip::tcp::socket _other_socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
+                                                            std::move(_socket));
+    const auto _remote_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                  std::move(_other_socket));
 
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
@@ -46,8 +46,8 @@ TEST(handlers_client_exists_handler_test, can_handle_yes) {
 
     _state->add_session(_current_session);
     _state->add_session(_remote_session);
-    _state->add_client(_local_client->get_id(), _current_session->get_id());
-    _state->add_client(_remote_client->get_id(), _current_session->get_id());
+    _state->add_client(_local_client);
+    _state->add_client(_remote_client);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -69,6 +69,11 @@ TEST(handlers_client_exists_handler_test, can_handle_yes) {
     test_response_base_protocol_structure(_response, "success", "yes", _transaction_id);
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
+
+    _state->remove_session(_current_session->get_id());
+    _state->remove_session(_remote_session->get_id());
+    _state->remove_client(_local_client->get_id());
+    _state->remove_client(_remote_client->get_id());
 }
 
 TEST(handlers_client_exists_handler_test, can_handle_no) {
@@ -76,7 +81,7 @@ TEST(handlers_client_exists_handler_test, can_handle_no) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);

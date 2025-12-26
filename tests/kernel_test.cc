@@ -31,7 +31,7 @@ TEST(kernel_test, can_handle_empty_action_on_data) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
@@ -62,7 +62,7 @@ TEST(kernel_test, can_handle_wrong_action_primitive_on_data) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
@@ -92,7 +92,7 @@ TEST(kernel_test, can_handle_empty_transaction_id_on_data) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
@@ -139,7 +139,7 @@ TEST(kernel_test, can_handle_wrong_transaction_id_primitive_on_data) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
@@ -187,7 +187,7 @@ TEST(kernel_test, can_handle_wrong_transaction_id_value_on_data) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
@@ -234,7 +234,7 @@ TEST(kernel_test, can_handle_non_implemented_action) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);

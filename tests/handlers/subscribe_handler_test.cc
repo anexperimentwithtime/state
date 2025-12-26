@@ -31,10 +31,11 @@ TEST(handlers_subscribe_handler_test, can_handle) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
+
     _state->add_session(_current_session);
     _state->push_client(_local_client);
 
@@ -56,6 +57,9 @@ TEST(handlers_subscribe_handler_test, can_handle) {
 
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
+
+    _state->remove_session(_current_session->get_id());
+    _state->remove_session(_local_client->get_id());
 }
 
 TEST(handlers_subscribe_handler_test, can_handle_no_effect) {
@@ -63,10 +67,11 @@ TEST(handlers_subscribe_handler_test, can_handle_no_effect) {
 
     boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
                                                                   std::move(_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
+
     _state->add_session(_current_session);
     _state->push_client(_local_client);
     _state->subscribe(_current_session->get_id(), _local_client->get_id(), "welcome");
@@ -89,4 +94,7 @@ TEST(handlers_subscribe_handler_test, can_handle_no_effect) {
 
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
+
+    _state->remove_session(_current_session->get_id());
+    _state->remove_session(_local_client->get_id());
 }

@@ -111,7 +111,7 @@ namespace aewt {
      * @param clients
      * @return
      */
-    boost::json::array make_array_of_clients(const std::vector<std::shared_ptr<client> > &clients);
+    boost::json::array make_array_of_clients(const std::vector<std::shared_ptr<client>> &clients);
 
     /**
      * Make Client Object
@@ -119,7 +119,7 @@ namespace aewt {
      * @param subscriptions
      * @return object
      */
-    boost::json::object make_client_object(const std::shared_ptr<client> &client,
+    boost::json::object make_client_object(const std::shared_ptr<client> & client,
                                            const boost::json::array &subscriptions);
 
     /**
@@ -128,7 +128,7 @@ namespace aewt {
      * @param session
      * @return object
      */
-    boost::json::object make_session_object(const std::shared_ptr<session> &session);
+    boost::json::object make_session_object(std::shared_ptr<session> session);
 
     /**
      * Make Broadcast Request Object

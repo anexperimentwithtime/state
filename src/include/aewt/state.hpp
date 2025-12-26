@@ -76,7 +76,7 @@ namespace aewt {
          *
          * @return vector<shared_ptr<session>>
          */
-        std::vector<std::shared_ptr<session> > get_sessions() const;
+        std::vector<std::shared_ptr<session>> get_sessions() const;
 
         /**
          * Get Clients By Session
@@ -91,7 +91,7 @@ namespace aewt {
          *
          * @return vector<uuid>
          */
-        std::vector<std::shared_ptr<client> > get_clients() const;
+        std::vector<std::shared_ptr<client>> get_clients() const;
 
         /**
          * Get Client Exists On Session
@@ -114,18 +114,18 @@ namespace aewt {
          * Get Session
          *
          * @param id uuid
-         * @return optional<shared_ptr<session>>
+         * @return optional<std::shared_ptr<session>>
          */
-        std::optional<std::shared_ptr<session> > get_session(
+        std::optional<std::shared_ptr<session>> get_session(
             boost::uuids::uuid id) const;
 
         /**
          * Get Client
          *
          * @param id uuid
-         * @return optional<shared_ptr<client>>
+         * @return optional<client>
          */
-        std::optional<std::shared_ptr<client> > get_client(
+        std::optional<std::shared_ptr<client>> get_client(
             boost::uuids::uuid id) const;
 
         /**
@@ -147,12 +147,10 @@ namespace aewt {
         /**
          * Add Client
          *
-         * @param client_id
-         * @param session_id
-         * @param is_local
+         * @param client
          * @return
          */
-        bool add_client(boost::uuids::uuid client_id, boost::uuids::uuid session_id, bool is_local = false);
+        bool add_client(const std::shared_ptr<client> &client);
 
         /**
          * Remove Client
@@ -289,7 +287,7 @@ namespace aewt {
          * @param except
          * @return
          */
-        std::size_t send_to_others_sessions(const std::shared_ptr<boost::json::object> &data,
+        std::size_t send_to_others_sessions(const boost::json::object &data,
                                             boost::uuids::uuid except) const;
 
         /**
@@ -315,7 +313,7 @@ namespace aewt {
         /**
          * Sessions
          */
-        std::map<boost::uuids::uuid, std::shared_ptr<session> > sessions_;
+        std::map<boost::uuids::uuid, std::shared_ptr<session>> sessions_;
 
         /**
          * Sessions Shared Mutex

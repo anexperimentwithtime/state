@@ -23,7 +23,15 @@
 #include <boost/json/object.hpp>
 #include <boost/uuid/uuid.hpp>
 
+#include <boost/beast/core.hpp>
+#include <boost/beast/websocket.hpp>
+
 namespace aewt {
+    /**
+     * Forward State
+     */
+    class state;
+
     /**
      * Session
      */
@@ -32,10 +40,11 @@ namespace aewt {
         /**
          * Constructor
          *
+         * @param state
          * @param id
          * @param socket
          */
-        session(boost::uuids::uuid id, boost::asio::ip::tcp::socket socket);
+        session(const std::shared_ptr<state> &state, boost::uuids::uuid id, boost::asio::ip::tcp::socket &&socket);
 
         /**
          * Destructor
@@ -54,16 +63,23 @@ namespace aewt {
          *
          * @return tcp::socket
          */
-        boost::asio::ip::tcp::socket &get_socket();
+        boost::beast::websocket::stream<boost::beast::tcp_stream> &get_socket();
 
         /**
          * Send
          *
          * @param data
          */
-        void send(std::shared_ptr<boost::json::object> data);
+        void send(std::shared_ptr<std::string const> const &data);
+
+        /**
+         * Run
+         */
+        void run();
 
     private:
+        std::shared_ptr<state> state_;
+
         /**
          * ID
          */
@@ -72,7 +88,57 @@ namespace aewt {
         /**
          * Socket
          */
-        boost::asio::ip::tcp::socket socket_;
+        boost::beast::websocket::stream<boost::beast::tcp_stream> socket_;
+
+        /**
+         * Buffer
+         */
+        boost::beast::flat_buffer buffer_;
+
+        /**
+         * Queue
+         */
+        std::vector<std::shared_ptr<std::string const> > queue_;
+
+        /**
+         * On Run
+         */
+        void on_run();
+
+        /**
+         * On Accept
+         *
+         * @param ec
+         */
+        void on_accept(const boost::beast::error_code &ec);
+
+        /**
+         * Do Read
+         */
+        void do_read();
+
+        /**
+         * On Read
+         *
+         * @param ec
+         * @param bytes_transferred
+         */
+        void on_read(const boost::system::error_code &ec, std::size_t bytes_transferred);
+
+        /**
+         * On Send
+         *
+         * @param data
+         */
+        void on_send(std::shared_ptr<std::string const> const &data);
+
+        /**
+         * On Write
+         *
+         * @param ec
+         * @param bytes_transferred
+         */
+        void on_write(const boost::beast::error_code &ec, std::size_t bytes_transferred);
     };
 } // namespace aewt
 
