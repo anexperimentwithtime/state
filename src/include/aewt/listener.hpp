@@ -32,7 +32,7 @@ namespace aewt {
         std::shared_ptr<state> state_;
 
     public:
-        listener(boost::asio::io_context & ioc, boost::asio::ip::tcp::endpoint endpoint, const std::shared_ptr<state> &state);
+        listener(boost::asio::io_context & ioc, const boost::asio::ip::tcp::endpoint &endpoint, const std::shared_ptr<state> &state);
 
         void on_accept(const boost::beast::error_code &ec, boost::asio::ip::tcp::socket socket);
 
