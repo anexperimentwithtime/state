@@ -22,34 +22,8 @@
 
 namespace aewt::validators {
     bool send_validator(const request &request) {
-        if (!request.data_.contains("params")) {
-            mark_as_invalid(request, "params", "params attribute must be present");
-            return false;
-        }
-
         const boost::json::value &_params = get_params_as_value(request);
-        if (!_params.is_object()) {
-            mark_as_invalid(request, "params", "params attribute must be object");
-            return false;
-        }
-
         const boost::json::object &_params_object = _params.as_object();
-        if (!_params_object.contains("sender_id")) {
-            mark_as_invalid(request, "params", "params sender_id attribute must be present");
-            return false;
-        }
-
-        const boost::json::value &_sender_id = _params_object.at("sender_id");
-        if (!_sender_id.is_string()) {
-            mark_as_invalid(request, "params", "params sender_id attribute must be string");
-            return false;
-        }
-
-        if (!validator::is_uuid(_sender_id.as_string().c_str())) {
-            mark_as_invalid(request, "params", "params sender_id attribute must be uuid");
-            return false;
-        }
-
         if (!_params_object.contains("receiver_id")) {
             mark_as_invalid(request, "params", "params receiver_id attribute must be present");
             return false;
@@ -63,22 +37,6 @@ namespace aewt::validators {
 
         if (!validator::is_uuid(_receiver_id.as_string().c_str())) {
             mark_as_invalid(request, "params", "params receiver_id attribute must be uuid");
-            return false;
-        }
-
-        if (!_params_object.contains("session_id")) {
-            mark_as_invalid(request, "params", "params session_id attribute must be present");
-            return false;
-        }
-
-        const boost::json::value &_session_id = _params_object.at("session_id");
-        if (!_session_id.is_string()) {
-            mark_as_invalid(request, "params", "params session_id attribute must be string");
-            return false;
-        }
-
-        if (!validator::is_uuid(_session_id.as_string().c_str())) {
-            mark_as_invalid(request, "params", "params session_id attribute must be uuid");
             return false;
         }
 

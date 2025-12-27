@@ -19,63 +19,25 @@
 #include <aewt/validator.hpp>
 
 #include <aewt/utils.hpp>
+#include <aewt/logger.hpp>
 
 namespace aewt::validators {
     bool broadcast_validator(const request &request) {
-        if (!request.data_.contains("params")) {
-            mark_as_invalid(request, "params", "params attribute must be present");
-            return false;
-        }
-
         const boost::json::value &_params = get_params_as_value(request);
-        if (!_params.is_object()) {
-            mark_as_invalid(request, "params", "params attribute must be object");
-            return false;
-        }
-
+        LOG_INFO("A");
         const boost::json::object &_params_object = _params.as_object();
-        if (!_params_object.contains("client_id")) {
-            mark_as_invalid(request, "params", "params client_id attribute must be present");
-            return false;
-        }
-
-        const boost::json::value &_client_id = _params_object.at("client_id");
-        if (!_client_id.is_string()) {
-            mark_as_invalid(request, "params", "params client_id attribute must be string");
-            return false;
-        }
-
-        if (!validator::is_uuid(_client_id.as_string().c_str())) {
-            mark_as_invalid(request, "params", "params client_id attribute must be uuid");
-            return false;
-        }
-
-        if (!_params_object.contains("session_id")) {
-            mark_as_invalid(request, "params", "params session_id attribute must be present");
-            return false;
-        }
-
-        const boost::json::value &_session_id = _params_object.at("session_id");
-        if (!_session_id.is_string()) {
-            mark_as_invalid(request, "params", "params session_id attribute must be string");
-            return false;
-        }
-
-        if (!validator::is_uuid(_session_id.as_string().c_str())) {
-            mark_as_invalid(request, "params", "params session_id attribute must be uuid");
-            return false;
-        }
-
         if (!_params_object.contains("payload")) {
             mark_as_invalid(request, "params", "params payload attribute must be present");
             return false;
         }
 
+        LOG_INFO("B");
         if (const boost::json::value &_payload = _params_object.at("payload"); !_payload.is_object()) {
             mark_as_invalid(request, "params", "params payload attribute must be object");
             return false;
         }
 
+        LOG_INFO("C");
         return true;
     }
 }

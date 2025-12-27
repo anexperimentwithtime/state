@@ -18,6 +18,8 @@
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
 
+#include <boost/uuid/random_generator.hpp>
+
 TEST(state_test, can_be_created) {
     const auto _state = std::make_shared<aewt::state>();
     ASSERT_TRUE(!boost::uuids::random_generator()().is_nil());

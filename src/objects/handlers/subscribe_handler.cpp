@@ -16,7 +16,6 @@
 #include <aewt/handlers/subscribe_handler.hpp>
 
 #include <aewt/state.hpp>
-#include <aewt/session.hpp>
 #include <aewt/request.hpp>
 
 #include <aewt/validators/subscriptions_validator.hpp>
@@ -27,10 +26,8 @@ namespace aewt::handlers {
     void subscribe_handler(const request &request) {
         if (validators::subscriptions_validator(request)) {
             const auto &_params = get_params(request);
-            const auto &_client_id = get_param_as_id(_params, "client_id");
-            const auto &_session_id = request.session_->get_id();
             const auto _channel = get_param_as_string(_params, "channel");
-            const bool _success = request.state_->subscribe(_session_id, _client_id, _channel);
+            const bool _success = request.state_->subscribe(request.session_id_, request.client_id_, _channel);
             const auto _status = get_status(_success);
             next(request, _status);
         }

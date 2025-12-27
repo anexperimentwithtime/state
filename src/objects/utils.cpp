@@ -159,7 +159,7 @@ namespace aewt {
     bool add_client(const bool local, const request &request, const boost::uuids::uuid session_id,
                     const boost::uuids::uuid client_id) {
         if (local) {
-            return request.state_->push_client(request.client_);
+            return false;
         }
 
         return request.state_->add_client(std::make_shared<client>(client_id, session_id, local));

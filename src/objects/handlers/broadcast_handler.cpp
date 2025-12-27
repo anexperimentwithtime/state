@@ -37,24 +37,21 @@ namespace aewt::handlers {
 
         if (validators::broadcast_validator(request)) {
             auto &_params = get_params(request);
-            const auto &_client_id = get_param_as_id(_params, "client_id");
-            const auto &_session_id = get_param_as_id(_params, "session_id");
             const auto &_payload = get_param_as_object(_params, "payload");
-            const bool _is_local = request.session_->get_id() == _session_id;
 
             const auto _clients_count = _state->broadcast_to_clients(
                 request,
-                _session_id,
-                _client_id,
+                request.session_id_,
+                request.client_id_,
                 _payload
             );
 
             const auto _sessions_count = broadcast_to_sessions(
-                _is_local,
+                request.is_local_,
                 _state,
                 request,
-                _session_id,
-                _client_id,
+                request.session_id_,
+                request.client_id_,
                 _payload
             );
 

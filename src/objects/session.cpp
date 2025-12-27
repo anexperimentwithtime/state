@@ -75,6 +75,10 @@ namespace aewt {
             return;
         }
 
+        auto _data = boost::beast::buffers_to_string(buffer_.data());
+        LOG_INFO("session read: {}", _data);
+
+
         buffer_.consume(buffer_.size());
 
         do_read();

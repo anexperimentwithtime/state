@@ -21,8 +21,6 @@
 #include <aewt/subscriptions.hpp>
 #include <aewt/clients.hpp>
 
-#include <boost/functional/hash.hpp>
-#include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <chrono>
 #include <map>

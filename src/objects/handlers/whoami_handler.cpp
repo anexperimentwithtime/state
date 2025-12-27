@@ -15,16 +15,14 @@
 
 #include <aewt/handlers/whoami_handler.hpp>
 
-#include <aewt/session.hpp>
 #include <aewt/request.hpp>
-
-#include <boost/uuid/uuid_io.hpp>
 
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
     void whoami_handler(const request &request) {
-        const auto _data = make_session_object(request.session_);
+        const auto _session = request.state_->get_session(request.session_id_);
+        const auto _data = make_session_object(_session.value());
         next(request, "ok", _data);
     }
 }

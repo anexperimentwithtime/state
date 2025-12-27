@@ -21,6 +21,7 @@
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
 #include <aewt/client.hpp>
+#include <aewt/logger.hpp>
 #include <aewt/validator.hpp>
 
 #include <aewt/handlers/ping_handler.hpp>
@@ -57,23 +58,26 @@
 
 namespace aewt {
     std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
-                                     const std::shared_ptr<session> &session,
-                                     const std::shared_ptr<client> &client,
-                                     const boost::json::object & data) {
+                                     const boost::json::object &data,
+                                     const boost::uuids::uuid &session_id) {
         boost::ignore_unused(state);
 
         const auto _timestamp = std::chrono::system_clock::now().time_since_epoch().count();
 
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
+            LOG_INFO("Passed?");
+            const auto &_params = data.at("params").as_object();
+            const auto &_session_id = get_param_as_id(_params, "session_id");
             const auto _request = request{
                 .transaction_id_ = get_param_as_id(data, "transaction_id"),
                 .response_ = _response,
                 .state_ = state,
-                .session_ = session,
-                .client_ = client,
+                .session_id_ = _session_id,
+                .client_id_ = get_param_as_id(_params, "client_id"),
                 .data_ = data,
                 .timestamp_ = _timestamp,
+                .is_local_ = _session_id == session_id
             };
 
             if (const std::string _action{data.at("action").as_string()}; _action == "ping") {

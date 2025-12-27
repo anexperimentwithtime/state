@@ -18,18 +18,12 @@
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 
-#include <aewt/validators/unsubscribe_all_session_validator.hpp>
-
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
     void unsubscribe_all_session_handler(const request &request) {
-        if (validators::unsubscribe_all_session_validator(request)) {
-            const auto &_params = get_params(request);
-            const auto &_session_id = get_param_as_id(_params, "session_id");
-            const auto _count = request.state_->unsubscribe_all_session(_session_id);
-            const auto _status = get_status(_count > 0);
-            next(request, _status, {{"count", _count}});
-        }
+        const auto _count = request.state_->unsubscribe_all_session(request.session_id_);
+        const auto _status = get_status(_count > 0);
+        next(request, _status, {{"count", _count}});
     }
 }

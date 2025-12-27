@@ -15,24 +15,31 @@
 
 #pragma once
 
-#ifndef AEWT_VALIDATORS_UNSUBSCRIBE_ALL_SESSION_VALIDATOR_HPP
-#define AEWT_VALIDATORS_UNSUBSCRIBE_ALL_SESSION_VALIDATOR_HPP
+#ifndef AEWT_LISTENER_HPP
+#define AEWT_LISTENER_HPP
+
+#include <memory>
+
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/beast/core.hpp>
 
 namespace aewt {
-    /**
-     * Forward Request
-     */
-    struct request;
+    class state;
 
-    namespace validators {
-        /**
-         * Unsubscribe All Session Validator
-         *
-         * @param request
-         * @return bool
-         */
-        bool unsubscribe_all_session_validator(const request &request);
-    }
+    class listener : public std::enable_shared_from_this<listener> {
+        boost::asio::io_context &ioc_;
+        boost::asio::ip::tcp::acceptor acceptor_;
+        std::shared_ptr<state> state_;
+
+    public:
+        listener(boost::asio::io_context & ioc, boost::asio::ip::tcp::endpoint endpoint, const std::shared_ptr<state> &state);
+
+        void on_accept(const boost::beast::error_code &ec, boost::asio::ip::tcp::socket socket);
+
+        void do_accept();
+
+        void start();
+    };
 } // namespace aewt
 
-#endif  // AEWT_VALIDATORS_UNSUBSCRIBE_ALL_SESSION_VALIDATOR_HPP
+#endif  // AEWT_LISTENER_HPP

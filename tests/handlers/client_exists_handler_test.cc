@@ -18,6 +18,7 @@
 #include <aewt/kernel.hpp>
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
+#include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
 
@@ -58,7 +59,7 @@ TEST(handlers_client_exists_handler_test, can_handle_yes) {
         }
     };
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -95,7 +96,7 @@ TEST(handlers_client_exists_handler_test, can_handle_no) {
         }
     };
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

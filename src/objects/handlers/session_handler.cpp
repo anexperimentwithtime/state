@@ -15,8 +15,6 @@
 
 #include <aewt/handlers/session_handler.hpp>
 
-#include <aewt/validators/session_id_validator.hpp>
-
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 
@@ -25,17 +23,12 @@
 namespace aewt::handlers {
     void session_handler(const request &request) {
         const auto &_state = request.state_;
-        if (validators::session_id_validator(request)) {
-            const auto &_params = get_params(request);
-            const auto &_session_id = get_param_as_id(_params, "session_id");
+        if (const auto _session = _state->get_session(request.session_id_); _session.has_value()) {
+            const auto _data = make_session_object(_session.value());
 
-            if (const auto _session = _state->get_session(_session_id); _session.has_value()) {
-                const auto _data = make_session_object(_session.value());
-
-                next(request, "ok", _data);
-            } else {
-                next(request, "no effect");
-            }
+            next(request, "ok", _data);
+        } else {
+            next(request, "no effect");
         }
     }
 }
