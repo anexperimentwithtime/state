@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION 3.30)
 project(state)
 
 set(CMAKE_CXX_STANDARD 23)
-option(ENABLE_TESTS "Build tests" OFF)
+option(ENABLE_TESTS "Build tests" ON)
 option(ENABLE_DEBUG "Enable debug" ON)
 option(ENABLE_STATIC_LINKING "Enable static linking" OFF)
 option(ENABLE_NATIVE_OPTIMIZATION "Enable native CPU optimization" OFF)

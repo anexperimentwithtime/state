@@ -24,20 +24,17 @@
 namespace aewt::validators {
     bool broadcast_validator(const request &request) {
         const boost::json::value &_params = get_params_as_value(request);
-        LOG_INFO("A");
         const boost::json::object &_params_object = _params.as_object();
         if (!_params_object.contains("payload")) {
             mark_as_invalid(request, "params", "params payload attribute must be present");
             return false;
         }
 
-        LOG_INFO("B");
         if (const boost::json::value &_payload = _params_object.at("payload"); !_payload.is_object()) {
             mark_as_invalid(request, "params", "params payload attribute must be object");
             return false;
         }
 
-        LOG_INFO("C");
         return true;
     }
 }

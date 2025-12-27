@@ -38,7 +38,13 @@ TEST(kernel_test, can_handle_empty_action_on_data) {
                                                               _current_session->get_id(), true);
 
     const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {{"transaction_id", to_string(_transaction_id)}, {"params", {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}}};
+    const boost::json::object _data = {
+        {"transaction_id", to_string(_transaction_id)},
+        {
+            "params",
+            {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}
+        }
+    };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
 
@@ -69,7 +75,13 @@ TEST(kernel_test, can_handle_wrong_action_primitive_on_data) {
                                                               _current_session->get_id(), true);
 
     const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {{"transaction_id", to_string(_transaction_id)}, {"action", 7}, {"params", {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}}};
+    const boost::json::object _data = {
+        {"transaction_id", to_string(_transaction_id)}, {"action", 7},
+        {
+            "params",
+            {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}
+        }
+    };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
 
@@ -98,7 +110,13 @@ TEST(kernel_test, can_handle_empty_transaction_id_on_data) {
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    const boost::json::object _data = {{"action", "something"}, {"params", {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "something"},
+        {
+            "params",
+            {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}
+        }
+    };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
 
@@ -145,7 +163,13 @@ TEST(kernel_test, can_handle_wrong_transaction_id_primitive_on_data) {
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    const boost::json::object _data = {{"action", "something"}, {"transaction_id", 7}, {"params", {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "something"}, {"transaction_id", 7},
+        {
+            "params",
+            {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}
+        }
+    };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
 
@@ -193,7 +217,13 @@ TEST(kernel_test, can_handle_wrong_transaction_id_value_on_data) {
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
 
-    const boost::json::object _data = {{"action", "something"}, {"transaction_id", "7"}, {"params", {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "something"}, {"transaction_id", "7"},
+        {
+            "params",
+            {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}
+        }
+    };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
 
@@ -241,7 +271,13 @@ TEST(kernel_test, can_handle_non_implemented_action) {
                                                               _current_session->get_id(), true);
 
     const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {{"action", "invalid"}, {"transaction_id", to_string(_transaction_id)}, {"params", {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}}};
+    const boost::json::object _data = {
+        {"action", "invalid"}, {"transaction_id", to_string(_transaction_id)},
+        {
+            "params",
+            {{"session_id", to_string(_current_session->get_id())}, {"client_id", to_string(_local_client->get_id())}}
+        }
+    };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
 
@@ -360,9 +396,11 @@ TEST(kernel_test,
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "invalid"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", {
-            {"client_id", to_string(_local_client->get_id())},
-        }}
+        {
+            "params", {
+                {"client_id", to_string(_local_client->get_id())},
+            }
+        }
     };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
@@ -397,10 +435,12 @@ TEST(kernel_test,
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "invalid"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", {
-            {"session_id", 7},
+        {
+            "params", {
+                {"session_id", 7},
                 {"client_id", to_string(_local_client->get_id())},
-        }}
+            }
+        }
     };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
@@ -472,9 +512,11 @@ TEST(kernel_test,
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "invalid"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", {
-            {"session_id", to_string(_current_session->get_id())},
-        }}
+        {
+            "params", {
+                {"session_id", to_string(_current_session->get_id())},
+            }
+        }
     };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
@@ -509,10 +551,12 @@ TEST(kernel_test,
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "invalid"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", {
-            {"session_id", to_string(_current_session->get_id())},
+        {
+            "params", {
+                {"session_id", to_string(_current_session->get_id())},
                 {"client_id", 7},
-        }}
+            }
+        }
     };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
@@ -547,10 +591,12 @@ TEST(kernel_test,
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "invalid"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", {
+        {
+            "params", {
                 {"session_id", to_string(_current_session->get_id())},
                 {"client_id", "7"},
-        }}
+            }
+        }
     };
 
     const auto _response = kernel(_state, _data, _current_session->get_id());
