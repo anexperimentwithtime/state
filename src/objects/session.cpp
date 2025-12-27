@@ -16,11 +16,15 @@
 #include <aewt/session.hpp>
 
 #include <aewt/state.hpp>
+#include <aewt/kernel.hpp>
 
 #include <aewt/logger.hpp>
+#include <aewt/response.hpp>
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/json/parse.hpp>
+#include <boost/json/serialize.hpp>
 
 namespace aewt {
     session::session(const std::shared_ptr<state> &state, const boost::uuids::uuid id,
@@ -40,9 +44,9 @@ namespace aewt {
     void session::send(std::shared_ptr<std::string const> const &data) {
         boost::ignore_unused(data);
 
-        // if (socket_.is_open()) {
-        // post(socket_.get_executor(), boost::beast::bind_front_handler(&session::on_send, shared_from_this(), data));
-        // }
+        if (socket_.is_open()) {
+            post(socket_.get_executor(), boost::beast::bind_front_handler(&session::on_send, shared_from_this(), data));
+        }
     }
 
     void session::run() {
@@ -75,9 +79,29 @@ namespace aewt {
             return;
         }
 
-        auto _data = boost::beast::buffers_to_string(buffer_.data());
-        LOG_INFO("session read: {}", _data);
+        auto _read_at = std::chrono::system_clock::now().time_since_epoch().count();
+        auto _stream = boost::beast::buffers_to_string(buffer_.data());
+        LOG_INFO("session read: {}", _stream);
 
+        boost::system::error_code _parse_ec;
+
+        if (auto _data = boost::json::parse(_stream, _parse_ec); !_parse_ec && _data.is_object()) {
+            const auto _response = kernel(state_, _data.as_object(), get_id());
+            send(std::make_shared<std::string const >(serialize(_response->get_data())));
+        } else {
+            auto _now = std::chrono::system_clock::now().time_since_epoch().count();
+            const boost::json::object _response = {
+                {"transaction_id", nullptr},
+                {"status", "failed"},
+                {"message", "unprocessable entity"},
+                {"data", {
+                    {"body", "body must be json object"},
+                }},
+                {"timestamp", _now},
+                {"runtime", _now - _read_at},
+            };
+            send(std::make_shared<std::string const>(serialize(_response)));
+        }
 
         buffer_.consume(buffer_.size());
 
@@ -89,6 +113,9 @@ namespace aewt {
 
         if (queue_.size() > 1)
             return;
+
+        const auto _message = *queue_.begin();
+        LOG_INFO("session write: {}", _message->data());
 
         socket_.async_write(boost::asio::buffer(*queue_.front()),
                             boost::beast::bind_front_handler(&session::on_write, shared_from_this()));

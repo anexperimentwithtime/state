@@ -22,7 +22,7 @@
 #include <boost/uuid/random_generator.hpp>
 
 namespace aewt {
-    listener::listener(boost::asio::io_context &ioc, boost::asio::ip::tcp::endpoint endpoint,
+    listener::listener(boost::asio::io_context &ioc, const boost::asio::ip::tcp::endpoint &endpoint,
                        const std::shared_ptr<state> &state) : ioc_(ioc), acceptor_(ioc), state_(state) {
         boost::beast::error_code ec;
 
