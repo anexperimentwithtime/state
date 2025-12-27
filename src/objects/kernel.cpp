@@ -21,6 +21,7 @@
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
 #include <aewt/client.hpp>
+#include <aewt/logger.hpp>
 #include <aewt/validator.hpp>
 
 #include <aewt/handlers/ping_handler.hpp>
@@ -54,29 +55,42 @@
 
 #include <boost/json/serialize.hpp>
 #include <boost/core/ignore_unused.hpp>
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace aewt {
     std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
-                                     const std::shared_ptr<session> &session,
-                                     const std::shared_ptr<client> &client,
-                                     const boost::json::object & data) {
+                                     const boost::json::object &data,
+                                     const boost::uuids::uuid &session_id) {
         boost::ignore_unused(state);
 
         const auto _timestamp = std::chrono::system_clock::now().time_since_epoch().count();
+        const auto _kernel_id = boost::uuids::random_generator()();
+
+        LOG_INFO("kernel {} started", to_string(_kernel_id));
 
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
+            const auto &_params = data.at("params").as_object();
+            const auto &_session_id = get_param_as_id(_params, "session_id");
+            const auto &_client_id = get_param_as_id(_params, "client_id");
             const auto _request = request{
                 .transaction_id_ = get_param_as_id(data, "transaction_id"),
                 .response_ = _response,
                 .state_ = state,
-                .session_ = session,
-                .client_ = client,
+                .session_id_ = _session_id,
+                .client_id_ = _client_id,
                 .data_ = data,
                 .timestamp_ = _timestamp,
+                .is_local_ = _session_id == session_id
             };
 
-            if (const std::string _action{data.at("action").as_string()}; _action == "ping") {
+            const std::string _action{data.at("action").as_string()};
+
+            LOG_INFO("kernel {} action [{}] invoked session_id={} client_id={} data={}", to_string(_kernel_id), _action,
+                     to_string(_session_id), to_string(_client_id), serialize(_request.data_));
+
+            if (_action == "ping") {
                 handlers::ping_handler(_request);
             } else if (_action == "subscribe") {
                 handlers::subscribe_handler(_request);
@@ -127,6 +141,8 @@ namespace aewt {
             }
         }
         _response->mark_as_processed();
+
+        LOG_INFO("kernel {} finished", to_string(_kernel_id));
         return _response;
     }
 } // namespace aewt

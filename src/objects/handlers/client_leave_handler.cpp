@@ -15,8 +15,6 @@
 
 #include <aewt/handlers/client_leave_handler.hpp>
 
-#include <aewt/validators/clients_validator.hpp>
-
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 #include <aewt/request.hpp>
@@ -26,25 +24,18 @@
 
 namespace aewt::handlers {
     void client_leave_handler(const request &request) {
-        if (validators::clients_validator(request)) {
-            const auto &_params = get_params(request);
-            const auto &_client_id = get_param_as_id(_params, "client_id");
-            const auto &_session_id = get_param_as_id(_params, "session_id");
+        const auto _removed = request.state_->remove_client(request.client_id_);
 
-            const auto _is_local = request.session_->get_id() == _session_id;
-            const auto _removed = request.state_->remove_client(_client_id);
+        auto _count = std::size_t { 0 };
 
-            auto _count = std::size_t { 0 };
+        if (request.is_local_ && _removed)
+            _count = distribute_to_others(request.state_, request.data_, request.session_id_);
 
-            if (_is_local && _removed)
-                _count = distribute_to_others(request.state_, request.data_, _session_id);
+        const auto _status = get_status(_removed);
 
-            const auto _status = get_status(_removed);
-
-            next(request, _status, {
-                     {"timestamp", request.timestamp_},
-                     {"count", _count}
-                 });
-        }
+        next(request, _status, {
+                 {"timestamp", request.timestamp_},
+                 {"count", _count}
+             });
     }
 }

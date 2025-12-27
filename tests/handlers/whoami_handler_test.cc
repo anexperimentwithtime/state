@@ -18,6 +18,7 @@
 #include <aewt/kernel.hpp>
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
+#include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
 #include <boost/json/serialize.hpp>
@@ -37,9 +38,21 @@ TEST(handlers_whoami_handler_test, can_handle) {
                                                               _current_session->get_id(), true);
 
     const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {{"action", "whoami"}, {"transaction_id", to_string(_transaction_id)}};
+    const boost::json::object _data = {
+        {"action", "whoami"},
+        {"transaction_id", to_string(_transaction_id)},
+        {
+            "params",
+            {
+                {"client_id", to_string(_local_client->get_id())},
+                {"session_id", to_string(_current_session->get_id())}
+            }
+        }
+    };
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    _state->add_session(_current_session);
+
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

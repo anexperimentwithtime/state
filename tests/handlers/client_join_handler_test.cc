@@ -18,6 +18,7 @@
 #include <aewt/kernel.hpp>
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
+#include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
 #include <boost/json/serialize.hpp>
@@ -38,20 +39,24 @@ TEST(handlers_client_join_handler_test, can_handle) {
         aewt::session>(_state, boost::uuids::random_generator()(), std::move(_other_socket));
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                               _current_session->get_id(), true);
+    const auto _remote_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
+                                                               _remote_session->get_id(), true);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "client_join"}, {"transaction_id", to_string(_transaction_id)},
         {
-            "params",
-            {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_current_session->get_id())}}
+            "params", {
+                {"client_id", to_string(_remote_client->get_id())},
+                {"session_id", to_string(_remote_session->get_id())}
+            }
         }
     };
 
     _state->add_session(_current_session);
     _state->add_session(_remote_session);
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -87,12 +92,14 @@ TEST(handlers_client_join_handler_test, can_handle_no_effect) {
     const boost::json::object _data = {
         {"action", "client_join"}, {"transaction_id", to_string(_transaction_id)},
         {
-            "params",
-            {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_current_session->get_id())}}
+            "params", {
+                {"client_id", to_string(_local_client->get_id())},
+                {"session_id", to_string(_current_session->get_id())}
+            }
         }
     };
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

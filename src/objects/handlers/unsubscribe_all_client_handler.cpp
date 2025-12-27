@@ -18,19 +18,14 @@
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 
-#include <aewt/validators/unsubscribe_all_client_validator.hpp>
-
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
     void unsubscribe_all_client_handler(const request &request) {
         const auto &_state = request.state_;
-        if (validators::unsubscribe_all_client_validator(request)) {
-            const auto &_params = get_params(request);
-            const auto &_client_id = get_param_as_id(_params, "client_id");
-            const auto _count = _state->unsubscribe_all_client(_client_id);
-            const auto _status = get_status(_count > 0);
-            next(request, _status, {{"count", _count}});
-        }
+        const auto &_params = get_params(request);
+        const auto _count = _state->unsubscribe_all_client(request.client_id_);
+        const auto _status = get_status(_count > 0);
+        next(request, _status, {{"count", _count}});
     }
 }

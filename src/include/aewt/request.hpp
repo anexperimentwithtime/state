@@ -32,10 +32,11 @@ namespace aewt {
         const boost::uuids::uuid transaction_id_;
         std::shared_ptr<aewt::response> &response_;
         const std::shared_ptr<aewt::state> &state_;
-        std::shared_ptr<session> session_;
-        const std::shared_ptr<aewt::client> &client_;
+        const boost::uuids::uuid session_id_;
+        const boost::uuids::uuid client_id_;
         const boost::json::object &data_;
         long timestamp_;
+        bool is_local_;
     };
 } // namespace aewt
 

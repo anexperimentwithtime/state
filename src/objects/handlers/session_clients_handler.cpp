@@ -18,8 +18,6 @@
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 
-#include <aewt/validators/session_id_validator.hpp>
-
 #include <aewt/utils.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
@@ -27,17 +25,13 @@
 namespace aewt::handlers {
     void session_clients_handler(const request &request) {
         const auto &_state = request.state_;
-        if (validators::session_id_validator(request)) {
-            const auto &_params = get_params(request);
-            const auto &_session_id = get_param_as_id(_params, "session_id");
-            const auto _clients = _state->get_clients_by_session(_session_id);
+        const auto _clients = _state->get_clients_by_session(request.session_id_);
 
-            const boost::json::object _data = {
-                {"id", to_string(_session_id)},
-                {"clients", make_array_of_ids(_clients)},
-            };
+        const boost::json::object _data = {
+            {"id", to_string(request.session_id_)},
+            {"clients", make_array_of_ids(_clients)},
+        };
 
-            next(request, "ok", _data);
-        }
+        next(request, "ok", _data);
     }
 }

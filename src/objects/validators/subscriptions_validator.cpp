@@ -22,17 +22,7 @@
 
 namespace aewt::validators {
     bool subscriptions_validator(const request &request) {
-        if (!request.data_.contains("params")) {
-            mark_as_invalid(request, "params", "params attribute must be present");
-            return false;
-        }
-
         const boost::json::value &_params = get_params_as_value(request);
-        if (!_params.is_object()) {
-            mark_as_invalid(request, "params", "params attribute must be object");
-            return false;
-        }
-
         const boost::json::object &_params_object = _params.as_object();
         if (!_params_object.contains("channel")) {
             mark_as_invalid(request, "params", "params channel attribute must be present");
@@ -41,22 +31,6 @@ namespace aewt::validators {
 
         if (const boost::json::value &_channel = _params_object.at("channel"); !_channel.is_string()) {
             mark_as_invalid(request, "params", "params channel attribute must be string");
-            return false;
-        }
-
-        if (!_params_object.contains("client_id")) {
-            mark_as_invalid(request, "params", "params client_id attribute must be present");
-            return false;
-        }
-
-        const boost::json::value &_client_id = _params_object.at("client_id");
-        if (!_client_id.is_string()) {
-            mark_as_invalid(request, "params", "params client_id attribute must be string");
-            return false;
-        }
-
-        if (!validator::is_uuid(_client_id.as_string().c_str())) {
-            mark_as_invalid(request, "params", "params client_id attribute must be uuid");
             return false;
         }
 

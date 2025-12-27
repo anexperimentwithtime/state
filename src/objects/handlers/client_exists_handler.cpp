@@ -15,8 +15,6 @@
 
 #include <aewt/handlers/client_exists_handler.hpp>
 
-#include <aewt/validators/clients_validator.hpp>
-
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 
@@ -25,18 +23,11 @@
 namespace aewt::handlers {
     void client_exists_handler(const request &request) {
         auto &_state = request.state_;
-
-        if (validators::clients_validator(request)) {
-            const auto &_params = get_params(request);
-            const auto &_client_id = get_param_as_id(_params, "client_id");
-
-            const auto _status = get_status(
-                _state->get_client_exists(_client_id),
-                "yes",
-                "no"
-            );
-
-            next(request, _status);
-        }
+        const auto _status = get_status(
+            _state->get_client_exists(request.client_id_),
+            "yes",
+            "no"
+        );
+        next(request, _status);
     }
 }

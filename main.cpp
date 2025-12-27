@@ -23,8 +23,12 @@
 
 #include <aewt/logger.hpp>
 #include <aewt/state.hpp>
+#include <aewt/listener.hpp>
+
 #include <aewt/version.hpp>
+
 #include <boost/version.hpp>
+#include <boost/asio/io_context.hpp>
 
 std::string DEFAULT_SENTRY_DSN =
         "https://{username}@{token}.ingest.{zone}.sentry.io/{app_id}";
@@ -74,8 +78,24 @@ int main() {
     LOG_INFO("- SENTRY_DSN: {}", dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN));
 
     sentry_start();
+    boost::asio::io_context _ioc;
     auto _state = std::make_shared<aewt::state>();
+    auto const _address = boost::asio::ip::make_address("0.0.0.0");
+    auto const _port = 9000;
+    auto const _threads = 4;
+    const auto _listener = std::make_shared<aewt::listener>(_ioc, boost::asio::ip::tcp::endpoint { _address, _port }, _state);
+    _listener->start();
     sentry_stop();
+
+    std::vector<std::thread> _vector_of_threads;
+    _vector_of_threads.reserve(_threads - 1);
+    for(auto i = _threads - 1; i > 0; --i)
+        _vector_of_threads.emplace_back(
+        [&_ioc]
+        {
+            _ioc.run();
+        });
+    _ioc.run();
 
     return 0;
 }

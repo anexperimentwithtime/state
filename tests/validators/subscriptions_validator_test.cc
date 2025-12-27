@@ -18,6 +18,7 @@
 #include <aewt/kernel.hpp>
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
+#include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
 #include <boost/json/serialize.hpp>
@@ -25,106 +26,6 @@
 #include <boost/uuid/uuid_io.hpp>
 
 #include "../helpers.hpp"
-
-TEST(validators_subscriptions_validator_test, can_handle_empty_params_client_id_on_subscriptions) {
-    const auto _state = std::make_shared<aewt::state>();
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-    for (const auto _action: {"subscribe", "unsubscribe"}) {
-        const auto _transaction_id = boost::uuids::random_generator()();
-        const boost::json::object _data = {
-            {"action", _action}, {"transaction_id", to_string(_transaction_id)}, {"params", {{"channel", "welcome"}}}
-        };
-        const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-                 serialize(_response->get_data()));
-
-        ASSERT_TRUE(_response->get_processed());
-        ASSERT_TRUE(_response->get_failed());
-
-        test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-        ASSERT_TRUE(_response->get_data().contains("data"));
-        ASSERT_TRUE(_response->get_data().at("data").is_object());
-        ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-        ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-        ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-                  "params client_id attribute must be present");
-    }
-}
-
-TEST(validators_subscriptions_validator_test, can_handle_wrong_params_client_id_primivite_on_subscriptions) {
-    const auto _state = std::make_shared<aewt::state>();
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-    for (const auto _action: {"subscribe", "unsubscribe"}) {
-        const auto _transaction_id = boost::uuids::random_generator()();
-        const boost::json::object _data = {
-            {"action", _action}, {"transaction_id", to_string(_transaction_id)},
-            {"params", {{"channel", "welcome"}, {"client_id", 1}}}
-        };
-
-        const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-                 serialize(_response->get_data()));
-
-        ASSERT_TRUE(_response->get_processed());
-        ASSERT_TRUE(_response->get_failed());
-
-        test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-        ASSERT_TRUE(_response->get_data().contains("data"));
-        ASSERT_TRUE(_response->get_data().at("data").is_object());
-        ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-        ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-        ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-                  "params client_id attribute must be string");
-    }
-}
-
-TEST(validators_subscriptions_validator_test, can_handle_wrong_params_client_id_type_on_subscriptions) {
-    const auto _state = std::make_shared<aewt::state>();
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-    for (const auto _action: {"subscribe", "unsubscribe"}) {
-        const auto _transaction_id = boost::uuids::random_generator()();
-        const boost::json::object _data = {
-            {"action", _action}, {"transaction_id", to_string(_transaction_id)},
-            {"params", {{"channel", "welcome"}, {"client_id", "7"}}}
-        };
-
-        const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-                 serialize(_response->get_data()));
-
-        ASSERT_TRUE(_response->get_processed());
-        ASSERT_TRUE(_response->get_failed());
-
-        test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-        ASSERT_TRUE(_response->get_data().contains("data"));
-        ASSERT_TRUE(_response->get_data().at("data").is_object());
-        ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-        ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-        ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-                  "params client_id attribute must be uuid");
-    }
-}
 
 TEST(validators_subscriptions_validator_test, can_handle_empty_params_channel_on_subscriptions) {
     const auto _state = std::make_shared<aewt::state>();
@@ -137,10 +38,15 @@ TEST(validators_subscriptions_validator_test, can_handle_empty_params_channel_on
     for (const auto _action: {"subscribe", "unsubscribe"}) {
         const auto _transaction_id = boost::uuids::random_generator()();
         const boost::json::object _data = {
-            {"action", _action}, {"transaction_id", to_string(_transaction_id)}, {"params", {}}
+            {"action", _action}, {"transaction_id", to_string(_transaction_id)}, {
+                "params", {
+                    {"session_id", to_string(_current_session->get_id())},
+                    {"client_id", to_string(_local_client->get_id())},
+                }
+            }
         };
 
-        const auto _response = kernel(_state, _current_session, _local_client, _data);
+        const auto _response = kernel(_state, _data, _current_session->get_id());
 
         LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
                  serialize(_response->get_data()));
@@ -171,10 +77,18 @@ TEST(validators_subscriptions_validator_test, can_handle_wrong_params_channel_pr
     for (const auto _action: {"subscribe", "unsubscribe"}) {
         const auto _transaction_id = boost::uuids::random_generator()();
         const boost::json::object _data = {
-            {"action", _action}, {"transaction_id", to_string(_transaction_id)}, {"params", {{"channel", 7}}}
+            {"action", _action},
+            {"transaction_id", to_string(_transaction_id)},
+            {
+                "params", {
+                    {"session_id", to_string(_current_session->get_id())},
+                    {"client_id", to_string(_local_client->get_id())},
+                    {"channel", 7},
+                }
+            }
         };
 
-        const auto _response = kernel(_state, _current_session, _local_client, _data);
+        const auto _response = kernel(_state, _data, _current_session->get_id());
 
         LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
                  serialize(_response->get_data()));
@@ -190,70 +104,5 @@ TEST(validators_subscriptions_validator_test, can_handle_wrong_params_channel_pr
         ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
         ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
                   "params channel attribute must be string");
-    }
-}
-
-TEST(validators_subscriptions_validator_test, can_handle_wrong_params_primivite_on_subscriptions) {
-    const auto _state = std::make_shared<aewt::state>();
-
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-    for (const auto _action: {"subscribe", "unsubscribe"}) {
-        const auto _transaction_id = boost::uuids::random_generator()();
-        const boost::json::object _data = {
-            {"action", _action}, {"transaction_id", to_string(_transaction_id)}, {"params", "hello"}
-        };
-
-        const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-                 serialize(_response->get_data()));
-
-        ASSERT_TRUE(_response->get_processed());
-        ASSERT_TRUE(_response->get_failed());
-
-        test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-        ASSERT_TRUE(_response->get_data().contains("data"));
-        ASSERT_TRUE(_response->get_data().at("data").is_object());
-        ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-        ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-        ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-                  "params attribute must be object");
-    }
-}
-
-TEST(validators_subscriptions_validator_test, can_handle_empty_params_on_subscriptions) {
-    const auto _state = std::make_shared<aewt::state>();
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-    for (const auto _action: {"subscribe", "unsubscribe"}) {
-        const auto _transaction_id = boost::uuids::random_generator()();
-        const boost::json::object _data = {{"action", _action}, {"transaction_id", to_string(_transaction_id)}};
-
-        const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-        LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-                 serialize(_response->get_data()));
-
-        ASSERT_TRUE(_response->get_processed());
-        ASSERT_TRUE(_response->get_failed());
-
-        test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-        ASSERT_TRUE(_response->get_data().contains("data"));
-        ASSERT_TRUE(_response->get_data().at("data").is_object());
-        ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-        ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-        ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-                  "params attribute must be present");
     }
 }

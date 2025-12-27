@@ -15,8 +15,6 @@
 
 #include <aewt/handlers/client_handler.hpp>
 
-#include <aewt/validators/client_id_validator.hpp>
-
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 
@@ -24,23 +22,19 @@
 
 namespace aewt::handlers {
     void client_handler(const request &request) {
-        if (validators::client_id_validator(request)) {
-            const auto &_params = get_params(request);
-            const auto &_client_id = get_param_as_id(_params, "client_id");
+        if (const auto _client_optional = request.state_->get_client(request.client_id_); _client_optional.
+            has_value()) {
+            const auto &_client = _client_optional.value();
 
-            if (const auto _client_optional = request.state_->get_client(_client_id); _client_optional.has_value()) {
-                const auto &_client = _client_optional.value();
+            const auto _subscriptions = make_channels_array_of_subscriptions(
+                request.state_->get_client_subscriptions(request.client_id_)
+            );
 
-                const auto _subscriptions = make_channels_array_of_subscriptions(
-                    request.state_->get_client_subscriptions(_client_id)
-                );
+            const auto _data = make_client_object(_client, _subscriptions);
 
-                const auto _data = make_client_object(_client, _subscriptions);
-
-                next(request, "ok", _data);
-            } else {
-                next(request, "no effect");
-            }
+            next(request, "ok", _data);
+        } else {
+            next(request, "no effect");
         }
     }
 }

@@ -18,6 +18,7 @@
 #include <aewt/kernel.hpp>
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
+#include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
 #include <boost/json/serialize.hpp>
@@ -66,7 +67,7 @@ TEST(handlers_broadcast_handler_test, can_handle) {
         }
     };
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -133,7 +134,7 @@ TEST(handlers_broadcast_handler_test, can_handle_on_remote) {
         }
     };
 
-    const auto _response = kernel(_state, _remote_session, _remote_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -145,321 +146,20 @@ TEST(handlers_broadcast_handler_test, can_handle_on_remote) {
 
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("count"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").is_number());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").as_uint64() > 0);
+    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").as_uint64() == 2);
 
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("clients_count"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients_count").is_number());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients_count").as_uint64() > 0);
+    ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients_count").as_uint64() == 1);
 
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("sessions_count"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("sessions_count").is_number());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("sessions_count").as_uint64() == 0);
+    ASSERT_TRUE(_response->get_data().at("data").as_object().at("sessions_count").as_uint64() == 1);
 
     _state->remove_session(_current_session->get_id());
     _state->remove_session(_remote_session->get_id());
     _state->remove_client(_local_client->get_id());
     _state->remove_client(_remote_client->get_id());
-}
-
-TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_empty_data_params) {
-    const auto _state = std::make_shared<aewt::state>();
-
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {{"action", "broadcast"}, {"transaction_id", to_string(_transaction_id)}};
-
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params attribute must be present");
-}
-
-TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_wrong_data_params_primitive) {
-    const auto _state = std::make_shared<aewt::state>();
-
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "broadcast"}, {"transaction_id", to_string(_transaction_id)}, {"params", 7}
-    };
-
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params attribute must be object");
-}
-
-TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_empty_data_params_session_id) {
-    const auto _state = std::make_shared<aewt::state>();
-
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "broadcast"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {{"client_id", to_string(_local_client->get_id())}, {"payload", boost::json::object({{"message", "EHLO"}})}}
-        }
-    };
-
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params session_id attribute must be present");
-}
-
-TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_wrong_data_params_session_id_primitive) {
-    const auto _state = std::make_shared<aewt::state>();
-
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "broadcast"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {
-                {"client_id", to_string(_local_client->get_id())}, {"session_id", 7},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
-            }
-        }
-    };
-
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params session_id attribute must be string");
-}
-
-TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_wrong_data_params_session_id_type) {
-    const auto _state = std::make_shared<aewt::state>();
-
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "broadcast"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {
-                {"client_id", to_string(_local_client->get_id())}, {"session_id", "7"},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
-            }
-        }
-    };
-
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params session_id attribute must be uuid");
-}
-
-TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_empty_data_params_client_id) {
-    const auto _state = std::make_shared<aewt::state>();
-
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "broadcast"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {
-                {"session_id", to_string(_current_session->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
-            }
-        }
-    };
-
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params client_id attribute must be present");
-}
-
-TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_wrong_data_params_client_id_primitive) {
-    const auto _state = std::make_shared<aewt::state>();
-
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "broadcast"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {
-                {"client_id", 7}, {"session_id", to_string(_current_session->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
-            }
-        }
-    };
-
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params client_id attribute must be string");
-}
-
-TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_wrong_data_params_client_id_type) {
-    const auto _state = std::make_shared<aewt::state>();
-
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "broadcast"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {
-                {"client_id", "7"}, {"session_id", to_string(_current_session->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
-            }
-        }
-    };
-
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params client_id attribute must be uuid");
 }
 
 TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_empty_data_params_payload) {
@@ -481,7 +181,7 @@ TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_empty_data_params_
         }
     };
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -521,7 +221,7 @@ TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_wrong_data_params_
         }
     };
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

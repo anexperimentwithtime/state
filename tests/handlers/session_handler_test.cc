@@ -18,6 +18,7 @@
 #include <aewt/kernel.hpp>
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
+#include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
 
@@ -47,10 +48,13 @@ TEST(handlers_session_handler_test, can_handle) {
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "session"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", boost::json::object{{"session_id", to_string(_remote_session->get_id())}}}
+        {
+            "params",
+            {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_current_session->get_id())}}
+        }
     };
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -88,10 +92,16 @@ TEST(handlers_session_handler_test, can_handle_no_effect) {
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "session"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", {{"session_id", to_string(_remote_session->get_id())}}}
+        {
+            "params",
+            {
+                {"client_id", to_string(_local_client->get_id())},
+                {"session_id", to_string(boost::uuids::random_generator()())}
+            }
+        }
     };
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

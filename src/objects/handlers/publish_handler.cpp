@@ -27,12 +27,10 @@ namespace aewt::handlers {
     void publish_handler(const request &request) {
         if (validators::publish_validator(request)) {
             const auto &_params = get_params(request);
-            const auto &_client_id = get_param_as_id(_params, "client_id");
             const auto _channel = get_param_as_string(_params, "channel");
             const auto &_payload = get_param_as_object(_params, "payload");
-
             const auto _count = request.state_->
-                    publish(request.transaction_id_, request.session_->get_id(), _client_id, _channel, _payload);
+                    publish(request.transaction_id_, request.session_id_, request.client_id_, _channel, _payload);
 
             const auto _status = get_status(_count > 0);
 

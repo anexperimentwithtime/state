@@ -18,6 +18,7 @@
 #include <aewt/kernel.hpp>
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
+#include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
 #include <boost/json/serialize.hpp>
@@ -49,14 +50,22 @@ TEST(handlers_client_handler_test, can_handle) {
     _state->add_session(_remote_session);
     _state->add_client(_local_client);
     _state->add_client(_remote_client);
+    _state->subscribe(_current_session->get_id(), _remote_client->get_id(), "a");
+    _state->subscribe(_current_session->get_id(), _remote_client->get_id(), "b");
+    _state->subscribe(_current_session->get_id(), _remote_client->get_id(), "c");
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "client"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", {{"client_id", to_string(_remote_client->get_id())}}}
+        {
+            "params", {
+                {"client_id", to_string(_remote_client->get_id())},
+                {"session_id", to_string(_current_session->get_id())},
+            }
+        }
     };
 
-    const auto _response = kernel(_state, _current_session, _remote_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -78,6 +87,10 @@ TEST(handlers_client_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("id").is_string());
     ASSERT_EQ(_response->get_data().at("data").as_object().at("id").as_string(), to_string(_remote_client->get_id()));
 
+    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("subscriptions"));
+    ASSERT_TRUE(_response->get_data().at("data").as_object().at("subscriptions").is_array());
+    ASSERT_TRUE(_response->get_data().at("data").as_object().at("subscriptions").as_array().size() == 3);
+
     _state->remove_session(_current_session->get_id());
     _state->remove_session(_remote_session->get_id());
     _state->remove_client(_local_client->get_id());
@@ -97,10 +110,15 @@ TEST(handlers_client_handler_test, can_handle_no_effect) {
 
     const boost::json::object _data = {
         {"action", "client"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", {{"client_id", to_string(_local_client->get_id())}}}
+        {
+            "params", {
+                {"client_id", to_string(_local_client->get_id())},
+                {"session_id", to_string(_current_session->get_id())},
+            }
+        }
     };
 
-    const auto _response = kernel(_state, _current_session, _local_client, _data);
+    const auto _response = kernel(_state, _data, _current_session->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

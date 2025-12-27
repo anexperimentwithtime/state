@@ -15,8 +15,6 @@
 
 #include <aewt/handlers/client_join_handler.hpp>
 
-#include <aewt/validators/clients_validator.hpp>
-
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 #include <aewt/request.hpp>
@@ -26,21 +24,11 @@
 
 namespace aewt::handlers {
     void client_join_handler(const request &request) {
-        if (validators::clients_validator(request)) {
-            const auto &_params = get_params(request);
-            const auto &_client_id = get_param_as_id(_params, "client_id");
-            const auto &_session_id = get_param_as_id(_params, "session_id");
-
-            const auto _is_local = request.session_->get_id() == _session_id;
-            const auto _inserted = add_client(_is_local, request, _session_id, _client_id);
-
-            const auto _count = _is_local && _inserted
-                                     ? distribute_to_others(request.state_, request.data_, _session_id)
-                                     : 0;
-
-            const auto _status = get_status(_inserted);
-
-            next(request, _status, {{"count", _count}});
-        }
+        const auto _inserted = add_client(request.is_local_, request, request.session_id_, request.client_id_);
+        const auto _count = _inserted
+                                ? distribute_to_others(request.state_, request.data_, request.session_id_)
+                                : 0;
+        const auto _status = get_status(_inserted);
+        next(request, _status, {{"count", _count}});
     }
 }
