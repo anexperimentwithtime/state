@@ -23,11 +23,12 @@
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/random_generator.hpp>
 #include <boost/json/parse.hpp>
 #include <boost/json/serialize.hpp>
 
 namespace aewt {
-    session::session(const std::shared_ptr<state> &state, const boost::uuids::uuid id,
+    session::session(const boost::uuids::uuid id, const std::shared_ptr<state> &state,
                      boost::asio::ip::tcp::socket &&socket)
         : state_(state), id_(id), socket_(boost::beast::tcp_stream(std::move(socket))) {
         LOG_INFO("session {} allocated", to_string(id_));
@@ -79,24 +80,26 @@ namespace aewt {
             return;
         }
 
-        auto _read_at = std::chrono::system_clock::now().time_since_epoch().count();
+        const auto _read_at = std::chrono::system_clock::now().time_since_epoch().count();
         auto _stream = boost::beast::buffers_to_string(buffer_.data());
         LOG_INFO("session read: {}", _stream);
 
         boost::system::error_code _parse_ec;
 
         if (auto _data = boost::json::parse(_stream, _parse_ec); !_parse_ec && _data.is_object()) {
-            const auto _response = kernel(state_, _data.as_object(), get_id());
-            send(std::make_shared<std::string const >(serialize(_response->get_data())));
+            const auto _response = kernel(state_, _data.as_object());
+            send(std::make_shared<std::string const>(serialize(_response->get_data())));
         } else {
             auto _now = std::chrono::system_clock::now().time_since_epoch().count();
             const boost::json::object _response = {
                 {"transaction_id", nullptr},
                 {"status", "failed"},
                 {"message", "unprocessable entity"},
-                {"data", {
-                    {"body", "body must be json object"},
-                }},
+                {
+                    "data", {
+                        {"body", "body must be json object"},
+                    }
+                },
                 {"timestamp", _now},
                 {"runtime", _now - _read_at},
             };

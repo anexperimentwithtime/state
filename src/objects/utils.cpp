@@ -122,15 +122,6 @@ namespace aewt {
             {"is_open", _socket.is_open()},
         };
 
-        if (_socket.is_open()) {
-            // const auto _remote_endpoint = _socket.remote_endpoint();
-            // _data["ip"] = _remote_endpoint.address().to_string();
-            // _data["port"] = _remote_endpoint.port();
-        } else {
-            _data["ip"] = nullptr;
-            _data["port"] = nullptr;
-        }
-
         return _data;
     }
 
@@ -157,11 +148,11 @@ namespace aewt {
     }
 
     bool add_client(const bool local, const request &request, const boost::uuids::uuid session_id,
-                    const boost::uuids::uuid client_id) {
+                    const boost::uuids::uuid client_id, const std::shared_ptr<state> &state) {
         if (local) {
             return false;
         }
 
-        return request.state_->add_client(std::make_shared<client>(client_id, session_id, local));
+        return request.state_->add_client(std::make_shared<client>(client_id, session_id, state));
     }
 } // namespace aewt

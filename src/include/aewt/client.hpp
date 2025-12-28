@@ -25,9 +25,19 @@
 
 namespace aewt {
     /**
+     * Forward State
+     */
+    class state;
+
+    /**
      * Client
      */
     class client : public std::enable_shared_from_this<client> {
+        /**
+         * State
+         */
+        std::shared_ptr<state> state_;
+
         /**
          * Client ID
          */
@@ -48,10 +58,9 @@ namespace aewt {
          * Constructor
          * @param id
          * @param session_id
-         * @param is_local
+         * @param state
          */
-        client(boost::uuids::uuid id, boost::uuids::uuid session_id, bool is_local = false);
-
+        explicit client(boost::uuids::uuid id, boost::uuids::uuid session_id, const std::shared_ptr<state> &state);
 
         /**
          * Destructor

@@ -30,12 +30,8 @@
 TEST(handlers_pong_handle_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -45,12 +41,12 @@ TEST(handlers_pong_handle_test, can_handle) {
             "params",
             {
                 {"channel", "welcome"}, {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_current_session->get_id())}
+                {"session_id", to_string(_state->get_id())}
             }
         }
     };
 
-    const auto _response = kernel(_state, _data, _current_session->get_id());
+    const auto _response = kernel(_state, _data);
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

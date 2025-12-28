@@ -30,19 +30,18 @@
 #include "../helpers.hpp"
 
 TEST(handlers_session_handler_test, can_handle) {
+    boost::asio::io_context _io_context;
+
     const auto _state = std::make_shared<aewt::state>();
 
-    boost::asio::io_context _io_context;
     boost::asio::ip::tcp::socket _socket(_io_context);
-    boost::asio::ip::tcp::socket _remote_socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _remote_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                 std::move(_remote_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
 
-    _state->add_session(_current_session);
+    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), _state,
+                                                                 std::move(_socket));
+
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
+
     _state->add_session(_remote_session);
 
     const auto _transaction_id = boost::uuids::random_generator()();
@@ -50,11 +49,11 @@ TEST(handlers_session_handler_test, can_handle) {
         {"action", "session"}, {"transaction_id", to_string(_transaction_id)},
         {
             "params",
-            {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_current_session->get_id())}}
+            {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_state->get_id())}}
         }
     };
 
-    const auto _response = kernel(_state, _data, _current_session->get_id());
+    const auto _response = kernel(_state, _data);
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -68,26 +67,55 @@ TEST(handlers_session_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
 
-    _state->remove_session(_current_session->get_id());
     _state->remove_session(_remote_session->get_id());
+}
 
-    // TODO add id and is_open attributes of data
+TEST(handlers_session_handler_test, can_handle_on_remote) {
+    boost::asio::io_context _io_context;
+
+    const auto _state = std::make_shared<aewt::state>();
+
+    boost::asio::ip::tcp::socket _socket(_io_context);
+
+    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), _state,
+                                                                 std::move(_socket));
+
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
+
+    _state->add_session(_remote_session);
+
+    const auto _transaction_id = boost::uuids::random_generator()();
+    const boost::json::object _data = {
+        {"action", "session"}, {"transaction_id", to_string(_transaction_id)},
+        {
+            "params",
+            {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_remote_session->get_id())}}
+        }
+    };
+
+    const auto _response = kernel(_state, _data);
+
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
+
+    ASSERT_TRUE(_response->get_processed());
+    ASSERT_TRUE(!_response->get_failed());
+
+    test_response_base_protocol_structure(_response, "success", "ok", _transaction_id);
+
+    ASSERT_TRUE(_response->get_data().contains("data"));
+    ASSERT_TRUE(_response->get_data().at("data").is_object());
+
+
+    _state->remove_session(_remote_session->get_id());
 }
 
 TEST(handlers_session_handler_test, can_handle_no_effect) {
     const auto _state = std::make_shared<aewt::state>();
 
-    boost::asio::io_context _io_context;
-    boost::asio::ip::tcp::socket _socket(_io_context);
-    boost::asio::ip::tcp::socket _remote_socket(_io_context);
-    const auto _current_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                  std::move(_socket));
-    const auto _remote_session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
-                                                                 std::move(_remote_socket));
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                              _current_session->get_id(), true);
-
-    _state->add_session(_current_session);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -101,7 +129,7 @@ TEST(handlers_session_handler_test, can_handle_no_effect) {
         }
     };
 
-    const auto _response = kernel(_state, _data, _current_session->get_id());
+    const auto _response = kernel(_state, _data);
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -113,6 +141,4 @@ TEST(handlers_session_handler_test, can_handle_no_effect) {
 
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
-
-    _state->remove_session(_current_session->get_id());
 }

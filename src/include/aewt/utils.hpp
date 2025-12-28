@@ -29,6 +29,11 @@ namespace aewt {
     class session;
 
     /**
+     * Forward State
+     */
+    class state;
+
+    /**
      * Next
      *
      * @param request
@@ -160,9 +165,10 @@ namespace aewt {
      * @param request
      * @param session_id
      * @param client_id
+     * @param state
      * @return
      */
-    bool add_client(bool local, const request &request, boost::uuids::uuid session_id, boost::uuids::uuid client_id);
+    bool add_client(bool local, const request &request, boost::uuids::uuid session_id, boost::uuids::uuid client_id, const std::shared_ptr<state> &state);
 }
 
 #endif // AEWT_UTILS_HPP

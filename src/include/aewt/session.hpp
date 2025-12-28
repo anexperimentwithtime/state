@@ -40,11 +40,11 @@ namespace aewt {
         /**
          * Constructor
          *
-         * @param state
          * @param id
+         * @param state
          * @param socket
          */
-        session(const std::shared_ptr<state> &state, boost::uuids::uuid id, boost::asio::ip::tcp::socket &&socket);
+        session(boost::uuids::uuid id, const std::shared_ptr<state> &state, boost::asio::ip::tcp::socket &&socket);
 
         /**
          * Destructor

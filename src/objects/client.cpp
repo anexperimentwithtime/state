@@ -16,13 +16,18 @@
 #include <aewt/client.hpp>
 
 #include <aewt/logger.hpp>
+#include <aewt/state.hpp>
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/random_generator.hpp>
 
 namespace aewt {
     client::client(const boost::uuids::uuid id, const boost::uuids::uuid session_id,
-                   const bool is_local) : id_(id), session_id_(session_id), is_local_(is_local) {
+                   const std::shared_ptr<state> &state) : state_(state),
+                                                          id_(id),
+                                                          session_id_(session_id),
+                                                          is_local_(state->get_id() == session_id) {
         LOG_INFO("client {} allocated", to_string(id_));
     }
 

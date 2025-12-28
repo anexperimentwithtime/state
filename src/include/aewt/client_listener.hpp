@@ -15,23 +15,32 @@
 
 #pragma once
 
-#ifndef AEWT_HANDLERS_WHOAMI_HANDLER_HPP
-#define AEWT_HANDLERS_WHOAMI_HANDLER_HPP
+#ifndef AEWT_CLIENT_LISTENER_HPP
+#define AEWT_CLIENT_LISTENER_HPP
+
+#include <memory>
+
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/beast/core.hpp>
 
 namespace aewt {
-    /**
-     * Forward Request
-     */
-    struct request;
+    class state;
 
-    namespace handlers {
-        /**
-         * Whoami
-         *
-         * @param request
-         */
-        void whoami_handler(const request &request);
-    }
+    class client_listener : public std::enable_shared_from_this<client_listener> {
+        boost::asio::io_context &ioc_;
+        boost::asio::ip::tcp::acceptor acceptor_;
+        std::shared_ptr<state> state_;
+
+    public:
+        client_listener(boost::asio::io_context &ioc, const boost::asio::ip::tcp::endpoint &endpoint,
+                        const std::shared_ptr<state> &state);
+
+        void on_accept(const boost::beast::error_code &ec, boost::asio::ip::tcp::socket socket);
+
+        void do_accept();
+
+        void start();
+    };
 } // namespace aewt
 
-#endif  // AEWT_HANDLERS_WHOAMI_HANDLER_HPP
+#endif  // AEWT_CLIENT_LISTENER_HPP
