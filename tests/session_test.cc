@@ -24,7 +24,8 @@ TEST(session_test, can_be_created) {
     boost::asio::ip::tcp::socket _socket(_io_context);
 
     const auto _state = std::make_shared<aewt::state>();
-    const auto _session = std::make_shared<aewt::session>(_state, boost::uuids::random_generator()(),
+    const auto _session = std::make_shared<aewt::session>(boost::uuids::random_generator()(),
+                                                          _state,
                                                           std::move(_socket));
 
     _state->add_session(_session);

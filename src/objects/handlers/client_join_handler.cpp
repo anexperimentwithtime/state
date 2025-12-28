@@ -24,7 +24,7 @@
 
 namespace aewt::handlers {
     void client_join_handler(const request &request) {
-        const auto _inserted = add_client(request.is_local_, request, request.session_id_, request.client_id_);
+        const auto _inserted = add_client(request.is_local_, request, request.session_id_, request.client_id_, request.state_);
         const auto _count = _inserted
                                 ? distribute_to_others(request.state_, request.data_, request.session_id_)
                                 : 0;

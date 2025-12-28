@@ -48,12 +48,10 @@ namespace aewt {
      *
      * @param state
      * @param data
-     * @param session_id
      * @return shared_ptr<response>
      */
     std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
-                                     const boost::json::object & data,
-                                     const boost::uuids::uuid &session_id);
+                                     const boost::json::object & data);
 } // namespace aewt
 
 #endif  // AEWT_KERNEL_HPP

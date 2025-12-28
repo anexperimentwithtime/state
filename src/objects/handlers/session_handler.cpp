@@ -18,6 +18,8 @@
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 
+#include <boost/uuid/uuid_io.hpp>
+
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
@@ -28,7 +30,15 @@ namespace aewt::handlers {
 
             next(request, "ok", _data);
         } else {
-            next(request, "no effect");
+            if (request.is_local_) {
+                const boost::json::object _data = {
+                    {"id", to_string(request.state_->get_id())},
+                    {"is_open", true},
+                };
+                next(request, "ok", _data);
+            } else {
+                next(request, "no effect");
+            }
         }
     }
 }

@@ -44,7 +44,7 @@ namespace aewt {
         return created_at_;
     }
 
-    std::vector<std::shared_ptr<session> > state::get_sessions() const {
+    std::vector<std::shared_ptr<session>> state::get_sessions() const {
         std::shared_lock _lock(sessions_mutex_);
         std::vector<std::shared_ptr<session> > _result;
         _result.reserve(sessions_.size());
@@ -299,21 +299,23 @@ namespace aewt {
     bool state::send(const boost::uuids::uuid transaction_id, const boost::uuids::uuid session_id,
                      const boost::uuids::uuid sender_id, const boost::uuids::uuid receiver_id,
                      const boost::json::object &data) const {
-        if (const auto _receiver = get_session(session_id); _receiver.has_value() && get_client_exists(receiver_id)) {
-            const auto _data = boost::json::object({
-                {"transaction_id", to_string(transaction_id)},
-                {"action", "send"},
-                {"session_id", to_string(session_id)},
-                {"sender_id", to_string(sender_id)},
-                {"receiver_id", to_string(receiver_id)},
-                {"payload", data},
-            });
+        if (const auto _client = get_client(receiver_id); _client.has_value()) {
+            const auto _client_value = _client.value();
+            if (const auto _receiver = get_session(_client_value->get_session_id()); _receiver.has_value()) {
+                const auto _data = boost::json::object({
+                   {"transaction_id", to_string(transaction_id)},
+                   {"action", "send"},
+                   {"session_id", to_string(session_id)},
+                   {"sender_id", to_string(sender_id)},
+                   {"receiver_id", to_string(receiver_id)},
+                   {"payload", data},
+               });
 
-            auto const _message = std::make_shared<std::string const>(serialize(_data));
-
-            const auto &_session = _receiver.value();
-            _session->send(_message);
-            return true;
+                auto const _message = std::make_shared<std::string const>(serialize(_data));
+                const auto &_session = _receiver.value();
+                _session->send(_message);
+                return true;
+            }
         }
 
         return false;

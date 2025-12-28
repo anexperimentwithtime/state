@@ -20,12 +20,10 @@
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
-#include <aewt/client.hpp>
 #include <aewt/logger.hpp>
 #include <aewt/validator.hpp>
 
 #include <aewt/handlers/ping_handler.hpp>
-#include <aewt/handlers/whoami_handler.hpp>
 
 #include <aewt/handlers/client_handler.hpp>
 #include <aewt/handlers/clients_handler.hpp>
@@ -60,8 +58,7 @@
 
 namespace aewt {
     std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
-                                     const boost::json::object &data,
-                                     const boost::uuids::uuid &session_id) {
+                                     const boost::json::object &data) {
         boost::ignore_unused(state);
 
         const auto _timestamp = std::chrono::system_clock::now().time_since_epoch().count();
@@ -82,7 +79,7 @@ namespace aewt {
                 .client_id_ = _client_id,
                 .data_ = data,
                 .timestamp_ = _timestamp,
-                .is_local_ = _session_id == session_id
+                .is_local_ = _session_id == state->get_id()
             };
 
             const std::string _action{data.at("action").as_string()};
@@ -124,8 +121,6 @@ namespace aewt {
                 handlers::session_handler(_request);
             } else if (_action == "session_client_exists") {
                 handlers::session_client_exists_handler(_request);
-            } else if (_action == "whoami") {
-                handlers::whoami_handler(_request);
             } else {
                 handlers::unimplemented_handler(_request);
             }

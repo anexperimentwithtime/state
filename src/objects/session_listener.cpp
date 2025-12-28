@@ -13,16 +13,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/listener.hpp>
+#include <aewt/session_listener.hpp>
 
 #include <boost/asio/strand.hpp>
 
 #include <aewt/logger.hpp>
 #include <aewt/session.hpp>
+#include <aewt/state.hpp>
 #include <boost/uuid/random_generator.hpp>
 
 namespace aewt {
-    listener::listener(boost::asio::io_context &ioc, const boost::asio::ip::tcp::endpoint &endpoint,
+    session_listener::session_listener(boost::asio::io_context &ioc, const boost::asio::ip::tcp::endpoint &endpoint,
                        const std::shared_ptr<state> &state) : ioc_(ioc), acceptor_(ioc), state_(state) {
         boost::beast::error_code ec;
 
@@ -55,28 +56,30 @@ namespace aewt {
         }
     }
 
-    void listener::on_accept(const boost::beast::error_code &ec, boost::asio::ip::tcp::socket socket) {
+    void session_listener::on_accept(const boost::beast::error_code &ec, boost::asio::ip::tcp::socket socket) {
         if(ec)
         {
             LOG_INFO("listener failed on accept: {}", ec.what());
         }
         else
         {
-            std::make_shared<session>(state_, boost::uuids::random_generator()(), std::move(socket))->run();
+            const auto _session = std::make_shared<session>(boost::uuids::random_generator()(), state_, std::move(socket));
+            state_->add_session(_session);
+            _session->run();
         }
 
         do_accept();
     }
 
-    void listener::do_accept() {
+    void session_listener::do_accept() {
         acceptor_.async_accept(
             make_strand(ioc_),
             boost::beast::bind_front_handler(
-                &listener::on_accept,
+                &session_listener::on_accept,
                 shared_from_this()));
     }
 
-    void listener::start() {
+    void session_listener::start() {
         do_accept();
     }
 } // namespace aewt

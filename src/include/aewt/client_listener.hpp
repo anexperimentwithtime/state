@@ -15,8 +15,8 @@
 
 #pragma once
 
-#ifndef AEWT_LISTENER_HPP
-#define AEWT_LISTENER_HPP
+#ifndef AEWT_CLIENT_LISTENER_HPP
+#define AEWT_CLIENT_LISTENER_HPP
 
 #include <memory>
 
@@ -26,13 +26,13 @@
 namespace aewt {
     class state;
 
-    class listener : public std::enable_shared_from_this<listener> {
+    class client_listener : public std::enable_shared_from_this<client_listener> {
         boost::asio::io_context &ioc_;
         boost::asio::ip::tcp::acceptor acceptor_;
         std::shared_ptr<state> state_;
 
     public:
-        listener(boost::asio::io_context & ioc, const boost::asio::ip::tcp::endpoint &endpoint, const std::shared_ptr<state> &state);
+        client_listener(boost::asio::io_context & ioc, const boost::asio::ip::tcp::endpoint &endpoint, const std::shared_ptr<state> &state);
 
         void on_accept(const boost::beast::error_code &ec, boost::asio::ip::tcp::socket socket);
 
@@ -42,4 +42,4 @@ namespace aewt {
     };
 } // namespace aewt
 
-#endif  // AEWT_LISTENER_HPP
+#endif  // AEWT_CLIENT_LISTENER_HPP
