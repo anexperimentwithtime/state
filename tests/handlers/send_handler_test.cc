@@ -289,7 +289,7 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_payload_pr
     boost::asio::ip::tcp::socket _socket(_io_context);
 
     const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), _state,
-                                                             std::move(_socket));
+                                                                 std::move(_socket));
 
     const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
                                                               _state);

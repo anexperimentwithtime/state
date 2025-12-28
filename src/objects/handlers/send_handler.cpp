@@ -30,7 +30,8 @@ namespace aewt::handlers {
             const auto &_params = get_params(request);
             const auto &_receiver_id = get_param_as_id(_params, "receiver_id");
             const auto &_payload = get_param_as_object(_params, "payload");
-            const bool _success = _state->send(_transaction_id, request.session_id_, request.client_id_, _receiver_id, _payload);
+            const bool _success = _state->send(_transaction_id, request.session_id_, request.client_id_, _receiver_id,
+                                               _payload);
             const auto _status = get_status(_success);
             next(request, _status);
         }

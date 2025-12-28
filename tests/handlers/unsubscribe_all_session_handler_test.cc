@@ -30,7 +30,8 @@
 TEST(handlers_unsubscribe_all_session_handler_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(), _state);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     _state->subscribe(_state->get_id(), _local_client->get_id(), "welcome");
 

@@ -30,7 +30,8 @@
 TEST(handlers_publish_handler_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(), _state);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     _state->push_client(_local_client);
     _state->subscribe(_state->get_id(), _local_client->get_id(), "welcome");
@@ -68,7 +69,8 @@ TEST(handlers_publish_handler_test, can_handle) {
 TEST(handlers_publish_handler_test, can_handle_publish_on_empty_data_params_channel) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(), _state);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -105,7 +107,8 @@ TEST(handlers_publish_handler_test, can_handle_publish_on_empty_data_params_chan
 TEST(handlers_publish_handler_test, can_handle_publish_on_wrong_data_params_channel_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(), _state);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -142,7 +145,8 @@ TEST(handlers_publish_handler_test, can_handle_publish_on_wrong_data_params_chan
 TEST(handlers_publish_handler_test, can_handle_publish_on_empty_data_params_payload) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(), _state);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -177,7 +181,8 @@ TEST(handlers_publish_handler_test, can_handle_publish_on_empty_data_params_payl
 TEST(handlers_publish_handler_test, can_handle_publish_on_wrong_data_params_payload_primitive) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(), _state);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {

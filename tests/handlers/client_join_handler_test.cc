@@ -34,9 +34,11 @@ TEST(handlers_client_join_handler_test, can_handle) {
 
     boost::asio::ip::tcp::socket _socket(_io_context);
 
-    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), _state, std::move(_socket));
+    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), _state,
+                                                                 std::move(_socket));
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(), _state);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     const auto _remote_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
                                                                _remote_session->get_id(), _state);
@@ -76,7 +78,8 @@ TEST(handlers_client_join_handler_test, can_handle) {
 TEST(handlers_client_join_handler_test, can_handle_no_effect) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(), _state);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     _state->push_client(_local_client);
 

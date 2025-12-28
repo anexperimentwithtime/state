@@ -24,45 +24,38 @@
 
 namespace aewt {
     client_listener::client_listener(boost::asio::io_context &ioc, const boost::asio::ip::tcp::endpoint &endpoint,
-                       const std::shared_ptr<state> &state) : ioc_(ioc), acceptor_(ioc), state_(state) {
+                                     const std::shared_ptr<state> &state) : ioc_(ioc), acceptor_(ioc), state_(state) {
         boost::beast::error_code ec;
 
         acceptor_.open(endpoint.protocol(), ec);
-        if(ec)
-        {
+        if (ec) {
             LOG_INFO("listener failed on open: {}", ec.what());
             return;
         }
 
         acceptor_.set_option(boost::asio::socket_base::reuse_address(true), ec);
-        if(ec)
-        {
+        if (ec) {
             LOG_INFO("listener failed on set option reuse address: {}", ec.what());
             return;
         }
 
         acceptor_.bind(endpoint, ec);
-        if(ec)
-        {
+        if (ec) {
             LOG_INFO("listener failed on bind: {}", ec.what());
             return;
         }
 
         acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
-        if(ec)
-        {
+        if (ec) {
             LOG_INFO("listener failed on listen: {}", ec.what());
             return;
         }
     }
 
     void client_listener::on_accept(const boost::beast::error_code &ec, boost::asio::ip::tcp::socket socket) {
-        if(ec)
-        {
+        if (ec) {
             LOG_INFO("listener failed on accept: {}", ec.what());
-        }
-        else
-        {
+        } else {
             const auto _client = std::make_shared<client>(boost::uuids::random_generator()(), state_->get_id(), state_);
             state_->add_client(_client);
             // _client->run();

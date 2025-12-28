@@ -30,7 +30,8 @@
 TEST(handlers_client_leave_handler_test, can_handle) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(), _state);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     _state->push_client(_local_client);
 
@@ -62,7 +63,8 @@ TEST(handlers_client_leave_handler_test, can_handle) {
 TEST(handlers_client_leave_handler_test, can_handle_no_effect) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(), _state);
+    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+                                                              _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
