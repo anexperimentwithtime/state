@@ -57,8 +57,9 @@ namespace aewt {
             LOG_INFO("listener failed on accept: {}", ec.what());
         } else {
             const auto _client = std::make_shared<client>(boost::uuids::random_generator()(), state_->get_id(), state_);
+            _client->set_socket(std::move(socket));
             state_->add_client(_client);
-            // _client->run();
+            _client->run();
         }
 
         do_accept();

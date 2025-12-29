@@ -24,6 +24,7 @@
 #include <aewt/logger.hpp>
 #include <aewt/state.hpp>
 #include <aewt/session_listener.hpp>
+#include <aewt/client_listener.hpp>
 
 #include <aewt/version.hpp>
 
@@ -82,10 +83,13 @@ int main() {
     boost::asio::io_context _ioc;
     auto _state = std::make_shared<aewt::state>();
     auto const _address = boost::asio::ip::make_address("0.0.0.0");
-    auto const _port = 9000;
+    auto const _sessions_port = 9000;
+    auto const _clients_port = 10000;
     auto const _threads = 4;
 
-    std::make_shared<aewt::session_listener>(_ioc, boost::asio::ip::tcp::endpoint { _address, _port }, _state)
+    std::make_shared<aewt::session_listener>(_ioc, boost::asio::ip::tcp::endpoint { _address, _sessions_port }, _state)
+        ->start();
+    std::make_shared<aewt::client_listener>(_ioc, boost::asio::ip::tcp::endpoint { _address, _clients_port }, _state)
         ->start();
     sentry_stop();
 

@@ -78,6 +78,9 @@ namespace aewt {
         void run();
 
     private:
+        /**
+         * State
+         */
         std::shared_ptr<state> state_;
 
         /**
