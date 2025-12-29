@@ -16,7 +16,6 @@
 #include <aewt/handlers/client_leave_handler.hpp>
 
 #include <aewt/state.hpp>
-#include <aewt/session.hpp>
 #include <aewt/request.hpp>
 
 #include <aewt/utils.hpp>

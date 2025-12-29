@@ -13,21 +13,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/handlers/client_join_handler.hpp>
+#include <aewt/handlers/session_join_handler.hpp>
 
-#include <aewt/state.hpp>
-#include <aewt/request.hpp>
-
-#include <aewt/utils.hpp>
-#include <aewt/distribute.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 namespace aewt::handlers {
-    void client_join_handler(const request &request) {
-        const auto _inserted = add_client(request.is_local_, request, request.session_id_, request.client_id_, request.state_);
-        const auto _count = _inserted
-                                ? distribute_to_others(request.state_, request.data_, request.session_id_)
-                                : 0;
-        const auto _status = get_status(_inserted);
-        next(request, _status, {{"count", _count}});
+    void session_join_handler(const request &request) {
+        boost::ignore_unused(request);
     }
 }

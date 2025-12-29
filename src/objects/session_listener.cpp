@@ -58,7 +58,6 @@ namespace aewt {
         } else {
             const auto _session = std::make_shared<session>(boost::uuids::random_generator()(), state_,
                                                             std::move(socket));
-            state_->add_session(_session);
             _session->run();
         }
 
