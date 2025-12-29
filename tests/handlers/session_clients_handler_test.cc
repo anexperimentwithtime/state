@@ -16,6 +16,8 @@
 #include <gtest/gtest.h>
 
 #include <aewt/kernel.hpp>
+#include <aewt/kernel_context.hpp>
+
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/client.hpp>
@@ -29,10 +31,12 @@
 
 #include "../helpers.hpp"
 
-TEST(handlers_session_clients_handler_test, can_handle) {
-    const auto _state = std::make_shared<aewt::state>();
+using namespace aewt;
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+TEST(handlers_session_clients_handler_test, can_handle) {
+    const auto _state = std::make_shared<state>();
+
+    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
                                                               _state);
 
     _state->push_client(_local_client);
@@ -46,7 +50,7 @@ TEST(handlers_session_clients_handler_test, can_handle) {
         }
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

@@ -22,12 +22,13 @@
 
 namespace aewt::handlers {
     void client_handler(const request &request) {
-        if (const auto _client_optional = request.state_->get_client(request.client_id_); _client_optional.
+        const auto _id = get_param_as_id(request.data_, "id");
+        if (const auto _client_optional = request.state_->get_client(_id); _client_optional.
             has_value()) {
             const auto &_client = _client_optional.value();
 
             const auto _subscriptions = make_channels_array_of_subscriptions(
-                request.state_->get_client_subscriptions(request.client_id_)
+                request.state_->get_client_subscriptions(_id)
             );
 
             const auto _data = make_client_object(_client, _subscriptions);

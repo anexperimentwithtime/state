@@ -18,6 +18,8 @@
 #ifndef AEWT_KERNEL_HPP
 #define AEWT_KERNEL_HPP
 
+#include <aewt/kernel_context.hpp>
+
 #include <boost/json/object.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <memory>
@@ -48,10 +50,12 @@ namespace aewt {
      *
      * @param state
      * @param data
+     * @param context
+     * @param entity_id
      * @return shared_ptr<response>
      */
     std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
-                                     const boost::json::object &data);
+                                     const boost::json::object &data, kernel_context context, boost::uuids::uuid entity_id);
 } // namespace aewt
 
 #endif  // AEWT_KERNEL_HPP

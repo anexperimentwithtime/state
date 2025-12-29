@@ -25,6 +25,7 @@
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
+#include <boost/uuid/random_generator.hpp>
 
 namespace aewt {
     /**
@@ -58,12 +59,14 @@ namespace aewt {
 
     public:
         /**
-         * Constructor
-         * @param id
+         * Construct
+         *
          * @param session_id
          * @param state
+         * @param id
          */
-        explicit client(boost::uuids::uuid id, boost::uuids::uuid session_id, const std::shared_ptr<state> &state);
+        explicit client(boost::uuids::uuid session_id, const std::shared_ptr<state> &state,
+                        boost::uuids::uuid id = boost::uuids::random_generator()());
 
         /**
          * Destructor

@@ -28,8 +28,8 @@
 #include <boost/json/serialize.hpp>
 
 namespace aewt {
-    client::client(const boost::uuids::uuid id, const boost::uuids::uuid session_id,
-                   const std::shared_ptr<state> &state) : state_(state),
+    client::client(const boost::uuids::uuid session_id,
+                   const std::shared_ptr<state> &state, const boost::uuids::uuid id) : state_(state),
                                                           id_(id),
                                                           session_id_(session_id),
                                                           is_local_(state->get_id() == session_id) {

@@ -16,6 +16,8 @@
 #include <gtest/gtest.h>
 
 #include <aewt/kernel.hpp>
+#include <aewt/kernel_context.hpp>
+
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/client.hpp>
@@ -29,17 +31,19 @@
 
 #include "../helpers.hpp"
 
+using namespace aewt;
+
 TEST(handlers_session_handler_test, can_handle) {
     boost::asio::io_context _io_context;
 
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
     boost::asio::ip::tcp::socket _socket(_io_context);
 
-    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), _state,
+    const auto _remote_session = std::make_shared<session>(_state,
                                                                  std::move(_socket));
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
                                                               _state);
 
     _state->add_session(_remote_session);
@@ -53,7 +57,7 @@ TEST(handlers_session_handler_test, can_handle) {
         }
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -73,14 +77,14 @@ TEST(handlers_session_handler_test, can_handle) {
 TEST(handlers_session_handler_test, can_handle_on_remote) {
     boost::asio::io_context _io_context;
 
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
     boost::asio::ip::tcp::socket _socket(_io_context);
 
-    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), _state,
+    const auto _remote_session = std::make_shared<session>(_state,
                                                                  std::move(_socket));
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
                                                               _state);
 
     _state->add_session(_remote_session);
@@ -94,7 +98,7 @@ TEST(handlers_session_handler_test, can_handle_on_remote) {
         }
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -112,9 +116,9 @@ TEST(handlers_session_handler_test, can_handle_on_remote) {
 }
 
 TEST(handlers_session_handler_test, can_handle_no_effect) {
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
                                                               _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
@@ -129,7 +133,7 @@ TEST(handlers_session_handler_test, can_handle_no_effect) {
         }
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

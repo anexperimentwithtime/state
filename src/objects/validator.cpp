@@ -54,60 +54,6 @@ namespace aewt {
             return;
         }
 
-        if (!data.contains("params")) {
-            bag_.insert_or_assign("params", "params attribute must be present");
-            passed_ = false;
-            return;
-        }
-
-        const boost::json::value &_params = data.at("params");
-        if (!_params.is_object()) {
-            bag_.insert_or_assign("params", "params attribute must be object");
-            passed_ = false;
-            return;
-        }
-
-        const boost::json::object &_params_object = _params.as_object();
-        if (!_params_object.contains("session_id")) {
-            bag_.insert_or_assign("params", "params session_id attribute must be present");
-            passed_ = false;
-            return;
-        }
-
-        auto _session_id_value = _params_object.at("session_id");
-        if (!_session_id_value.is_string()) {
-            bag_.insert_or_assign("params", "params session_id attribute must be string");
-            passed_ = false;
-            return;
-        }
-
-        const auto _session_id = _session_id_value.as_string();
-        if (!is_uuid(_session_id.c_str())) {
-            bag_.insert_or_assign("params", "params session_id attribute must be uuid");
-            passed_ = false;
-            return;
-        }
-
-        if (!_params_object.contains("client_id")) {
-            bag_.insert_or_assign("params", "params client_id attribute must be present");
-            passed_ = false;
-            return;
-        }
-
-        auto _client_id_value = _params_object.at("client_id");
-        if (!_client_id_value.is_string()) {
-            bag_.insert_or_assign("params", "params client_id attribute must be string");
-            passed_ = false;
-            return;
-        }
-
-        const auto _client_id = _client_id_value.as_string();
-        if (!is_uuid(_client_id.c_str())) {
-            bag_.insert_or_assign("params", "params client_id attribute must be uuid");
-            passed_ = false;
-            return;
-        }
-
         passed_ = true;
     }
 

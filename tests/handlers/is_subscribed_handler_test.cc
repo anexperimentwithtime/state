@@ -16,21 +16,26 @@
 #include <gtest/gtest.h>
 
 #include <aewt/kernel.hpp>
+#include <aewt/kernel_context.hpp>
+
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
+
 #include <boost/json/serialize.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 #include "../helpers.hpp"
 
-TEST(handlers_is_subscribed_handler_test, can_handle) {
-    const auto _state = std::make_shared<aewt::state>();
+using namespace aewt;
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+TEST(handlers_is_subscribed_handler_test, can_handle) {
+    const auto _state = std::make_shared<state>();
+
+    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
                                                               _state);
 
     _state->add_client(_local_client);
@@ -48,7 +53,7 @@ TEST(handlers_is_subscribed_handler_test, can_handle) {
         }
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -65,9 +70,9 @@ TEST(handlers_is_subscribed_handler_test, can_handle) {
 }
 
 TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data_params_channel) {
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
                                                               _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
@@ -79,7 +84,7 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
         }
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -98,9 +103,9 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
 }
 
 TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data_params_channel_primitive) {
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
+    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
                                                               _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
@@ -115,7 +120,7 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data
         }
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

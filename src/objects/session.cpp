@@ -28,8 +28,8 @@
 #include <boost/json/serialize.hpp>
 
 namespace aewt {
-    session::session(const boost::uuids::uuid id, const std::shared_ptr<state> &state,
-                     boost::asio::ip::tcp::socket &&socket)
+    session::session(const std::shared_ptr<state> &state,
+                     boost::asio::ip::tcp::socket &&socket, const boost::uuids::uuid id)
         : state_(state), id_(id), socket_(boost::beast::tcp_stream(std::move(socket))) {
         LOG_INFO("session {} allocated", to_string(id_));
     }

@@ -25,6 +25,7 @@
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
+#include <boost/uuid/random_generator.hpp>
 
 namespace aewt {
     /**
@@ -44,7 +45,7 @@ namespace aewt {
          * @param state
          * @param socket
          */
-        session(boost::uuids::uuid id, const std::shared_ptr<state> &state, boost::asio::ip::tcp::socket &&socket);
+        session(const std::shared_ptr<state> &state, boost::asio::ip::tcp::socket &&socket, boost::uuids::uuid id = boost::uuids::random_generator()());
 
         /**
          * Destructor

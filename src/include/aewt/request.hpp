@@ -24,16 +24,16 @@
 
 #include <aewt/response.hpp>
 #include <aewt/state.hpp>
-#include <aewt/session.hpp>
-#include <aewt/client.hpp>
+
+#include <aewt/kernel_context.hpp>
 
 namespace aewt {
     struct request {
         const boost::uuids::uuid transaction_id_;
         std::shared_ptr<aewt::response> &response_;
+        const boost::uuids::uuid entity_id_;
+        const kernel_context context_;
         const std::shared_ptr<aewt::state> &state_;
-        const boost::uuids::uuid session_id_;
-        const boost::uuids::uuid client_id_;
         const boost::json::object &data_;
         long timestamp_;
         bool is_local_;

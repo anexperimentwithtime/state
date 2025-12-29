@@ -15,38 +15,14 @@
 
 #pragma once
 
-#ifndef AEWT_HANDLERS_CLIENT_EXISTS_HANDLER_HPP
-#define AEWT_HANDLERS_CLIENT_EXISTS_HANDLER_HPP
+#ifndef AEWT_KERNEL_CONTEXT_HPP
+#define AEWT_KERNEL_CONTEXT_HPP
 
 namespace aewt {
-    /**
-     * Forward Request
-     */
-    struct request;
-
-    /**
-     * Forward Response
-     */
-    class response;
-
-    /**
-     * Forward Session
-     */
-    class session;
-
-    /**
-     * Forward State
-     */
-    class state;
-
-    namespace handlers {
-        /**
-         * Client Exists Handler
-         *
-         * @param request
-         */
-        void client_exists_handler(const request &request);
-    }
+    enum kernel_context {
+        on_session,
+        on_client,
+    };
 } // namespace aewt
 
-#endif  // AEWT_HANDLERS_CLIENT_EXISTS_HANDLER_HPP
+#endif  // AEWT_KERNEL_CONTEXT_HPP
