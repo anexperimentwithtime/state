@@ -89,7 +89,7 @@ namespace aewt {
          *
          * @return tcp::socket
          */
-        std::optional<boost::beast::websocket::stream<boost::beast::tcp_stream>> &get_socket();
+        std::optional<boost::beast::websocket::stream<boost::beast::tcp_stream> > &get_socket();
 
         /**
          * Get Is Local
@@ -115,12 +115,13 @@ namespace aewt {
          *
          * @param socket
          */
-        void set_socket(boost::asio::ip::tcp::socket && socket);
+        void set_socket(boost::asio::ip::tcp::socket &&socket);
+
     private:
         /**
          * Socket
          */
-        std::optional<boost::beast::websocket::stream<boost::beast::tcp_stream>> socket_;
+        std::optional<boost::beast::websocket::stream<boost::beast::tcp_stream> > socket_;
 
         /**
          * Buffer
