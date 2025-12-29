@@ -74,7 +74,7 @@ namespace aewt {
          *
          * @return vector<shared_ptr<session>>
          */
-        std::vector<std::shared_ptr<session>> get_sessions() const;
+        std::vector<std::shared_ptr<session> > get_sessions() const;
 
         /**
          * Get Clients By Session
@@ -89,7 +89,7 @@ namespace aewt {
          *
          * @return vector<uuid>
          */
-        std::vector<std::shared_ptr<client>> get_clients() const;
+        std::vector<std::shared_ptr<client> > get_clients() const;
 
         /**
          * Get Client Exists On Session
@@ -114,7 +114,7 @@ namespace aewt {
          * @param id uuid
          * @return optional<std::shared_ptr<session>>
          */
-        std::optional<std::shared_ptr<session>> get_session(
+        std::optional<std::shared_ptr<session> > get_session(
             boost::uuids::uuid id) const;
 
         /**
@@ -123,7 +123,7 @@ namespace aewt {
          * @param id uuid
          * @return optional<client>
          */
-        std::optional<std::shared_ptr<client>> get_client(
+        std::optional<std::shared_ptr<client> > get_client(
             boost::uuids::uuid id) const;
 
         /**
@@ -275,7 +275,7 @@ namespace aewt {
          * @param client
          * @return bool
          */
-        bool push_client(const std::shared_ptr<client> & client);
+        bool push_client(const std::shared_ptr<client> &client);
 
     private:
         /**
@@ -311,7 +311,7 @@ namespace aewt {
         /**
          * Sessions
          */
-        std::map<boost::uuids::uuid, std::shared_ptr<session>> sessions_;
+        std::map<boost::uuids::uuid, std::shared_ptr<session> > sessions_;
 
         /**
          * Sessions Shared Mutex
