@@ -35,22 +35,20 @@ using namespace aewt;
 TEST(handlers_publish_handler_test, can_handle) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     _state->push_client(_local_client);
     _state->subscribe(_state->get_id(), _local_client->get_id(), "welcome");
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "publish"}, {"transaction_id", to_string(_transaction_id)},
+        {"action", "publish"},
+        {"transaction_id", to_string(_transaction_id)},
         {
             "params",
             {
                 {"channel", "welcome"},
-                {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };
@@ -74,21 +72,13 @@ TEST(handlers_publish_handler_test, can_handle) {
 TEST(handlers_publish_handler_test, can_handle_publish_on_empty_data_params_channel) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "publish"},
         {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {
-                {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
-            }
-        }
+        {"params", {{"payload", {{"message", "EHLO"}}}}}
     };
 
     const auto _response = kernel(_state, _data, on_session, _state->get_id());
@@ -112,19 +102,17 @@ TEST(handlers_publish_handler_test, can_handle_publish_on_empty_data_params_chan
 TEST(handlers_publish_handler_test, can_handle_publish_on_wrong_data_params_channel_primitive) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "publish"}, {"transaction_id", to_string(_transaction_id)},
+        {"action", "publish"},
+        {"transaction_id", to_string(_transaction_id)},
         {
             "params",
             {
                 {"channel", 7},
-                {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };
@@ -150,17 +138,16 @@ TEST(handlers_publish_handler_test, can_handle_publish_on_wrong_data_params_chan
 TEST(handlers_publish_handler_test, can_handle_publish_on_empty_data_params_payload) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "publish"}, {"transaction_id", to_string(_transaction_id)},
+        {"action", "publish"},
+        {"transaction_id", to_string(_transaction_id)},
         {
             "params",
             {
-                {"channel", "welcome"}, {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())}
+                {"channel", "welcome"},
             }
         }
     };
@@ -186,17 +173,16 @@ TEST(handlers_publish_handler_test, can_handle_publish_on_empty_data_params_payl
 TEST(handlers_publish_handler_test, can_handle_publish_on_wrong_data_params_payload_primitive) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "publish"}, {"transaction_id", to_string(_transaction_id)},
+        {"action", "publish"},
+        {"transaction_id", to_string(_transaction_id)},
         {
             "params",
             {
-                {"channel", "welcome"}, {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())},
+                {"channel", "welcome"},
                 {"payload", 7}
             }
         }

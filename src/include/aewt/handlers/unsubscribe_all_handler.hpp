@@ -13,17 +13,25 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/handlers/unsubscribe_all_session_handler.hpp>
+#pragma once
 
-#include <aewt/state.hpp>
-#include <aewt/request.hpp>
+#ifndef AEWT_HANDLERS_UNSUBSCRIBE_ALL_HANDLER_HPP
+#define AEWT_HANDLERS_UNSUBSCRIBE_ALL_HANDLER_HPP
 
-#include <aewt/utils.hpp>
+namespace aewt {
+    /**
+     * Forward Request
+     */
+    struct request;
 
-namespace aewt::handlers {
-    void unsubscribe_all_session_handler(const request &request) {
-        const auto _count = request.state_->unsubscribe_all_session(request.session_id_);
-        const auto _status = get_status(_count > 0);
-        next(request, _status, {{"count", _count}});
+    namespace handlers {
+        /**
+         * Unsubscribe All Handler
+         *
+         * @param request
+         */
+        void unsubscribe_all_handler(const request &request);
     }
-}
+} // namespace aewt
+
+#endif  // AEWT_HANDLERS_UNSUBSCRIBE_ALL_HANDLER_HPP

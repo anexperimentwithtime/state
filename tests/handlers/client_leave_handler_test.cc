@@ -34,18 +34,14 @@ using namespace aewt;
 TEST(handlers_client_leave_handler_test, can_handle) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     _state->push_client(_local_client);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
         {"action", "client_leave"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_state->get_id())}}
-        }
+        { "params", {{"id", to_string(_local_client->get_id())}} }
     };
 
     const auto _response = kernel(_state, _data, on_session, _state->get_id());
@@ -67,8 +63,7 @@ TEST(handlers_client_leave_handler_test, can_handle) {
 TEST(handlers_client_leave_handler_test, can_handle_no_effect) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {

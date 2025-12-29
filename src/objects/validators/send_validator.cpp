@@ -24,19 +24,19 @@ namespace aewt::validators {
     bool send_validator(const request &request) {
         const boost::json::value &_params = get_params_as_value(request);
         const boost::json::object &_params_object = _params.as_object();
-        if (!_params_object.contains("receiver_id")) {
-            mark_as_invalid(request, "params", "params receiver_id attribute must be present");
+        if (!_params_object.contains("id")) {
+            mark_as_invalid(request, "params", "params id attribute must be present");
             return false;
         }
 
-        const boost::json::value &_receiver_id = _params_object.at("receiver_id");
-        if (!_receiver_id.is_string()) {
-            mark_as_invalid(request, "params", "params receiver_id attribute must be string");
+        const boost::json::value &_id = _params_object.at("id");
+        if (!_id.is_string()) {
+            mark_as_invalid(request, "params", "params id attribute must be string");
             return false;
         }
 
-        if (!validator::is_uuid(_receiver_id.as_string().c_str())) {
-            mark_as_invalid(request, "params", "params receiver_id attribute must be uuid");
+        if (!validator::is_uuid(_id.as_string().c_str())) {
+            mark_as_invalid(request, "params", "params id attribute must be uuid");
             return false;
         }
 

@@ -38,16 +38,11 @@ TEST(handlers_send_handler_test, can_handle) {
 
     const auto _state = std::make_shared<state>();
 
-    boost::asio::ip::tcp::socket _socket(_io_context);
+    const auto _remote_session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _io_context });
 
-    const auto _remote_session = std::make_shared<session>(_state,
-                                                                 std::move(_socket));
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
-
-    const auto _remote_client = std::make_shared<client>(boost::uuids::random_generator()(),
-                                                               _remote_session->get_id(), _state);
+    const auto _remote_client = std::make_shared<client>(_remote_session->get_id(), _state);
 
     _state->add_session(_remote_session);
     _state->add_client(_local_client);
@@ -55,14 +50,13 @@ TEST(handlers_send_handler_test, can_handle) {
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "send"}, {"transaction_id", to_string(_transaction_id)},
+        {"action", "send"},
+        {"transaction_id", to_string(_transaction_id)},
         {
             "params",
             {
-                {"client_id", to_string(_local_client->get_id())},
-                {"receiver_id", to_string(_remote_client->get_id())},
-                {"session_id", to_string(_state->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
+                {"id", to_string(_remote_client->get_id())},
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };
@@ -90,16 +84,11 @@ TEST(handlers_send_handler_test, can_handle_no_effect) {
 
     const auto _state = std::make_shared<state>();
 
-    boost::asio::ip::tcp::socket _socket(_io_context);
+    const auto _remote_session = std::make_shared<session>(_state,boost::asio::ip::tcp::socket { _io_context });
 
-    const auto _remote_session = std::make_shared<session>(_state,
-                                                                 std::move(_socket));
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
-
-    const auto _remote_client = std::make_shared<client>(boost::uuids::random_generator()(),
-                                                               _remote_session->get_id(), _state);
+    const auto _remote_client = std::make_shared<client>(_remote_session->get_id(), _state);
 
     _state->add_client(_local_client);
 
@@ -109,8 +98,7 @@ TEST(handlers_send_handler_test, can_handle_no_effect) {
         {
             "params",
             {
-                {"client_id", to_string(_local_client->get_id())},
-                {"receiver_id", to_string(_remote_client->get_id())},
+                {"id", to_string(_remote_client->get_id())},
                 {"session_id", to_string(_state->get_id())},
                 {"payload", boost::json::object({{"message", "EHLO"}})}
             }
@@ -136,8 +124,7 @@ TEST(handlers_send_handler_test, can_handle_no_effect) {
 TEST(handlers_send_handler_test, can_handle_send_on_empty_data_params_receiver_id) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -145,9 +132,7 @@ TEST(handlers_send_handler_test, can_handle_send_on_empty_data_params_receiver_i
         {
             "params",
             {
-                {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
+                {"payload", {{"message", "EHLO"}} }
             }
         }
     };
@@ -172,8 +157,7 @@ TEST(handlers_send_handler_test, can_handle_send_on_empty_data_params_receiver_i
 TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_receiver_id_primitive) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -184,7 +168,7 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_receiver_i
                 {"client_id", to_string(_local_client->get_id())},
                 {"receiver_id", 7},
                 {"session_id", to_string(_state->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };
@@ -209,8 +193,7 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_receiver_i
 TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_receiver_id_type) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -221,7 +204,7 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_receiver_i
                 {"client_id", to_string(_local_client->get_id())},
                 {"receiver_id", "7"},
                 {"session_id", to_string(_state->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };
@@ -248,13 +231,9 @@ TEST(handlers_send_handler_test, can_handle_send_on_empty_data_params_payload) {
 
     const auto _state = std::make_shared<state>();
 
-    boost::asio::ip::tcp::socket _socket(_io_context);
+    const auto _remote_session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _io_context });
 
-    const auto _remote_session = std::make_shared<session>(_state,
-                                                                 std::move(_socket));
-
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -291,16 +270,11 @@ TEST(handlers_send_handler_test, can_handle_send_on_wrong_data_params_payload_pr
 
     const auto _state = std::make_shared<state>();
 
-    boost::asio::ip::tcp::socket _socket(_io_context);
+    const auto _remote_session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _io_context });
 
-    const auto _remote_session = std::make_shared<session>(_state,
-                                                                 std::move(_socket));
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
-
-    const auto _remote_client = std::make_shared<client>(boost::uuids::random_generator()(),
-                                                               _remote_session->get_id(), _state);
+    const auto _remote_client = std::make_shared<client>(_remote_session->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {

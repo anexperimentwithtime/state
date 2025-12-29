@@ -26,45 +26,26 @@
 
 #include <boost/json/serialize.hpp>
 #include <boost/uuid/random_generator.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 #include "../helpers.hpp"
 
 using namespace aewt;
 
-TEST(handlers_clients_handler_test, can_handle) {
-    boost::asio::io_context _io_context;
-
+TEST(handlers_unsubscribe_all_client_handler_test, can_handle) {
     const auto _state = std::make_shared<state>();
 
-    boost::asio::ip::tcp::socket _socket(_io_context);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
-    const auto _remote_session = std::make_shared<session>(_state,
-                                                                 std::move(_socket));
-
-    const auto _local_client = std::make_shared<client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
-    boost::asio::ip::tcp::socket _local_client_socket(_io_context);
-    _local_client->get_socket().emplace(boost::asio::ip::tcp::socket { _io_context });
-
-    const auto _remote_client = std::make_shared<client>(boost::uuids::random_generator()(),
-                                                               _remote_session->get_id(), _state);
-    boost::asio::ip::tcp::socket _remote_client_socket(_io_context);
-    _remote_client->get_socket().emplace(boost::asio::ip::tcp::socket { _io_context });
-
-    _state->add_session(_remote_session);
-    _state->add_client(_local_client);
-    _state->add_client(_remote_client);
+    _state->subscribe(_state->get_id(), _local_client->get_id(), "welcome");
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "clients"},
-        {"transaction_id", to_string(_transaction_id)},
+        {"action", "unsubscribe_all_client"}, {"transaction_id", to_string(_transaction_id)},
         {
             "params", {
                 {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())}
+                {"session_id", to_string(_state->get_id())},
             }
         }
     };
@@ -81,12 +62,4 @@ TEST(handlers_clients_handler_test, can_handle) {
 
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
-
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("clients"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients").is_array());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients").as_array().size() > 0);
-
-    _state->remove_session(_remote_session->get_id());
-    _state->remove_client(_local_client->get_id());
-    _state->remove_client(_remote_client->get_id());
 }

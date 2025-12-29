@@ -13,25 +13,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/handlers/session_clients_handler.hpp>
+#include <aewt/handlers/unsubscribe_all_handler.hpp>
 
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
 
 #include <aewt/utils.hpp>
 
-#include <boost/uuid/uuid_io.hpp>
-
 namespace aewt::handlers {
-    void session_clients_handler(const request &request) {
+    void unsubscribe_all_handler(const request &request) {
         const auto &_state = request.state_;
-        const auto _clients = _state->get_clients_by_session(request.session_id_);
-
-        const boost::json::object _data = {
-            {"id", to_string(request.session_id_)},
-            {"clients", make_array_of_ids(_clients)},
-        };
-
-        next(request, "ok", _data);
+        const auto &_params = get_params(request);
+        const auto _count = _state->unsubscribe_all_client(request.client_id_);
+        const auto _status = get_status(_count > 0);
+        next(request, _status, {{"count", _count}});
     }
 }

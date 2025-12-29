@@ -38,7 +38,7 @@ namespace aewt {
     /**
      * Forward Request
      */
-    class request;
+    struct request;
 
     /**
      * Instance

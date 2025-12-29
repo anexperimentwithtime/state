@@ -26,21 +26,12 @@
 #include <aewt/handlers/ping_handler.hpp>
 
 #include <aewt/handlers/client_handler.hpp>
-#include <aewt/handlers/clients_handler.hpp>
 #include <aewt/handlers/client_join_handler.hpp>
 #include <aewt/handlers/client_leave_handler.hpp>
-
-#include <aewt/handlers/session_handler.hpp>
-#include <aewt/handlers/session_join_handler.hpp>
-#include <aewt/handlers/session_leave_handler.hpp>
-#include <aewt/handlers/session_clients_handler.hpp>
-#include <aewt/handlers/session_client_exists_handler.hpp>
 
 #include <aewt/handlers/subscribe_handler.hpp>
 
 #include <aewt/handlers/unsubscribe_handler.hpp>
-#include <aewt/handlers/unsubscribe_all_client_handler.hpp>
-#include <aewt/handlers/unsubscribe_all_session_handler.hpp>
 
 #include <aewt/handlers/is_subscribed_handler.hpp>
 
@@ -95,10 +86,6 @@ namespace aewt {
                 handlers::is_subscribed_handler(_request);
             } else if (_action == "unsubscribe") {
                 handlers::unsubscribe_handler(_request);
-            } else if (_action == "unsubscribe_all_client") {
-                handlers::unsubscribe_all_client_handler(_request);
-            } else if (_action == "unsubscribe_all_session") {
-                handlers::unsubscribe_all_session_handler(_request);
             } else if (_action == "broadcast") {
                 handlers::broadcast_handler(_request);
             } else if (_action == "publish") {
@@ -111,18 +98,6 @@ namespace aewt {
                 handlers::client_join_handler(_request);
             } else if (_action == "client_leave") {
                 handlers::client_leave_handler(_request);
-            } else if (_action == "clients") {
-                handlers::clients_handler(_request);
-            } else if (_action == "session") {
-                handlers::session_handler(_request);
-            } else if (_action == "session_join") {
-                handlers::session_join_handler(_request);
-            } else if (_action == "session_leave") {
-                handlers::session_leave_handler(_request);
-            } else if (_action == "session_client_exists") {
-                handlers::session_client_exists_handler(_request);
-            } else if (_action == "session_clients") {
-                handlers::session_clients_handler(_request);
             } else {
                 handlers::unimplemented_handler(_request);
             }
