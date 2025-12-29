@@ -59,8 +59,10 @@ namespace aewt {
     }
 
     void session::on_accept(const boost::beast::error_code &ec) {
-        if (ec)
+        if (ec) {
+            state_->remove_session(id_);
             return;
+        }
 
         do_read();
     }
@@ -73,16 +75,18 @@ namespace aewt {
         boost::ignore_unused(bytes_transferred);
 
         if (ec == boost::beast::websocket::error::closed) {
+            state_->remove_session(id_);
             return;
         }
 
         if (ec) {
+            state_->remove_session(id_);
             return;
         }
 
         const auto _read_at = std::chrono::system_clock::now().time_since_epoch().count();
         auto _stream = boost::beast::buffers_to_string(buffer_.data());
-        LOG_INFO("session read: {}", _stream);
+        LOG_INFO("session {} read: {}", to_string(id_), _stream);
 
         boost::system::error_code _parse_ec;
 
@@ -118,7 +122,7 @@ namespace aewt {
             return;
 
         const auto _message = *queue_.begin();
-        LOG_INFO("session write: {}", _message->data());
+        LOG_INFO("session {} write: {}", to_string(id_), _message->data());
 
         socket_.async_write(boost::asio::buffer(*queue_.front()),
                             boost::beast::bind_front_handler(&session::on_write, shared_from_this()));

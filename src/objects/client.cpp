@@ -17,10 +17,15 @@
 
 #include <aewt/logger.hpp>
 #include <aewt/state.hpp>
+#include <aewt/kernel.hpp>
+#include <aewt/response.hpp>
+
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/random_generator.hpp>
+#include <boost/json/parse.hpp>
+#include <boost/json/serialize.hpp>
 
 namespace aewt {
     client::client(const boost::uuids::uuid id, const boost::uuids::uuid session_id,
@@ -43,14 +48,122 @@ namespace aewt {
         return is_local_;
     }
 
-    std::optional<boost::asio::ip::tcp::socket> &client::get_socket() { return socket_; }
+    void client::run() {
+        if (socket_.has_value()) {
+            auto &_socket = socket_.value();
+            _socket.async_accept(boost::beast::bind_front_handler(&client::on_accept, shared_from_this()));
+        } else {
+            LOG_INFO("client {} error invoking run on remote", to_string(id_));
+        }
+    }
 
-    void client::send(std::shared_ptr<boost::json::object> data) {
+    void client::send(std::shared_ptr<std::string const> const &data) {
         boost::ignore_unused(data);
 
         if (socket_.has_value()) {
-            // if (const auto &_socket = socket_.value(); _socket.is_open()) {
-            // }
+            if (auto &_socket = socket_.value(); _socket.is_open()) {
+                post(_socket.get_executor(),
+                     boost::beast::bind_front_handler(&client::on_send, shared_from_this(), data));
+            }
         }
     }
+
+    void client::set_socket(boost::asio::ip::tcp::socket &&socket) {
+        socket_.emplace(std::move(socket));
+    }
+
+    void client::on_accept(const boost::beast::error_code &ec) {
+        if (ec) {
+            state_->remove_client(id_);
+            return;
+        }
+
+        do_read();
+    }
+
+    void client::do_read() {
+        auto &_socket = socket_.value();
+        _socket.async_read(buffer_, boost::beast::bind_front_handler(&client::on_read, shared_from_this()));
+    }
+
+    void client::on_read(const boost::system::error_code &ec, std::size_t bytes_transferred) {
+        boost::ignore_unused(bytes_transferred);
+
+        if (ec == boost::beast::websocket::error::closed) {
+            state_->remove_client(id_);
+            return;
+        }
+
+        if (ec) {
+            state_->remove_client(id_);
+            return;
+        }
+
+        const auto _read_at = std::chrono::system_clock::now().time_since_epoch().count();
+        auto _stream = boost::beast::buffers_to_string(buffer_.data());
+        LOG_INFO("client {} read: {}", to_string(id_), _stream);
+
+        boost::system::error_code _parse_ec;
+
+        if (auto _data = boost::json::parse(_stream, _parse_ec); !_parse_ec && _data.is_object()) {
+            const auto _response = kernel(state_, _data.as_object());
+            send(std::make_shared<std::string const>(serialize(_response->get_data())));
+        } else {
+            auto _now = std::chrono::system_clock::now().time_since_epoch().count();
+            const boost::json::object _response = {
+                {"transaction_id", nullptr},
+                {"status", "failed"},
+                {"message", "unprocessable entity"},
+                {
+                    "data", {
+                        {"body", "body must be json object"},
+                    }
+                },
+                {"timestamp", _now},
+                {"runtime", _now - _read_at},
+            };
+            send(std::make_shared<std::string const>(serialize(_response)));
+        }
+
+        buffer_.consume(buffer_.size());
+
+        do_read();
+    }
+
+    void client::on_send(std::shared_ptr<std::string const> const &data) {
+        queue_.push_back(data);
+
+        if (queue_.size() > 1)
+            return;
+
+        const auto _message = *queue_.begin();
+        LOG_INFO("client {} write: {}", to_string(id_), _message->data());
+
+        if (socket_.has_value()) {
+            if (auto &_socket = socket_.value(); _socket.is_open()) {
+                _socket.async_write(boost::asio::buffer(*queue_.front()),
+                                    boost::beast::bind_front_handler(&client::on_write, shared_from_this()));
+            }
+        }
+    }
+
+    void client::on_write(const boost::beast::error_code &ec, std::size_t bytes_transferred) {
+        if (ec)
+            return;
+
+        queue_.erase(queue_.begin());
+
+        if (!queue_.empty() && socket_.has_value()) {
+            if (auto &_socket = socket_.value(); _socket.is_open()) {
+                _socket.async_write(
+                    boost::asio::buffer(*queue_.front()),
+                    boost::beast::bind_front_handler(
+                        &client::on_write,
+                        shared_from_this()));
+            }
+        }
+    }
+
+
+    std::optional<boost::beast::websocket::stream<boost::beast::tcp_stream> > &client::get_socket() { return socket_; }
 } // namespace aewt

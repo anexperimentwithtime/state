@@ -359,7 +359,7 @@ namespace aewt {
             if (_client->get_id() == except)
                 continue;
 
-            _client->send(data);
+            // _client->send(data);
             _count++;
         }
 
