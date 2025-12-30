@@ -16,7 +16,6 @@
 #include <aewt/handlers/client_join_handler.hpp>
 
 #include <aewt/state.hpp>
-#include <aewt/session.hpp>
 #include <aewt/request.hpp>
 
 #include <aewt/utils.hpp>
@@ -24,11 +23,20 @@
 
 namespace aewt::handlers {
     void client_join_handler(const request &request) {
-        const auto _inserted = add_client(request.is_local_, request, request.session_id_, request.client_id_, request.state_);
-        const auto _count = _inserted
-                                ? distribute_to_others(request.state_, request.data_, request.session_id_)
-                                : 0;
-        const auto _status = get_status(_inserted);
-        next(request, _status, {{"count", _count}});
+        switch (request.context_) {
+            case on_client: {
+                next(request, "no effect");
+                break;
+            }
+            case on_session: {
+                const auto &_params = get_params(request);
+                auto _client_id = get_param_as_id(_params, "client_id");
+                const auto _inserted = request.state_->add_client(
+                    std::make_shared<client>(request.entity_id_, request.state_, _client_id));
+                const auto _status = get_status(_inserted);
+                next(request, _status);
+                break;
+            }
+        }
     }
 }

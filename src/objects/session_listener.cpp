@@ -56,8 +56,7 @@ namespace aewt {
         if (ec) {
             LOG_INFO("listener failed on accept: {}", ec.what());
         } else {
-            const auto _session = std::make_shared<session>(boost::uuids::random_generator()(), state_,
-                                                            std::move(socket));
+            const auto _session = std::make_shared<session>(state_, std::move(socket));
             state_->add_session(_session);
             _session->run();
         }

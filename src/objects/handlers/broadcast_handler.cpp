@@ -24,44 +24,48 @@
 #include <aewt/utils.hpp>
 
 namespace aewt::handlers {
-    std::size_t broadcast_to_sessions(const bool is_local, const std::shared_ptr<state> &state, const request &request,
-                                      const boost::uuids::uuid session_id, const boost::uuids::uuid client_id,
-                                      const boost::json::object &payload) {
-        return is_local
-                   ? state->broadcast_to_sessions(request, session_id, client_id, payload)
-                   : std::size_t{0};
-    }
-
     void broadcast_handler(const request &request) {
         auto &_state = request.state_;
 
         if (validators::broadcast_validator(request)) {
             auto &_params = get_params(request);
             const auto &_payload = get_param_as_object(_params, "payload");
+            std::size_t _count = 0;
 
-            const auto _clients_count = _state->broadcast_to_clients(
-                request,
-                request.session_id_,
-                request.client_id_,
-                _payload
-            );
+            switch (request.context_) {
+                case on_client: {
+                    _count = _state->broadcast_to_clients(
+                        request,
+                        request.state_->get_id(),
+                        request.entity_id_,
+                        _payload
+                    );
 
-            const auto _sessions_count = broadcast_to_sessions(
-                request.is_local_,
-                _state,
-                request,
-                request.session_id_,
-                request.client_id_,
-                _payload
-            );
+                    const auto _ = request.state_->broadcast_to_sessions(
+                        request,
+                        request.state_->get_id(),
+                        request.entity_id_,
+                        _payload
+                    );
+                    boost::ignore_unused(_);
 
-            const auto _count = _clients_count + _sessions_count;
+                    break;
+                }
+                case on_session: {
+                    const auto &_client_id = get_param_as_id(_params, "client_id");
+                    _count = _state->broadcast_to_clients(
+                       request,
+                       request.entity_id_,
+                       _client_id,
+                       _payload
+                   );
+                    break;
+                }
+            }
 
             const auto _status = get_status(_count > 0);
 
             next(request, _status, {
-                     {"clients_count", _clients_count},
-                     {"sessions_count", _sessions_count},
                      {"count", _count}
                  });
         }

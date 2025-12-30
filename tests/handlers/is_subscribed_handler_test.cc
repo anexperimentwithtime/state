@@ -16,39 +16,38 @@
 #include <gtest/gtest.h>
 
 #include <aewt/kernel.hpp>
+#include <aewt/kernel_context.hpp>
+
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
+
 #include <boost/json/serialize.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 #include "../helpers.hpp"
 
+using namespace aewt;
+
 TEST(handlers_is_subscribed_handler_test, can_handle) {
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
-    _state->add_client(_local_client);
-    _state->subscribe(_state->get_id(), _local_client->get_id(), "welcome");
+    _state->add_client(_client);
+    _state->subscribe(_state->get_id(), _client->get_id(), "welcome");
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "is_subscribed"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {
-                {"channel", "welcome"}, {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())}
-            }
-        }
+        {"action", "is_subscribed"},
+        {"transaction_id", to_string(_transaction_id)},
+        {"params",{{"channel", "welcome"}}}
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_client, _client->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -61,25 +60,22 @@ TEST(handlers_is_subscribed_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    _state->remove_client(_local_client->get_id());
+    _state->remove_client(_client->get_id());
 }
 
 TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data_params_channel) {
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "is_subscribed"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_state->get_id())}}
-        }
+        {"action", "is_subscribed"},
+        {"transaction_id", to_string(_transaction_id)},
+        { "params", {} }
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_client, _client->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -98,24 +94,18 @@ TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_empty_data
 }
 
 TEST(handlers_is_subscribed_handler_test, can_handle_is_subscribed_on_wrong_data_params_channel_primitive) {
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "is_subscribed"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {
-                {"channel", 7}, {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())}
-            }
-        }
+        {"action", "is_subscribed"},
+        {"transaction_id", to_string(_transaction_id)},
+        {"params", { {"channel", 7} }}
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_client, _client->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

@@ -28,8 +28,8 @@
 #include <boost/json/serialize.hpp>
 
 namespace aewt {
-    client::client(const boost::uuids::uuid id, const boost::uuids::uuid session_id,
-                   const std::shared_ptr<state> &state) : state_(state),
+    client::client(const boost::uuids::uuid session_id,
+                   const std::shared_ptr<state> &state, const boost::uuids::uuid id) : state_(state),
                                                           id_(id),
                                                           session_id_(session_id),
                                                           is_local_(state->get_id() == session_id) {
@@ -106,7 +106,7 @@ namespace aewt {
         boost::system::error_code _parse_ec;
 
         if (auto _data = boost::json::parse(_stream, _parse_ec); !_parse_ec && _data.is_object()) {
-            const auto _response = kernel(state_, _data.as_object());
+            const auto _response = kernel(state_, _data.as_object(), on_client, get_id());
             send(std::make_shared<std::string const>(serialize(_response->get_data())));
         } else {
             auto _now = std::chrono::system_clock::now().time_since_epoch().count();

@@ -25,27 +25,17 @@
 
 #include <aewt/handlers/ping_handler.hpp>
 
-#include <aewt/handlers/client_handler.hpp>
-#include <aewt/handlers/clients_handler.hpp>
 #include <aewt/handlers/client_join_handler.hpp>
 #include <aewt/handlers/client_leave_handler.hpp>
-#include <aewt/handlers/client_exists_handler.hpp>
-
-#include <aewt/handlers/session_handler.hpp>
-#include <aewt/handlers/session_clients_handler.hpp>
-#include <aewt/handlers/session_client_exists_handler.hpp>
 
 #include <aewt/handlers/subscribe_handler.hpp>
 
 #include <aewt/handlers/unsubscribe_handler.hpp>
-#include <aewt/handlers/unsubscribe_all_client_handler.hpp>
-#include <aewt/handlers/unsubscribe_all_session_handler.hpp>
 
 #include <aewt/handlers/is_subscribed_handler.hpp>
 
 #include <aewt/handlers/broadcast_handler.hpp>
 #include <aewt/handlers/publish_handler.hpp>
-#include <aewt/handlers/send_handler.hpp>
 
 #include <aewt/handlers/unimplemented_handler.hpp>
 
@@ -58,7 +48,10 @@
 
 namespace aewt {
     std::shared_ptr<response> kernel(const std::shared_ptr<state> &state,
-                                     const boost::json::object &data) {
+                                     const boost::json::object &data,
+                                     const kernel_context context,
+                                     const boost::uuids::uuid entity_id) {
+
         boost::ignore_unused(state);
 
         const auto _timestamp = std::chrono::system_clock::now().time_since_epoch().count();
@@ -68,59 +61,39 @@ namespace aewt {
 
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
-            const auto &_params = data.at("params").as_object();
-            const auto &_session_id = get_param_as_id(_params, "session_id");
-            const auto &_client_id = get_param_as_id(_params, "client_id");
+
             const auto _request = request{
                 .transaction_id_ = get_param_as_id(data, "transaction_id"),
                 .response_ = _response,
+                .entity_id_ = entity_id,
+                .context_ = context,
                 .state_ = state,
-                .session_id_ = _session_id,
-                .client_id_ = _client_id,
                 .data_ = data,
                 .timestamp_ = _timestamp,
-                .is_local_ = _session_id == state->get_id()
             };
 
             const std::string _action{data.at("action").as_string()};
 
-            LOG_INFO("kernel {} action [{}] invoked session_id={} client_id={} data={}", to_string(_kernel_id), _action,
-                     to_string(_session_id), to_string(_client_id), serialize(_request.data_));
+            LOG_INFO("kernel {} action [{}] invoked data={}", to_string(_kernel_id), _action, serialize(_request.data_));
 
             if (_action == "ping") {
                 handlers::ping_handler(_request);
+            } else if (_action == "ack") {
+                _response->mark_as_ack();
             } else if (_action == "subscribe") {
                 handlers::subscribe_handler(_request);
             } else if (_action == "is_subscribed") {
                 handlers::is_subscribed_handler(_request);
             } else if (_action == "unsubscribe") {
                 handlers::unsubscribe_handler(_request);
-            } else if (_action == "unsubscribe_all_client") {
-                handlers::unsubscribe_all_client_handler(_request);
-            } else if (_action == "unsubscribe_all_session") {
-                handlers::unsubscribe_all_session_handler(_request);
             } else if (_action == "broadcast") {
                 handlers::broadcast_handler(_request);
             } else if (_action == "publish") {
                 handlers::publish_handler(_request);
-            } else if (_action == "send") {
-                handlers::send_handler(_request);
             } else if (_action == "client_join") {
                 handlers::client_join_handler(_request);
-            } else if (_action == "client") {
-                handlers::client_handler(_request);
             } else if (_action == "client_leave") {
                 handlers::client_leave_handler(_request);
-            } else if (_action == "session_clients") {
-                handlers::session_clients_handler(_request);
-            } else if (_action == "clients") {
-                handlers::clients_handler(_request);
-            } else if (_action == "client_exists") {
-                handlers::client_exists_handler(_request);
-            } else if (_action == "session") {
-                handlers::session_handler(_request);
-            } else if (_action == "session_client_exists") {
-                handlers::session_client_exists_handler(_request);
             } else {
                 handlers::unimplemented_handler(_request);
             }

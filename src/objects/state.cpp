@@ -187,16 +187,14 @@ namespace aewt {
         return true;
     }
 
-    bool state::is_subscribed(const boost::uuids::uuid &session_id, const boost::uuids::uuid &client_id,
+    bool state::is_subscribed(const boost::uuids::uuid &client_id,
                               const std::string &channel) {
         std::shared_lock _lock(subscriptions_mutex_);
 
-        const auto &_index =
-                subscriptions_.get<subscriptions_by_session_client_channel>();
 
-        return _index.find(
-                   boost::make_tuple(session_id, client_id, channel)
-               ) != _index.end();
+        const auto &_idx = subscriptions_.get<subscriptions_by_client_channel>();
+
+        return _idx.find(std::make_tuple(client_id, channel)) != _idx.end();
     }
 
     std::size_t state::unsubscribe_all_client(const boost::uuids::uuid &client_id) {
@@ -226,7 +224,7 @@ namespace aewt {
     std::size_t state::broadcast_to_sessions(const request &request, const boost::uuids::uuid session_id,
                                              const boost::uuids::uuid client_id,
                                              const boost::json::object &data) const {
-        const auto _data = make_broadcast_request_object(request, session_id, client_id, data);
+        const auto _data = make_broadcast_request_object(request, client_id, data);
 
         return send_to_others_sessions(_data, session_id);
     }
@@ -234,10 +232,34 @@ namespace aewt {
     std::size_t state::broadcast_to_clients(const request &request, const boost::uuids::uuid session_id,
                                             const boost::uuids::uuid client_id, const boost::json::object &data) const {
         const auto _data = std::make_shared<boost::json::object>(
-            make_broadcast_request_object(request, session_id, client_id, data)
+            make_broadcast_request_object(request, client_id, data)
         );
 
-        return send_to_others_clients(_data, client_id);
+        return send_to_others_clients(_data, session_id, client_id);
+    }
+
+    std::size_t state::publish_to_sessions(const request &request, const boost::uuids::uuid session_id,
+        const boost::uuids::uuid client_id, const std::string &channel, const boost::json::object &data) const {
+
+        const auto _data = make_publish_request_object(request, client_id, channel, data);
+
+        return send_to_others_sessions(_data, session_id);
+    }
+
+    std::size_t state::publish_to_clients(const request &request, const boost::uuids::uuid session_id,
+                                          const boost::uuids::uuid client_id, const std::string &channel, const boost::json::object &data) const {
+        const auto _data = std::make_shared<boost::json::object>(
+            make_publish_request_object(request, client_id, channel, data)
+        );
+
+        return send_to_others_clients(_data, session_id, client_id);
+    }
+
+    std::size_t state::subscribe_to_sessions(const request &request, const boost::uuids::uuid session_id,
+        const boost::uuids::uuid client_id, const std::string &channel) const {
+        const auto _data = make_subscribe_request_object(request, client_id, channel);
+
+        return send_to_others_sessions(_data, session_id);
     }
 
     std::size_t state::publish(const boost::uuids::uuid transaction_id, const boost::uuids::uuid session_id,
@@ -333,36 +355,56 @@ namespace aewt {
 
     std::size_t state::send_to_others_sessions(const boost::json::object &data,
                                                const boost::uuids::uuid except) const {
+        // Obtenemos todos las sesiones
         auto _sessions = get_sessions();
 
-        std::string _output = serialize(data);
-        auto const _message = std::make_shared<std::string const>(_output);
+        // Construimos el mensaje compartido
+        auto const _message = std::make_shared<std::string const>(serialize(data));
 
-        std::size_t _count = 0;
+        // Por cada sesión en sesiones
         for (const auto &_session: _sessions) {
+
+            // Con excepción de esta sesión
             if (_session->get_id() == except)
                 continue;
 
+            // Se envía la transmisión
+            LOG_INFO("session {} should receive... ", to_string(_session->get_id()));
             _session->send(_message);
-            _count++;
+
+            // TODO 1
+            //
+            // Se podría agendar un evento que confirme la recepción y contadores de cada sesión
+            // pudiéndose sumar las cantidades informadas por cada sesión en un contador basado
+            // en el identificador de la transacción llegando al total de receptores habilitándose
+            // la notificación de recepción total.
         }
 
-        return _count;
+        // Se retorna la cantidad de sesiones con excepción.
+        return _sessions.size() - 1;
     }
 
     std::size_t state::send_to_others_clients(const std::shared_ptr<boost::json::object> &data,
-                                              const boost::uuids::uuid except) const {
+                                              const boost::uuids::uuid session_id,
+                                              const boost::uuids::uuid client_id) const {
+        // Obtenemos todos los clientes
         auto _clients = get_clients();
 
-        std::size_t _count = 0;
+        // Construimos el mensaje compartido
+        const auto _data = std::make_shared<std::string const>(serialize(*data));
+
+        // Por cada cliente en clientes
         for (const auto &_client: _clients) {
-            if (_client->get_id() == except)
+
+            // Con excepción del cliente emisor y los clientes que no sean de la actual sesión
+            if (_client->get_id() == client_id || _client->get_session_id() != session_id)
                 continue;
 
-            // _client->send(data);
-            _count++;
+            // Se envía la transmisión
+            _client->send(_data);
         }
 
-        return _count;
+        // Se retorna la cantidad de clientes con excepción.
+        return _clients.size() - 1;
     }
 } // namespace aewt

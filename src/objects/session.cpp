@@ -28,8 +28,8 @@
 #include <boost/json/serialize.hpp>
 
 namespace aewt {
-    session::session(const boost::uuids::uuid id, const std::shared_ptr<state> &state,
-                     boost::asio::ip::tcp::socket &&socket)
+    session::session(const std::shared_ptr<state> &state,
+                     boost::asio::ip::tcp::socket &&socket, const boost::uuids::uuid id)
         : state_(state), id_(id), socket_(boost::beast::tcp_stream(std::move(socket))) {
         LOG_INFO("session {} allocated", to_string(id_));
     }
@@ -91,8 +91,9 @@ namespace aewt {
         boost::system::error_code _parse_ec;
 
         if (auto _data = boost::json::parse(_stream, _parse_ec); !_parse_ec && _data.is_object()) {
-            const auto _response = kernel(state_, _data.as_object());
-            send(std::make_shared<std::string const>(serialize(_response->get_data())));
+            if (const auto _response = kernel(state_, _data.as_object(), on_session, state_->get_id()); !_response->is_ack()) {
+                send(std::make_shared<std::string const>(serialize(_response->get_data())));
+            }
         } else {
             auto _now = std::chrono::system_clock::now().time_since_epoch().count();
             const boost::json::object _response = {

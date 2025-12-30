@@ -17,6 +17,7 @@
 
 #include <aewt/request.hpp>
 #include <aewt/response.hpp>
+#include <aewt/session.hpp>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -125,7 +126,7 @@ namespace aewt {
         return _data;
     }
 
-    boost::json::object make_broadcast_request_object(const request &request, const boost::uuids::uuid &session_id,
+    boost::json::object make_broadcast_request_object(const request &request,
                                                       const boost::uuids::uuid &client_id,
                                                       const boost::json::object &payload) {
         return {
@@ -134,10 +135,38 @@ namespace aewt {
             {
                 "params", {
                     {"client_id", to_string(client_id)},
-                    {"session_id", to_string(session_id)},
                     {"payload", payload},
                 }
             }
+        };
+    }
+
+    boost::json::object make_publish_request_object(const request &request, const boost::uuids::uuid &client_id,
+        const std::string &channel, const boost::json::object &payload) {
+        return {
+                {"transaction_id", to_string(request.transaction_id_)},
+                {"action", "publish"},
+                {
+                    "params", {
+                        {"client_id", to_string(client_id)},
+                        {"channel", channel},
+                        {"payload", payload},
+                    }
+                }
+        };
+    }
+
+    boost::json::object make_subscribe_request_object(const request &request, const boost::uuids::uuid &client_id,
+    const std::string &channel) {
+        return {
+                    {"transaction_id", to_string(request.transaction_id_)},
+                    {"action", "subscribe"},
+                    {
+                        "params", {
+                            {"client_id", to_string(client_id)},
+                            {"channel", channel},
+                        }
+                    }
         };
     }
 
@@ -153,6 +182,6 @@ namespace aewt {
             return false;
         }
 
-        return request.state_->add_client(std::make_shared<client>(client_id, session_id, state));
+        return request.state_->add_client(std::make_shared<client>(session_id, state, client_id));
     }
 } // namespace aewt

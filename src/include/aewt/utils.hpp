@@ -116,7 +116,7 @@ namespace aewt {
      * @param clients
      * @return
      */
-    boost::json::array make_array_of_clients(const std::vector<std::shared_ptr<client>> &clients);
+    boost::json::array make_array_of_clients(const std::vector<std::shared_ptr<client> > &clients);
 
     /**
      * Make Client Object
@@ -124,7 +124,7 @@ namespace aewt {
      * @param subscriptions
      * @return object
      */
-    boost::json::object make_client_object(const std::shared_ptr<client> & client,
+    boost::json::object make_client_object(const std::shared_ptr<client> &client,
                                            const boost::json::array &subscriptions);
 
     /**
@@ -139,14 +139,40 @@ namespace aewt {
      * Make Broadcast Request Object
      *
      * @param request
-     * @param session_id
      * @param client_id
+     * @param channel
      * @param payload
      * @return object
      */
-    boost::json::object make_broadcast_request_object(const request &request, const boost::uuids::uuid &session_id,
+    boost::json::object make_broadcast_request_object(const request &request,
                                                       const boost::uuids::uuid &client_id,
                                                       const boost::json::object &payload);
+
+    /**
+     * Make Publish Request Object
+     *
+     * @param request
+     * @param client_id
+     * @param channel
+     * @param payload
+     * @return object
+     */
+    boost::json::object make_publish_request_object(const request &request,
+                                                      const boost::uuids::uuid &client_id,
+                                                      const std::string & channel,
+                                                      const boost::json::object &payload);
+
+    /**
+     * Make Subscribe Request Object
+     *
+     * @param request
+     * @param client_id
+     * @param channel
+     * @return object
+     */
+    boost::json::object make_subscribe_request_object(const request &request,
+                                                      const boost::uuids::uuid &client_id,
+                                                      const std::string & channel);
 
     /**
      * Get Status
@@ -168,7 +194,8 @@ namespace aewt {
      * @param state
      * @return
      */
-    bool add_client(bool local, const request &request, boost::uuids::uuid session_id, boost::uuids::uuid client_id, const std::shared_ptr<state> &state);
+    bool add_client(bool local, const request &request, boost::uuids::uuid session_id, boost::uuids::uuid client_id,
+                    const std::shared_ptr<state> &state);
 }
 
 #endif // AEWT_UTILS_HPP

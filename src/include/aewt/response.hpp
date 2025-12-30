@@ -40,6 +40,11 @@ namespace aewt {
         std::atomic<bool> processed_ = false;
 
         /**
+         * Is Ack
+         */
+        std::atomic<bool> is_ack_ = false;
+
+        /**
          * Data
          */
         boost::json::object data_;
@@ -58,6 +63,13 @@ namespace aewt {
          * @return bool
          */
         bool get_processed() const;
+
+        /**
+         * Is Ack
+         *
+         * @return bool
+         */
+        bool is_ack() const;
 
         /**
          * Get Data
@@ -81,6 +93,11 @@ namespace aewt {
          * Mark As Processed
          */
         void mark_as_processed();
+
+        /**
+         * Mark As Ack
+         */
+        void mark_as_ack();
 
         /**
          * Set Data

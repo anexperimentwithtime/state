@@ -27,9 +27,23 @@ namespace aewt::handlers {
         if (validators::subscriptions_validator(request)) {
             const auto &_params = get_params(request);
             const auto _channel = get_param_as_string(_params, "channel");
-            const bool _success = request.state_->subscribe(request.session_id_, request.client_id_, _channel);
-            const auto _status = get_status(_success);
-            next(request, _status);
+
+            switch (request.context_) {
+                case on_client: {
+                    const bool _success = request.state_->subscribe(request.state_->get_id(), request.entity_id_, _channel);
+                    const auto _status = get_status(_success);
+                    next(request, _status);
+
+                    auto _ = request.state_->subscribe_to_sessions(request, request.state_->get_id(), request.entity_id_, _channel);
+                    boost::ignore_unused(_);
+                } break;
+                case on_session: {
+                    const auto &_client_id = get_param_as_id(_params, "client_id");
+                    const bool _success = request.state_->subscribe(request.entity_id_, _client_id, _channel);
+                    const auto _status = get_status(_success);
+                    next(request, _status);
+                } break;
+            }
         }
     }
 }

@@ -16,47 +16,43 @@
 #include <gtest/gtest.h>
 
 #include <aewt/kernel.hpp>
+#include <aewt/kernel_context.hpp>
+
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
+
 #include <boost/json/serialize.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 #include "../helpers.hpp"
 
-TEST(handlers_client_join_handler_test, can_handle) {
+using namespace aewt;
+
+TEST(handlers_client_join_handler_test, can_handle_on_session) {
     boost::asio::io_context _io_context;
 
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
-    boost::asio::ip::tcp::socket _socket(_io_context);
+    const auto _remote_session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _io_context });
 
-    const auto _remote_session = std::make_shared<aewt::session>(boost::uuids::random_generator()(), _state,
-                                                                 std::move(_socket));
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
-
-    const auto _remote_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(),
-                                                               _remote_session->get_id(), _state);
+    const auto _remote_client = std::make_shared<client>(_remote_session->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "client_join"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params", {
-                {"client_id", to_string(_remote_client->get_id())},
-                {"session_id", to_string(_remote_session->get_id())}
-            }
-        }
+        {"action", "client_join"},
+        {"transaction_id", to_string(_transaction_id)},
+        {"params", {{"client_id", to_string(_remote_client->get_id())}}}
     };
 
     _state->add_session(_remote_session);
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -69,17 +65,13 @@ TEST(handlers_client_join_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("count"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").is_number());
-
     _state->remove_session(_remote_session->get_id());
 }
 
-TEST(handlers_client_join_handler_test, can_handle_no_effect) {
-    const auto _state = std::make_shared<aewt::state>();
+TEST(handlers_client_join_handler_test, can_handle_no_effect_on_session) {
+    const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
 
     _state->push_client(_local_client);
 
@@ -89,12 +81,11 @@ TEST(handlers_client_join_handler_test, can_handle_no_effect) {
         {
             "params", {
                 {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())}
             }
         }
     };
 
-    const auto _response = kernel(_state, _data);
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -106,9 +97,6 @@ TEST(handlers_client_join_handler_test, can_handle_no_effect) {
 
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
-
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("count"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").is_number());
 
     _state->remove_client(_local_client->get_id());
 }

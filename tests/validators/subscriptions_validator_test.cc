@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include <aewt/kernel.hpp>
+#include <aewt/kernel_context.hpp>
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/client.hpp>
@@ -27,11 +28,12 @@
 
 #include "../helpers.hpp"
 
+using namespace aewt;
+
 TEST(validators_subscriptions_validator_test, can_handle_empty_params_channel_on_subscriptions) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<aewt::client>(_state->get_id(), _state);
 
     for (const auto _action: {"subscribe", "unsubscribe"}) {
         const auto _transaction_id = boost::uuids::random_generator()();
@@ -44,7 +46,7 @@ TEST(validators_subscriptions_validator_test, can_handle_empty_params_channel_on
             }
         };
 
-        const auto _response = kernel(_state, _data);
+        const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
         LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
                  serialize(_response->get_data()));
@@ -66,8 +68,7 @@ TEST(validators_subscriptions_validator_test, can_handle_empty_params_channel_on
 TEST(validators_subscriptions_validator_test, can_handle_wrong_params_channel_primivite_on_subscriptions) {
     const auto _state = std::make_shared<aewt::state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(boost::uuids::random_generator()(), _state->get_id(),
-                                                              _state);
+    const auto _local_client = std::make_shared<aewt::client>(_state->get_id(), _state);
 
     for (const auto _action: {"subscribe", "unsubscribe"}) {
         const auto _transaction_id = boost::uuids::random_generator()();
@@ -83,7 +84,7 @@ TEST(validators_subscriptions_validator_test, can_handle_wrong_params_channel_pr
             }
         };
 
-        const auto _response = kernel(_state, _data);
+        const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
         LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
                  serialize(_response->get_data()));
