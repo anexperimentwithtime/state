@@ -55,7 +55,8 @@ TEST(handlers_send_handler_test, can_handle) {
         {
             "params",
             {
-                {"id", to_string(_remote_client->get_id())},
+                {"from", to_string(_local_client->get_id())},
+                {"to", to_string(_remote_client->get_id())},
                 {"payload", {{"message", "EHLO"}}}
             }
         }
@@ -98,9 +99,9 @@ TEST(handlers_send_handler_test, can_handle_no_effect) {
         {
             "params",
             {
-                {"id", to_string(_remote_client->get_id())},
-                {"session_id", to_string(_state->get_id())},
-                {"payload", boost::json::object({{"message", "EHLO"}})}
+                    {"from", to_string(_local_client->get_id())},
+                    {"to", to_string(_remote_client->get_id())},
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };

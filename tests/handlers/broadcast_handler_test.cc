@@ -38,8 +38,6 @@ TEST(handlers_broadcast_handler_test, can_handle) {
 
     const auto _state = std::make_shared<state>();
 
-    boost::asio::ip::tcp::socket _socket(_io_context);
-
     const auto _remote_session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _io_context });
 
     const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
@@ -91,18 +89,12 @@ TEST(handlers_broadcast_handler_test, can_handle_on_remote) {
 
     const auto _state = std::make_shared<state>();
 
-    boost::asio::ip::tcp::socket _socket(_io_context);
+    const auto _remote_session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _io_context });
 
-    const auto _remote_session = std::make_shared<session>(_state,
-                                                           std::move(_socket));
-
-    const auto _local_client = std::make_shared<client>(_state->get_id(),
-                                                        _state);
-    boost::asio::ip::tcp::socket _local_client_socket(_io_context);
+    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
     _local_client->get_socket().emplace(boost::asio::ip::tcp::socket { _io_context });
 
     const auto _remote_client = std::make_shared<client>(_remote_session->get_id(), _state);
-    boost::asio::ip::tcp::socket _remote_client_socket(_io_context);
     _remote_client->get_socket().emplace(boost::asio::ip::tcp::socket { _io_context });
 
     _state->add_session(_remote_session);

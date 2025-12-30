@@ -34,14 +34,15 @@ using namespace aewt;
 TEST(handlers_client_leave_handler_test, can_handle) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
-    _state->push_client(_local_client);
+    _state->push_client(_client);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "client_leave"}, {"transaction_id", to_string(_transaction_id)},
-        { "params", {{"id", to_string(_local_client->get_id())}} }
+        {"action", "client_leave"},
+        {"transaction_id", to_string(_transaction_id)},
+        { "params", {{"id", to_string(_client->get_id())}} }
     };
 
     const auto _response = kernel(_state, _data, on_session, _state->get_id());
@@ -57,21 +58,19 @@ TEST(handlers_client_leave_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    _state->remove_client(_local_client->get_id());
+    _state->remove_client(_client->get_id());
 }
 
 TEST(handlers_client_leave_handler_test, can_handle_no_effect) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "client_leave"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {{"client_id", to_string(_local_client->get_id())}, {"session_id", to_string(_state->get_id())}}
-        }
+        {"action", "client_leave"},
+        {"transaction_id", to_string(_transaction_id)},
+        { "params", {{"id", to_string(_client->get_id())}} }
     };
 
     const auto _response = kernel(_state, _data, on_session, _state->get_id());

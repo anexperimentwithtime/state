@@ -31,26 +31,25 @@
 
 using namespace aewt;
 
-TEST(handlers_unsubscribe_handler_test, can_handle) {
-    const auto _state = std::make_shared<aewt::state>();
+TEST(handlers_unsubscribe_handler_test, can_handle_on_client) {
+    const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(_state->get_id(), _state);
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
-    _state->subscribe(_state->get_id(), _local_client->get_id(), "welcome");
+    _state->subscribe(_state->get_id(), _client->get_id(), "welcome");
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "unsubscribe"}, {"transaction_id", to_string(_transaction_id)},
+        {"action", "unsubscribe"},
+        {"transaction_id", to_string(_transaction_id)},
         {
             "params", {
                 {"channel", "welcome"},
-                {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())}
             }
         }
     };
 
-    const auto _response = kernel(_state, _data, on_session, _state->get_id());
+    const auto _response = kernel(_state, _data, on_client, _client->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -64,24 +63,19 @@ TEST(handlers_unsubscribe_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 }
 
-TEST(kernel_test, can_handle_no_effect) {
-    const auto _state = std::make_shared<aewt::state>();
+TEST(kernel_test, can_handle_no_effect_on_client) {
+    const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<aewt::client>(_state->get_id(), _state);
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "unsubscribe"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params", {
-                {"channel", "welcome"},
-                {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())},
-            }
-        }
+        {"action", "unsubscribe"},
+        {"transaction_id", to_string(_transaction_id)},
+        {"params", {{"channel", "welcome"}}}
     };
 
-    const auto _response = kernel(_state, _data, on_session, _state->get_id());
+    const auto _response = kernel(_state, _data, on_client, _client->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

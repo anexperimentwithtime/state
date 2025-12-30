@@ -45,13 +45,9 @@ TEST(handlers_client_join_handler_test, can_handle) {
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "client_join"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params", {
-                {"client_id", to_string(_remote_client->get_id())},
-                {"session_id", to_string(_remote_session->get_id())}
-            }
-        }
+        {"action", "client_join"},
+        {"transaction_id", to_string(_transaction_id)},
+        {"params", {{"id", to_string(_remote_client->get_id())}}}
     };
 
     _state->add_session(_remote_session);
@@ -87,8 +83,7 @@ TEST(handlers_client_join_handler_test, can_handle_no_effect) {
         {"action", "client_join"}, {"transaction_id", to_string(_transaction_id)},
         {
             "params", {
-                {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())}
+                {"id", to_string(_local_client->get_id())},
             }
         }
     };

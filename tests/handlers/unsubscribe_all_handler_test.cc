@@ -32,25 +32,20 @@
 
 using namespace aewt;
 
-TEST(handlers_unsubscribe_all_client_handler_test, can_handle) {
+TEST(handlers_unsubscribe_all_client_handler_test, can_handle_on_client) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
-    _state->subscribe(_state->get_id(), _local_client->get_id(), "welcome");
+    _state->subscribe(_state->get_id(), _client->get_id(), "welcome");
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "unsubscribe_all_client"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params", {
-                {"client_id", to_string(_local_client->get_id())},
-                {"session_id", to_string(_state->get_id())},
-            }
-        }
+        {"action", "unsubscribe_all"},
+        {"transaction_id", to_string(_transaction_id)},
     };
 
-    const auto _response = kernel(_state, _data, on_session, _state->get_id());
+    const auto _response = kernel(_state, _data, on_client, _client->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));

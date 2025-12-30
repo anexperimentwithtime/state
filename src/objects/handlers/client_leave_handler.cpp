@@ -23,18 +23,17 @@
 
 namespace aewt::handlers {
     void client_leave_handler(const request &request) {
-        const auto _removed = request.state_->remove_client(request.client_id_);
-
-        auto _count = std::size_t { 0 };
-
-        if (request.is_local_ && _removed)
-            _count = distribute_to_others(request.state_, request.data_, request.session_id_);
-
-        const auto _status = get_status(_removed);
-
-        next(request, _status, {
-                 {"timestamp", request.timestamp_},
-                 {"count", _count}
-             });
+        switch (request.context_) {
+            case on_client:
+                next(request, "no effect");
+                break;
+            case on_session:
+                const auto &_params = get_params(request);
+                auto _id = get_param_as_id(_params, "id");
+                const auto _removed = request.state_->remove_client(_id);
+                const auto _status = get_status(_removed);
+                next(request, _status);
+                break;
+        }
     }
 }

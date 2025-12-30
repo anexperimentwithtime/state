@@ -25,7 +25,6 @@
 
 #include <aewt/handlers/ping_handler.hpp>
 
-#include <aewt/handlers/client_handler.hpp>
 #include <aewt/handlers/client_join_handler.hpp>
 #include <aewt/handlers/client_leave_handler.hpp>
 
@@ -92,8 +91,6 @@ namespace aewt {
                 handlers::publish_handler(_request);
             } else if (_action == "send") {
                 handlers::send_handler(_request);
-            } else if (_action == "client") {
-                handlers::client_handler(_request);
             } else if (_action == "client_join") {
                 handlers::client_join_handler(_request);
             } else if (_action == "client_leave") {
