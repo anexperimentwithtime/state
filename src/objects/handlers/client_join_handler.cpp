@@ -24,17 +24,19 @@
 namespace aewt::handlers {
     void client_join_handler(const request &request) {
         switch (request.context_) {
-            case on_client:
+            case on_client: {
                 next(request, "no effect");
                 break;
-            case on_session:
+            }
+            case on_session: {
                 const auto &_params = get_params(request);
-                auto _id = get_param_as_id(_params, "id");
+                auto _client_id = get_param_as_id(_params, "client_id");
                 const auto _inserted = request.state_->add_client(
-                    std::make_shared<client>(request.entity_id_, request.state_, _id));
+                    std::make_shared<client>(request.entity_id_, request.state_, _client_id));
                 const auto _status = get_status(_inserted);
                 next(request, _status);
                 break;
+            }
         }
     }
 }

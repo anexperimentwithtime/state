@@ -32,7 +32,7 @@
 
 using namespace aewt;
 
-TEST(handlers_client_join_handler_test, can_handle) {
+TEST(handlers_client_join_handler_test, can_handle_on_session) {
     boost::asio::io_context _io_context;
 
     const auto _state = std::make_shared<state>();
@@ -47,7 +47,7 @@ TEST(handlers_client_join_handler_test, can_handle) {
     const boost::json::object _data = {
         {"action", "client_join"},
         {"transaction_id", to_string(_transaction_id)},
-        {"params", {{"id", to_string(_remote_client->get_id())}}}
+        {"params", {{"client_id", to_string(_remote_client->get_id())}}}
     };
 
     _state->add_session(_remote_session);
@@ -65,13 +65,10 @@ TEST(handlers_client_join_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("count"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").is_number());
-
     _state->remove_session(_remote_session->get_id());
 }
 
-TEST(handlers_client_join_handler_test, can_handle_no_effect) {
+TEST(handlers_client_join_handler_test, can_handle_no_effect_on_session) {
     const auto _state = std::make_shared<state>();
 
     const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
@@ -83,7 +80,7 @@ TEST(handlers_client_join_handler_test, can_handle_no_effect) {
         {"action", "client_join"}, {"transaction_id", to_string(_transaction_id)},
         {
             "params", {
-                {"id", to_string(_local_client->get_id())},
+                {"client_id", to_string(_local_client->get_id())},
             }
         }
     };
@@ -100,9 +97,6 @@ TEST(handlers_client_join_handler_test, can_handle_no_effect) {
 
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
-
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("count"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").is_number());
 
     _state->remove_client(_local_client->get_id());
 }

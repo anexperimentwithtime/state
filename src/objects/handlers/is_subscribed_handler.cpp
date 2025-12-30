@@ -17,6 +17,7 @@
 
 #include <aewt/state.hpp>
 #include <aewt/request.hpp>
+#include <aewt/kernel_context.hpp>
 
 #include <aewt/validators/is_subscribed_validator.hpp>
 
@@ -27,9 +28,20 @@ namespace aewt::handlers {
         if (validators::is_subscribed_validator(request)) {
             const auto &_params = get_params(request);
             const auto _channel = get_param_as_string(_params, "channel");
-            const auto _success = request.state_->is_subscribed(request.session_id_, request.client_id_, _channel);
-            const auto _status = get_status(_success, "yes", "no");
-            next(request, _status);
+
+            switch (request.context_) {
+                case on_client: {
+                    const auto _success = request.state_->is_subscribed(request.entity_id_, _channel);
+                    const auto _status = get_status(_success, "yes", "no");
+                    next(request, _status);
+                    break;
+                }
+                case on_session: {
+                    next(request, "no effect");
+                    break;
+                }
+            }
+
         }
     }
 }

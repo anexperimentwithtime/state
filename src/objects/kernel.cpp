@@ -36,7 +36,6 @@
 
 #include <aewt/handlers/broadcast_handler.hpp>
 #include <aewt/handlers/publish_handler.hpp>
-#include <aewt/handlers/send_handler.hpp>
 
 #include <aewt/handlers/unimplemented_handler.hpp>
 
@@ -79,6 +78,8 @@ namespace aewt {
 
             if (_action == "ping") {
                 handlers::ping_handler(_request);
+            } else if (_action == "ack") {
+                _response->mark_as_ack();
             } else if (_action == "subscribe") {
                 handlers::subscribe_handler(_request);
             } else if (_action == "is_subscribed") {
@@ -89,8 +90,6 @@ namespace aewt {
                 handlers::broadcast_handler(_request);
             } else if (_action == "publish") {
                 handlers::publish_handler(_request);
-            } else if (_action == "send") {
-                handlers::send_handler(_request);
             } else if (_action == "client_join") {
                 handlers::client_join_handler(_request);
             } else if (_action == "client_leave") {

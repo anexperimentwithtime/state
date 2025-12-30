@@ -57,7 +57,7 @@ TEST(handlers_broadcast_handler_test, can_handle) {
         {"params", {{"payload", {{"message", "EHLO"}}}}}
     };
 
-    const auto _response = kernel(_state, _data, on_session, _state->get_id());
+    const auto _response = kernel(_state, _data, on_client, _local_client->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -70,14 +70,6 @@ TEST(handlers_broadcast_handler_test, can_handle) {
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("count"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").is_number());
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").as_uint64() > 0);
-
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("clients_count"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients_count").is_number());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients_count").as_uint64() > 0);
-
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("sessions_count"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("sessions_count").is_number());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("sessions_count").as_uint64() > 0);
 
     _state->remove_session(_remote_session->get_id());
     _state->remove_client(_local_client->get_id());
@@ -108,7 +100,7 @@ TEST(handlers_broadcast_handler_test, can_handle_on_remote) {
         {"params", {{"payload", {{"message", "EHLO"}}}}}
     };
 
-    const auto _response = kernel(_state, _data, on_session, _state->get_id());
+    const auto _response = kernel(_state, _data, on_client, _remote_client->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -120,15 +112,7 @@ TEST(handlers_broadcast_handler_test, can_handle_on_remote) {
 
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("count"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").is_number());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").as_uint64() == 2);
-
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("clients_count"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients_count").is_number());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("clients_count").as_uint64() == 1);
-
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("sessions_count"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("sessions_count").is_number());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("sessions_count").as_uint64() == 1);
+    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").as_uint64() == 1);
 
     _state->remove_session(_remote_session->get_id());
     _state->remove_client(_local_client->get_id());

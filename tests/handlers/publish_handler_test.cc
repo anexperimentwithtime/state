@@ -36,9 +36,11 @@ TEST(handlers_publish_handler_test, can_handle_on_client) {
     const auto _state = std::make_shared<state>();
 
     const auto _client = std::make_shared<client>(_state->get_id(), _state);
+    const auto _other = std::make_shared<client>(_state->get_id(), _state);
 
     _state->push_client(_client);
-    _state->subscribe(_state->get_id(), _client->get_id(), "welcome");
+    _state->push_client(_other);
+    _state->subscribe(_state->get_id(), _other->get_id(), "welcome");
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {

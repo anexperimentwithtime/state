@@ -18,6 +18,9 @@
 #include <aewt/state.hpp>
 #include <aewt/session.hpp>
 #include <aewt/request.hpp>
+#include <aewt/kernel_context.hpp>
+
+#include <aewt/logger.hpp>
 
 #include <aewt/validators/publish_validator.hpp>
 
@@ -25,16 +28,52 @@
 
 namespace aewt::handlers {
     void publish_handler(const request &request) {
+        auto &_state = request.state_;
+
         if (validators::publish_validator(request)) {
             const auto &_params = get_params(request);
             const auto _channel = get_param_as_string(_params, "channel");
             const auto &_payload = get_param_as_object(_params, "payload");
-            const auto _count = request.state_->
-                    publish(request.transaction_id_, request.session_id_, request.client_id_, _channel, _payload);
+            std::size_t _count = 0;
+            switch (request.context_) {
+                case on_client: {
+                    _count = _state->publish_to_clients(
+                        request,
+                        request.state_->get_id(),
+                        request.entity_id_,
+                        _channel,
+                        _payload
+                    );
+
+                    LOG_INFO("this happens {}", true);
+                    const auto _ = request.state_->publish_to_sessions(
+                        request,
+                        request.state_->get_id(),
+                        request.entity_id_,
+                        _channel,
+                        _payload
+                    );
+                    boost::ignore_unused(_);
+                    break;
+                }
+                case on_session: {
+                    const auto &_client_id = get_param_as_id(_params, "client_id");
+                    _count = _state->publish_to_clients(
+                        request,
+                        request.entity_id_,
+                        _client_id,
+                        _channel,
+                        _payload
+                    );
+                    break;
+                }
+            }
 
             const auto _status = get_status(_count > 0);
 
-            next(request, _status, {{"count", _count}});
+            next(request, _status, {
+                     {"count", _count}
+                 });
         }
     }
 }

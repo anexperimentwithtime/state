@@ -183,12 +183,11 @@ namespace aewt {
         /**
          * Is Subscribed
          *
-         * @param session_id
          * @param client_id
          * @param channel
          * @return bool
          */
-        bool is_subscribed(const boost::uuids::uuid &session_id, const boost::uuids::uuid &client_id,
+        bool is_subscribed(const boost::uuids::uuid &client_id,
                            const std::string &channel);
 
         /**
@@ -232,6 +231,54 @@ namespace aewt {
          */
         std::size_t broadcast_to_clients(const request &request, boost::uuids::uuid session_id,
                                          boost::uuids::uuid client_id, const boost::json::object &data) const;
+
+
+        /**
+         * Publish To Sessions
+         *
+         * @param request
+         * @param session_id
+         * @param client_id
+         * @param channel
+         * @param data
+         *
+         * @return size_t
+         */
+        std::size_t publish_to_sessions(const request &request, boost::uuids::uuid session_id,
+                                        boost::uuids::uuid client_id, const std::string &channel, const boost::json::object &data) const;
+
+        /**
+         * Publish To Clients
+         *
+         * @param request
+         * @param session_id
+         * @param client_id
+         * @param channel
+         * @param data
+         *
+         * @return size_t
+         */
+        std::size_t publish_to_clients(const request &request, boost::uuids::uuid session_id,
+                                       boost::uuids::uuid client_id, const std::string &channel, const boost::json::object &data) const;
+
+
+
+
+
+
+        /**
+         * Subscribe To Sessions
+         *
+         * @param request
+         * @param session_id
+         * @param client_id
+         * @param channel
+         *
+         * @return size_t
+         */
+        std::size_t subscribe_to_sessions(const request &request, boost::uuids::uuid session_id,
+                                        boost::uuids::uuid client_id, const std::string &channel) const;
+
 
         /**
          * Publish
@@ -292,11 +339,13 @@ namespace aewt {
          * Send To Clients
          *
          * @param data
-         * @param except
+         * @param session_id Sesión que recibió la solicitud del Cliente
+         * @param client_id Cliente que solicitó transmitir
          * @return
          */
         std::size_t send_to_others_clients(const std::shared_ptr<boost::json::object> &data,
-                                           boost::uuids::uuid except) const;
+                                           boost::uuids::uuid session_id,
+                                           boost::uuids::uuid client_id) const;
 
         /**
          * ID

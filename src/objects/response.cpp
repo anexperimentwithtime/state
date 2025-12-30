@@ -27,6 +27,14 @@ namespace aewt {
         return processed_.load(std::memory_order_acquire);
     }
 
+    bool response::is_ack() const {
+        return is_ack_.load(std::memory_order_acquire);
+    }
+
+    void response::mark_as_ack() {
+        is_ack_.store(true, std::memory_order_release);
+    }
+
     boost::json::object response::get_data() const { return data_; }
 
     void response::mark_as_failed(const boost::uuids::uuid transaction_id, const char *error, long timestamp,
@@ -45,6 +53,7 @@ namespace aewt {
         if (!transaction_id.is_nil()) {
             data_ = {
                 {"transaction_id", to_string(transaction_id)},
+                {"action", "ack"},
                 {"status", "failed"},
                 {"message", error},
                 {"data", _data},
@@ -54,6 +63,7 @@ namespace aewt {
         } else {
             data_ = {
                 {"transaction_id", nullptr},
+                {"action", "ack"},
                 {"status", "failed"},
                 {"message", error},
                 {"data", _data},
@@ -75,8 +85,13 @@ namespace aewt {
         const auto _runtime = _current_timestamp - timestamp;
 
         data_ = {
-            {"transaction_id", to_string(transaction_id)}, {"status", "success"}, {"message", message},
-            {"timestamp", timestamp}, {"runtime", _runtime}, {"data", data}
+            {"transaction_id", to_string(transaction_id)},
+            {"action", "ack"},
+            {"status", "success"},
+            {"message", message},
+            {"timestamp", timestamp},
+            {"runtime", _runtime},
+            {"data", data}
         };
     }
 } // namespace aewt

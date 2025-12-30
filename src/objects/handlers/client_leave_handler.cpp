@@ -24,16 +24,18 @@
 namespace aewt::handlers {
     void client_leave_handler(const request &request) {
         switch (request.context_) {
-            case on_client:
+            case on_client: {
                 next(request, "no effect");
                 break;
-            case on_session:
+            }
+            case on_session: {
                 const auto &_params = get_params(request);
-                auto _id = get_param_as_id(_params, "id");
-                const auto _removed = request.state_->remove_client(_id);
+                const auto _client_id = get_param_as_id(_params, "client_id");
+                const auto _removed = request.state_->remove_client(_client_id);
                 const auto _status = get_status(_removed);
                 next(request, _status);
                 break;
+            }
         }
     }
 }

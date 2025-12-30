@@ -47,6 +47,11 @@ namespace aewt {
     };
 
     /**
+     * Subscriptions By Client Channel
+     */
+    struct subscriptions_by_client_channel {};
+
+    /**
      * Subscriptions By Session, Client and Channel
      */
     struct subscriptions_by_session_client_channel {
@@ -69,6 +74,14 @@ namespace aewt {
             boost::multi_index::ordered_non_unique<
                 boost::multi_index::tag<subscriptions_by_channel>,
                 boost::multi_index::member<subscription, std::string, &subscription::channel_>
+            >,
+            boost::multi_index::ordered_non_unique<
+                boost::multi_index::tag<subscriptions_by_client_channel>,
+                boost::multi_index::composite_key<
+                    subscription,
+                    boost::multi_index::member<subscription, boost::uuids::uuid, &subscription::client_id_>,
+                    boost::multi_index::member<subscription, std::string, &subscription::channel_>
+                >
             >,
             boost::multi_index::ordered_unique<
                 boost::multi_index::tag<subscriptions_by_session_client_channel>,

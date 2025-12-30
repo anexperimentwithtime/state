@@ -16,21 +16,26 @@
 #include <gtest/gtest.h>
 
 #include <aewt/kernel.hpp>
+#include <aewt/kernel_context.hpp>
+
 #include <aewt/response.hpp>
 #include <aewt/session.hpp>
 #include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
+
 #include <boost/json/serialize.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 #include "helpers.hpp"
 
+using namespace aewt;
+
 TEST(kernel_test, can_handle_empty_action_on_data) {
     boost::asio::io_context _io_context;
 
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -58,7 +63,7 @@ TEST(kernel_test, can_handle_empty_action_on_data) {
 TEST(kernel_test, can_handle_wrong_action_primitive_on_data) {
     boost::asio::io_context _io_context;
 
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -85,7 +90,7 @@ TEST(kernel_test, can_handle_wrong_action_primitive_on_data) {
 TEST(kernel_test, can_handle_empty_transaction_id_on_data) {
     boost::asio::io_context _io_context;
 
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
     const boost::json::object _data = {
         {"action", "something"},
@@ -129,7 +134,7 @@ TEST(kernel_test, can_handle_empty_transaction_id_on_data) {
 TEST(kernel_test, can_handle_wrong_transaction_id_primitive_on_data) {
     boost::asio::io_context _io_context;
 
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
     const boost::json::object _data = {
         {"action", "something"}, {"transaction_id", 7},
@@ -174,7 +179,7 @@ TEST(kernel_test, can_handle_wrong_transaction_id_primitive_on_data) {
 TEST(kernel_test, can_handle_wrong_transaction_id_value_on_data) {
     boost::asio::io_context _io_context;
 
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
     const boost::json::object _data = {
         {"action", "something"}, {"transaction_id", "7"},
@@ -218,7 +223,7 @@ TEST(kernel_test, can_handle_wrong_transaction_id_value_on_data) {
 TEST(kernel_test, can_handle_non_implemented_action) {
     boost::asio::io_context _io_context;
 
-    const auto _state = std::make_shared<aewt::state>();
+    const auto _state = std::make_shared<state>();
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
