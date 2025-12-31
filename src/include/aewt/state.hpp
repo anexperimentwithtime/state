@@ -44,6 +44,15 @@ namespace aewt {
      * Instance
      */
     class state : public std::enable_shared_from_this<state> {
+        /**
+         * Sessions Port
+         */
+        unsigned short sessions_port_ = 0;
+
+        /**
+         * Clients Port
+         */
+        unsigned short clients_port_ = 0;
     public:
         /**
          * Constructor
@@ -251,6 +260,34 @@ namespace aewt {
          */
         bool push_client(const std::shared_ptr<client> &client);
 
+        /**
+         * Sync
+         *
+         * @param session
+         */
+        void sync(const std::shared_ptr<session> & session);
+
+        /**
+         * Set Ports
+         *
+         * @param sessions
+         * @param clients
+         */
+        void set_ports(unsigned short sessions, unsigned short clients);
+
+        /**
+         * Get Sessions Port
+         *
+         * @return
+         */
+        unsigned short get_sessions_port() const;
+
+        /**
+         * Get Clients Port
+         *
+         * @return
+         */
+        unsigned short get_clients_port() const;
     private:
         /**
          * Send To Sessions

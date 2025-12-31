@@ -104,6 +104,8 @@ int main(const int argc, const char *argv[]) {
     auto const _sessions_port = _vm["sessions_port"].as<unsigned short>();
     auto const _clients_port = _vm["clients_port"].as<unsigned short>();
 
+    _state->set_ports(_sessions_port, _clients_port);
+
     auto _is_node = _vm["is_node"].as<bool>();
 
     if (_is_node) {

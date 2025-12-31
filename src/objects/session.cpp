@@ -59,11 +59,43 @@ namespace aewt {
         dispatch(socket_.get_executor(), boost::beast::bind_front_handler(&session::on_run, shared_from_this(), context));
     }
 
+    unsigned short session::get_sessions_port() const {
+        return sessions_port_;
+    }
+
+    void session::set_sessions_port(const unsigned short port) {
+        sessions_port_ = port;
+    }
+
+    unsigned short session::get_clients_port() const {
+        return clients_port_;
+    }
+
+    void session::set_clients_port(const unsigned short port) {
+        clients_port_ = port;
+    }
+
+    std::string session::get_host() const {
+        return host_;
+    }
+
+    void session::set_host(const std::string &host) {
+        host_ = host;
+    }
+
+    void session::mark_as_registered() {
+        registered_.store(true, std::memory_order_release);
+    }
+
+    bool session::get_registered() const {
+        return registered_.load(std::memory_order_acquire);
+    }
+
     void session::on_run(const session_context context) {
         switch (context) {
             case local: {
                 LOG_INFO("session {} starting accept", to_string(id_));
-                socket_.async_accept(boost::beast::bind_front_handler(&session::on_accept, shared_from_this()));
+                socket_.async_accept(boost::beast::bind_front_handler(&session::on_accept, shared_from_this(), context));
                 break;
             }
             case remote: {
@@ -74,15 +106,34 @@ namespace aewt {
                                 "/",
                                 boost::beast::bind_front_handler(
                                     &session::on_accept,
-                                    shared_from_this()));
+                                    shared_from_this(), context));
             }
         }
     }
 
-    void session::on_accept(const boost::beast::error_code &ec) {
+    void session::on_accept(const session_context context, const boost::beast::error_code &ec) {
         if (ec) {
             state_->remove_session(id_);
             return;
+        }
+
+        host_ = socket_.next_layer().socket().remote_endpoint().address().to_string();
+
+        if (context == local) {
+            state_->sync(shared_from_this());
+        } else {
+            // Sí una sesión se registra debe declarar los puertos que provee servicios
+            const boost::json::object _response = {
+                {"transaction_id", to_string(boost::uuids::random_generator()())},
+                {"action", "register"},
+                {
+                    "params", {
+                            {"clients_port", state_->get_clients_port()},
+                            {"sessions_port", state_->get_sessions_port()},
+                        }
+                },
+            };
+            send(std::make_shared<std::string const>(serialize(_response)));
         }
 
         LOG_INFO("session {} accept/handshake success", to_string(id_));
@@ -114,7 +165,7 @@ namespace aewt {
         boost::system::error_code _parse_ec;
 
         if (auto _data = boost::json::parse(_stream, _parse_ec); !_parse_ec && _data.is_object()) {
-            if (const auto _response = kernel(state_, _data.as_object(), on_session, state_->get_id()); !_response->is_ack()) {
+            if (const auto _response = kernel(state_, _data.as_object(), on_session, get_id()); !_response->is_ack()) {
                 send(std::make_shared<std::string const>(serialize(_response->get_data())));
             }
         } else {

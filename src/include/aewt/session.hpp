@@ -39,6 +39,25 @@ namespace aewt {
      * Session
      */
     class session : public std::enable_shared_from_this<session> {
+        /**
+         * Sessions port
+         */
+        unsigned short sessions_port_ = 0;
+
+        /**
+         * Clients port
+         */
+        unsigned short clients_port_ = 0;
+
+        /**
+         * Host
+         */
+        std::string host_;
+
+        /**
+         * Registered
+         */
+        std::atomic<bool> registered_ = false;
     public:
         /**
          * Constructor
@@ -80,6 +99,59 @@ namespace aewt {
          */
         void run(session_context context);
 
+        /**
+         * Get Sessions Port
+         *
+         * @return
+         */
+        unsigned short get_sessions_port() const;
+
+        /**
+         * Set Sessions Port
+         *
+         * @param port
+         */
+        void set_sessions_port(unsigned short port);
+
+        /**
+         * Get Clients Port
+         *
+         * @return
+         */
+        unsigned short get_clients_port() const;
+
+        /**
+         * Set Clients Port
+         *
+         * @param port
+         */
+        void set_clients_port(unsigned short port);
+
+        /**
+         * Get Host
+         *
+         * @return
+         */
+        std::string get_host() const;
+
+        /**
+         * Set Host
+         *
+         * @param host
+         */
+        void set_host(const std::string &host);
+
+        /**
+         * Mark As Registered
+         */
+        void mark_as_registered();
+
+        /**
+         * Get Registered
+         *
+         * @return
+         */
+        bool get_registered() const;
     private:
         /**
          * State
@@ -114,9 +186,10 @@ namespace aewt {
         /**
          * On Accept
          *
+         * @param context
          * @param ec
          */
-        void on_accept(const boost::beast::error_code &ec);
+        void on_accept(session_context context, const boost::beast::error_code &ec);
 
         /**
          * Do Read
