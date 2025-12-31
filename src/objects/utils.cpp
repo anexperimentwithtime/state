@@ -77,31 +77,45 @@ namespace aewt {
     }
 
     boost::json::object make_publish_request_object(const request &request, const boost::uuids::uuid &client_id,
-        const std::string &channel, const boost::json::object &payload) {
+                                                    const std::string &channel, const boost::json::object &payload) {
         return {
-                {"transaction_id", to_string(request.transaction_id_)},
-                {"action", "publish"},
-                {
-                    "params", {
-                        {"client_id", to_string(client_id)},
-                        {"channel", channel},
-                        {"payload", payload},
-                    }
+            {"transaction_id", to_string(request.transaction_id_)},
+            {"action", "publish"},
+            {
+                "params", {
+                    {"client_id", to_string(client_id)},
+                    {"channel", channel},
+                    {"payload", payload},
                 }
+            }
         };
     }
 
     boost::json::object make_subscribe_request_object(const request &request, const boost::uuids::uuid &client_id,
-    const std::string &channel) {
+                                                      const std::string &channel) {
         return {
-                    {"transaction_id", to_string(request.transaction_id_)},
-                    {"action", "subscribe"},
-                    {
-                        "params", {
-                            {"client_id", to_string(client_id)},
-                            {"channel", channel},
-                        }
-                    }
+            {"transaction_id", to_string(request.transaction_id_)},
+            {"action", "subscribe"},
+            {
+                "params", {
+                    {"client_id", to_string(client_id)},
+                    {"channel", channel},
+                }
+            }
+        };
+    }
+
+    boost::json::object make_unsubscribe_request_object(const request &request, const boost::uuids::uuid &client_id,
+                                                        const std::string &channel) {
+        return {
+            {"transaction_id", to_string(request.transaction_id_)},
+            {"action", "unsubscribe"},
+            {
+                "params", {
+                    {"client_id", to_string(client_id)},
+                    {"channel", channel},
+                }
+            }
         };
     }
 

@@ -57,9 +57,6 @@ namespace aewt {
         boost::ignore_unused(state);
 
         const auto _timestamp = std::chrono::system_clock::now().time_since_epoch().count();
-        const auto _kernel_id = boost::uuids::random_generator()();
-
-        LOG_INFO("kernel {} started", to_string(_kernel_id));
 
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
@@ -76,7 +73,16 @@ namespace aewt {
 
             const std::string _action{data.at("action").as_string()};
 
-            LOG_INFO("kernel {} action [{}] invoked data={}", to_string(_kernel_id), _action, serialize(_request.data_));
+            switch (context) {
+                case on_session: {
+                    LOG_INFO("session [{}] action [{}] data={}", to_string(_request.entity_id_), _action, serialize(_request.data_));
+                    break;
+                }
+                case on_client: {
+                    LOG_INFO("client [{}] action [{}] data={}", to_string(_request.entity_id_), _action, serialize(_request.data_));
+                    break;
+                }
+            }
 
             if (_action == "ping") {
                 handlers::ping_handler(_request);
@@ -116,7 +122,6 @@ namespace aewt {
         }
         _response->mark_as_processed();
 
-        LOG_INFO("kernel {} finished", to_string(_kernel_id));
         return _response;
     }
 } // namespace aewt

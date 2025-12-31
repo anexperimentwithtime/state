@@ -69,6 +69,20 @@ namespace aewt {
         return _result;
     }
 
+    std::vector<subscription> state::get_subscriptions() const {
+        std::shared_lock _lock(subscriptions_mutex_);
+
+        const auto &_index = subscriptions_.get<subscriptions_by_session>();
+
+        std::vector<subscription> _result;
+        _result.reserve(subscriptions_.size());
+
+        for (const auto &_subscription: _index)
+            _result.push_back(_subscription);
+
+        return _result;
+    }
+
     std::optional<std::shared_ptr<session> > state::get_session(
         const boost::uuids::uuid id) const {
         std::shared_lock _lock(sessions_mutex_);
@@ -308,13 +322,19 @@ namespace aewt {
         return ioc_;
     }
 
+    std::size_t state::unsubscribe_to_sessions(const request &request, const boost::uuids::uuid client_id,
+        const std::string &channel) const {
+        const auto _data = make_unsubscribe_request_object(request, client_id, channel);
+
+        return send_to_sessions(_data);
+    }
+
     std::size_t state::send_to_sessions(const boost::json::object &data) const {
         auto _sessions = get_sessions();
 
         auto const _message = std::make_shared<std::string const>(serialize(data));
 
         for (const auto &_session: _sessions) {
-            LOG_INFO("session {} should receive... ", to_string(_session->get_id()));
             _session->send(_message);
         }
 

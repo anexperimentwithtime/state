@@ -52,8 +52,6 @@ namespace aewt {
         if (socket_.has_value()) {
             auto &_socket = socket_.value();
             _socket.async_accept(boost::beast::bind_front_handler(&client::on_accept, shared_from_this()));
-        } else {
-            LOG_INFO("client {} error invoking run on remote", to_string(id_));
         }
     }
 
@@ -101,7 +99,6 @@ namespace aewt {
 
         const auto _read_at = std::chrono::system_clock::now().time_since_epoch().count();
         auto _stream = boost::beast::buffers_to_string(buffer_.data());
-        LOG_INFO("client {} read: {}", to_string(id_), _stream);
 
         boost::system::error_code _parse_ec;
 
@@ -137,7 +134,6 @@ namespace aewt {
             return;
 
         const auto _message = *queue_.begin();
-        LOG_INFO("client {} write: {}", to_string(id_), _message->data());
 
         if (socket_.has_value()) {
             if (auto &_socket = socket_.value(); _socket.is_open()) {
