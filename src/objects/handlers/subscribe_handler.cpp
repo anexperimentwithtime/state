@@ -36,7 +36,7 @@ namespace aewt::handlers {
                     const auto _status = get_status(_success);
                     next(request, _status);
 
-                    auto _ = _state->subscribe_to_sessions(request, _state->get_id(), request.entity_id_, _channel);
+                    auto _ = _state->subscribe_to_sessions(request, request.entity_id_, _channel);
                     boost::ignore_unused(_);
                 } break;
                 case on_session: {

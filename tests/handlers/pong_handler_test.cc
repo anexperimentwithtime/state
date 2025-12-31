@@ -32,7 +32,7 @@
 
 using namespace aewt;
 
-TEST(handlers_pong_handle_test, can_handle) {
+TEST(handlers_pong_handle_test, can_handle_pong) {
     const auto _state = std::make_shared<state>();
 
     const auto _client = std::make_shared<client>(_state->get_id(), _state);

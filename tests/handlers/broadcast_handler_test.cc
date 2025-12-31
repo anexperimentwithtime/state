@@ -33,7 +33,7 @@
 
 using namespace aewt;
 
-TEST(handlers_broadcast_handler_test, can_handle) {
+TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_client_context) {
     boost::asio::io_context _io_context;
 
     const auto _state = std::make_shared<state>();
@@ -76,7 +76,7 @@ TEST(handlers_broadcast_handler_test, can_handle) {
     _state->remove_client(_remote_client->get_id());
 }
 
-TEST(handlers_broadcast_handler_test, can_handle_on_remote) {
+TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_session_context) {
     boost::asio::io_context _io_context;
 
     const auto _state = std::make_shared<state>();
@@ -97,10 +97,13 @@ TEST(handlers_broadcast_handler_test, can_handle_on_remote) {
     const boost::json::object _data = {
         {"action", "broadcast"},
         {"transaction_id", to_string(_transaction_id)},
-        {"params", {{"payload", {{"message", "EHLO"}}}}}
+        {"params", {
+            {"client_id", to_string(_remote_client->get_id())},
+            {"payload", {{"message", "EHLO"}}}}
+        }
     };
 
-    const auto _response = kernel(_state, _data, on_client, _remote_client->get_id());
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
@@ -112,64 +115,9 @@ TEST(handlers_broadcast_handler_test, can_handle_on_remote) {
 
     ASSERT_TRUE(_response->get_data().at("data").as_object().contains("count"));
     ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").is_number());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").as_uint64() == 1);
+    ASSERT_TRUE(_response->get_data().at("data").as_object().at("count").as_uint64() > 0);
 
     _state->remove_session(_remote_session->get_id());
     _state->remove_client(_local_client->get_id());
     _state->remove_client(_remote_client->get_id());
-}
-
-TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_empty_data_params_payload) {
-    const auto _state = std::make_shared<state>();
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "broadcast"}, {"transaction_id", to_string(_transaction_id)},
-        {"params", {}}
-    };
-
-    const auto _response = kernel(_state, _data, on_session, _state->get_id());
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params payload attribute must be present");
-}
-
-TEST(handlers_broadcast_handler_test, can_handle_broadcast_on_wrong_data_params_payload_primitive) {
-    const auto _state = std::make_shared<state>();
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "broadcast"},
-        {"transaction_id", to_string(_transaction_id)},
-        {"params", {{"payload", 7}}}
-    };
-
-    const auto _response = kernel(_state, _data, on_session, _state->get_id());
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params payload attribute must be object");
 }

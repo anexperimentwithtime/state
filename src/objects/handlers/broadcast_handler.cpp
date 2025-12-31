@@ -43,7 +43,6 @@ namespace aewt::handlers {
 
                     const auto _ = request.state_->broadcast_to_sessions(
                         request,
-                        _state->get_id(),
                         request.entity_id_,
                         _payload
                     );

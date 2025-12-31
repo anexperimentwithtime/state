@@ -45,10 +45,8 @@ namespace aewt::handlers {
                         _payload
                     );
 
-                    LOG_INFO("this happens {}", true);
                     const auto _ = request.state_->publish_to_sessions(
                         request,
-                        _state->get_id(),
                         request.entity_id_,
                         _channel,
                         _payload

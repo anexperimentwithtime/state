@@ -15,8 +15,10 @@
 
 #pragma once
 
-#ifndef AEWT_HANDLERS_CLIENT_JOIN_HANDLER_HPP
-#define AEWT_HANDLERS_CLIENT_JOIN_HANDLER_HPP
+#ifndef AEWT_VALIDATORS_ID_VALIDATOR_HPP
+#define AEWT_VALIDATORS_ID_VALIDATOR_HPP
+
+#include <boost/json/object.hpp>
 
 namespace aewt {
     /**
@@ -24,14 +26,17 @@ namespace aewt {
      */
     struct request;
 
-    namespace handlers {
+    namespace validators {
         /**
-         * Client Join Handler
+         * ID Validator
          *
          * @param request
+         * @param params
+         * @param attribute
+         * @return bool
          */
-        void client_join_handler(const request &request);
+        bool id_validator(const request &request, const boost::json::object &params, const char * attribute);
     }
 } // namespace aewt
 
-#endif  // AEWT_HANDLERS_CLIENT_JOIN_HANDLER_HPP
+#endif  // AEWT_VALIDATORS_ID_VALIDATOR_HPP

@@ -95,47 +95,6 @@ namespace aewt {
     boost::uuids::uuid get_param_as_id(const boost::json::object &params, const char *field);
 
     /**
-     * Make Array Of IDs
-     *
-     * @param vector
-     * @return array
-     */
-    boost::json::array make_array_of_ids(const std::vector<boost::uuids::uuid> &vector);
-
-    /**
-     * Make Channels Array Of Subscriptions
-     *
-     * @param subscriptions
-     * @return array
-     */
-    boost::json::array make_channels_array_of_subscriptions(const std::vector<subscription> &subscriptions);
-
-    /**
-     * Make Array Of Clients
-     *
-     * @param clients
-     * @return
-     */
-    boost::json::array make_array_of_clients(const std::vector<std::shared_ptr<client> > &clients);
-
-    /**
-     * Make Client Object
-     * @param client
-     * @param subscriptions
-     * @return object
-     */
-    boost::json::object make_client_object(const std::shared_ptr<client> &client,
-                                           const boost::json::array &subscriptions);
-
-    /**
-     * Make Session Object
-     *
-     * @param session
-     * @return object
-     */
-    boost::json::object make_session_object(std::shared_ptr<session> session);
-
-    /**
      * Make Broadcast Request Object
      *
      * @param request
@@ -183,19 +142,6 @@ namespace aewt {
      * @return char *
      */
     const char *get_status(bool gate, const char *on_true = "ok", const char *on_false = "no effect");
-
-    /**
-     * Add Client
-     *
-     * @param local
-     * @param request
-     * @param session_id
-     * @param client_id
-     * @param state
-     * @return
-     */
-    bool add_client(bool local, const request &request, boost::uuids::uuid session_id, boost::uuids::uuid client_id,
-                    const std::shared_ptr<state> &state);
 }
 
 #endif // AEWT_UTILS_HPP

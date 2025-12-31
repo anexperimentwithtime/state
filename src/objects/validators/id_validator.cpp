@@ -13,31 +13,30 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <aewt/validators/broadcast_validator.hpp>
-
 #include <aewt/validators/id_validator.hpp>
 
 #include <aewt/request.hpp>
 #include <aewt/validator.hpp>
 
 #include <aewt/utils.hpp>
+#include <fmt/format.h>
 
 namespace aewt::validators {
-    bool broadcast_validator(const request &request) {
-        const boost::json::value &_params = get_params_as_value(request);
-        const boost::json::object &_params_object = _params.as_object();
-        if (!_params_object.contains("payload")) {
-            mark_as_invalid(request, "params", "params payload attribute must be present");
+    bool id_validator(const request &request, const boost::json::object &params, const char * attribute) {
+        if (!params.contains(attribute)) {
+            mark_as_invalid(request, "params", fmt::format("params {} attribute must be present", attribute).data());
             return false;
         }
 
-        if (const boost::json::value &_payload = _params_object.at("payload"); !_payload.is_object()) {
-            mark_as_invalid(request, "params", "params payload attribute must be object");
+        const boost::json::value &_value = params.at(attribute);
+        if (!_value.is_string()) {
+            mark_as_invalid(request, "params", fmt::format("params {} attribute must be string", attribute).data());
             return false;
         }
 
-        if (request.context_ == on_session) {
-            return id_validator(request, _params_object, "client_id");
+        if (!validator::is_uuid(_value.as_string().c_str())) {
+            mark_as_invalid(request, "params", fmt::format("params {} attribute must be uuid", attribute).data());
+            return false;
         }
 
         return true;
