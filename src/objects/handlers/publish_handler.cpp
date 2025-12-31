@@ -58,7 +58,7 @@ namespace aewt::handlers {
                     const auto &_client_id = get_param_as_id(_params, "client_id");
                     _count = _state->publish_to_clients(
                         request,
-                        request.entity_id_,
+                        _state->get_id(),
                         _client_id,
                         _channel,
                         _payload

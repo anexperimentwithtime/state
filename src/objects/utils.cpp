@@ -41,6 +41,10 @@ namespace aewt {
         return std::string{params.at(field).as_string()};
     }
 
+    std::size_t get_param_as_number(const boost::json::object &params, const char *field) {
+        return params.at(field).as_int64();
+    }
+
     const boost::json::object &get_params(const request &request) {
         return request.data_.at("params").as_object();
     }

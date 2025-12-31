@@ -94,6 +94,16 @@ namespace aewt {
      */
     boost::uuids::uuid get_param_as_id(const boost::json::object &params, const char *field);
 
+
+    /**
+     * Get Params As Number
+     *
+     * @param params
+     * @param field
+     * @return size_t
+     */
+    std::size_t get_param_as_number(const boost::json::object &params, const char *field);
+
     /**
      * Make Broadcast Request Object
      *

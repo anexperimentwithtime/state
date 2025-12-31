@@ -88,9 +88,8 @@ int main(const int argc, const char *argv[]) {
     boost::program_options::options_description _options("Options");
     auto _push_option = _options.add_options();
 
-    boost::asio::io_context _ioc;
-    boost::asio::ip::tcp::resolver _resolver{_ioc};
     auto _state = std::make_shared<aewt::state>();
+    boost::asio::ip::tcp::resolver _resolver{_state->get_ioc()};
     auto const _address = boost::asio::ip::make_address("0.0.0.0");
     auto const _threads = 4;
 
@@ -104,26 +103,31 @@ int main(const int argc, const char *argv[]) {
     auto const _sessions_port = _vm["sessions_port"].as<unsigned short>();
     auto const _clients_port = _vm["clients_port"].as<unsigned short>();
 
+    _state->set_ports(_sessions_port, _clients_port);
+
     auto _is_node = _vm["is_node"].as<bool>();
 
     if (_is_node) {
         auto _remote_host = dotenv::getenv("REMOTE_HOST", "127.0.0.1");
-        auto _remote_port = dotenv::getenv("REMOTE_PORT", "10000");
-        auto const _results = _resolver.resolve(_remote_host, _remote_port);
+        auto _remote_sessions_port = dotenv::getenv("REMOTE_SESSIONS_PORT", "9000");
+        auto _remote_clients_port = dotenv::getenv("REMOTE_CLIENTS_PORT", "10000");
+        auto const _results = _resolver.resolve(_remote_host, _remote_sessions_port);
 
-        const auto _remote_session = std::make_shared<aewt::session>(_state, boost::asio::ip::tcp::socket { _ioc });
+        const auto _remote_session = std::make_shared<aewt::session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
         auto & _socket = _remote_session->get_socket();
         auto & _lowest_socket = _socket.next_layer().socket().lowest_layer();
         boost::asio::connect(_lowest_socket, _results);
 
+        _remote_session->set_clients_port(std::stoi(_remote_clients_port));
+        _remote_session->set_sessions_port(std::stoi(_remote_sessions_port));
         _remote_session->run(aewt::remote);
 
         _state->add_session(_remote_session);
     }
 
-    std::make_shared<aewt::session_listener>(_ioc, boost::asio::ip::tcp::endpoint { _address, _sessions_port }, _state)
+    std::make_shared<aewt::session_listener>(_state->get_ioc(), boost::asio::ip::tcp::endpoint { _address, _sessions_port }, _state)
         ->start();
-    std::make_shared<aewt::client_listener>(_ioc, boost::asio::ip::tcp::endpoint { _address, _clients_port }, _state)
+    std::make_shared<aewt::client_listener>(_state->get_ioc(), boost::asio::ip::tcp::endpoint { _address, _clients_port }, _state)
         ->start();
     sentry_stop();
 
@@ -131,11 +135,11 @@ int main(const int argc, const char *argv[]) {
     _vector_of_threads.reserve(_threads - 1);
     for(auto i = _threads - 1; i > 0; --i)
         _vector_of_threads.emplace_back(
-        [&_ioc]
+        [&_state]
         {
-            _ioc.run();
+            _state->get_ioc().run();
         });
-    _ioc.run();
+    _state->get_ioc().run();
 
     return 0;
 }
