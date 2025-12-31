@@ -19,10 +19,11 @@
 #include <aewt/request.hpp>
 
 #include <aewt/utils.hpp>
-#include <aewt/distribute.hpp>
 
 namespace aewt::handlers {
     void client_leave_handler(const request &request) {
+        auto &_state = request.state_;
+
         switch (request.context_) {
             case on_client: {
                 next(request, "no effect");
@@ -31,7 +32,7 @@ namespace aewt::handlers {
             case on_session: {
                 const auto &_params = get_params(request);
                 const auto _client_id = get_param_as_id(_params, "client_id");
-                const auto _removed = request.state_->remove_client(_client_id);
+                const auto _removed = _state->remove_client(_client_id);
                 const auto _status = get_status(_removed);
                 next(request, _status);
                 break;

@@ -39,7 +39,7 @@ namespace aewt::handlers {
                 case on_client: {
                     _count = _state->publish_to_clients(
                         request,
-                        request.state_->get_id(),
+                        _state->get_id(),
                         request.entity_id_,
                         _channel,
                         _payload
@@ -48,7 +48,7 @@ namespace aewt::handlers {
                     LOG_INFO("this happens {}", true);
                     const auto _ = request.state_->publish_to_sessions(
                         request,
-                        request.state_->get_id(),
+                        _state->get_id(),
                         request.entity_id_,
                         _channel,
                         _payload
