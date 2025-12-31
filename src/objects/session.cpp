@@ -27,6 +27,8 @@
 #include <boost/json/parse.hpp>
 #include <boost/json/serialize.hpp>
 
+#include <dotenv.h>
+
 namespace aewt {
     session::session(const std::shared_ptr<state> &state,
                      boost::asio::ip::tcp::socket &&socket, const boost::uuids::uuid id)
@@ -46,16 +48,35 @@ namespace aewt {
         boost::ignore_unused(data);
 
         if (socket_.is_open()) {
+            LOG_INFO("session {} send data [{}]", to_string(id_), *data);
             post(socket_.get_executor(), boost::beast::bind_front_handler(&session::on_send, shared_from_this(), data));
+        } else {
+            LOG_INFO("session {} send socket not open", to_string(id_));
         }
     }
 
-    void session::run() {
-        dispatch(socket_.get_executor(), boost::beast::bind_front_handler(&session::on_run, shared_from_this()));
+    void session::run(session_context context) {
+        dispatch(socket_.get_executor(), boost::beast::bind_front_handler(&session::on_run, shared_from_this(), context));
     }
 
-    void session::on_run() {
-        socket_.async_accept(boost::beast::bind_front_handler(&session::on_accept, shared_from_this()));
+    void session::on_run(const session_context context) {
+        switch (context) {
+            case local: {
+                LOG_INFO("session {} starting accept", to_string(id_));
+                socket_.async_accept(boost::beast::bind_front_handler(&session::on_accept, shared_from_this()));
+                break;
+            }
+            case remote: {
+                LOG_INFO("session {} starting handshake", to_string(id_));
+                const auto _host = fmt::format("{}:{}", dotenv::getenv("REMOTE_HOST", "127.0.0.1"), dotenv::getenv("REMOTE_PORT", "10000"));
+                socket_.async_handshake(
+                                _host,
+                                "/",
+                                boost::beast::bind_front_handler(
+                                    &session::on_accept,
+                                    shared_from_this()));
+            }
+        }
     }
 
     void session::on_accept(const boost::beast::error_code &ec) {
@@ -64,10 +85,12 @@ namespace aewt {
             return;
         }
 
+        LOG_INFO("session {} accept/handshake success", to_string(id_));
         do_read();
     }
 
     void session::do_read() {
+        LOG_INFO("session {} starting read", to_string(id_));
         socket_.async_read(buffer_, boost::beast::bind_front_handler(&session::on_read, shared_from_this()));
     }
 

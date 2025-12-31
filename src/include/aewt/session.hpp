@@ -18,6 +18,8 @@
 #ifndef AEWT_SESSION_HPP
 #define AEWT_SESSION_HPP
 
+#include <aewt/session_context.hpp>
+
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/json/object.hpp>
@@ -76,7 +78,7 @@ namespace aewt {
         /**
          * Run
          */
-        void run();
+        void run(session_context context);
 
     private:
         /**
@@ -107,7 +109,7 @@ namespace aewt {
         /**
          * On Run
          */
-        void on_run();
+        void on_run(session_context context);
 
         /**
          * On Accept
