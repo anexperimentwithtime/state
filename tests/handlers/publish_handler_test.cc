@@ -32,7 +32,7 @@
 
 using namespace aewt;
 
-TEST(handlers_publish_handler_test, can_handle_on_client) {
+TEST(handlers_publish_handler_test, can_handle_publish_on_client) {
     const auto _state = std::make_shared<state>();
 
     const auto _client = std::make_shared<client>(_state->get_id(), _state);
@@ -71,40 +71,15 @@ TEST(handlers_publish_handler_test, can_handle_on_client) {
     _state->remove_client(_client->get_id());
 }
 
-TEST(handlers_publish_handler_test, can_handle_publish_on_empty_data_params_channel) {
+TEST(handlers_publish_handler_test, can_handle_publish_on_session) {
     const auto _state = std::make_shared<state>();
 
     const auto _client = std::make_shared<client>(_state->get_id(), _state);
+    const auto _other = std::make_shared<client>(_state->get_id(), _state);
 
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "publish"},
-        {"transaction_id", to_string(_transaction_id)},
-        {"params", {{"payload", {{"message", "EHLO"}}}}}
-    };
-
-    const auto _response = kernel(_state, _data, on_client, _client->get_id());
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params channel attribute must be present");
-}
-
-TEST(handlers_publish_handler_test, can_handle_publish_on_wrong_data_params_channel_primitive) {
-    const auto _state = std::make_shared<state>();
-
-    const auto _client = std::make_shared<client>(_state->get_id(), _state);
+    _state->push_client(_client);
+    _state->push_client(_other);
+    _state->subscribe(_state->get_id(), _other->get_id(), "welcome");
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -113,93 +88,25 @@ TEST(handlers_publish_handler_test, can_handle_publish_on_wrong_data_params_chan
         {
             "params",
             {
-                {"channel", 7},
-                {"payload", {{"message", "EHLO"}}}
+                    {"client_id", to_string(_client->get_id())},
+                    {"channel", "welcome"},
+                    {"payload", {{"message", "EHLO"}}}
             }
         }
     };
 
-    const auto _response = kernel(_state, _data, on_client, _client->get_id());
+    const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
     LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
              serialize(_response->get_data()));
 
     ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
+    ASSERT_TRUE(!_response->get_failed());
 
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params channel attribute must be string");
-}
-
-TEST(handlers_publish_handler_test, can_handle_publish_on_empty_data_params_payload) {
-    const auto _state = std::make_shared<state>();
-
-    const auto _client = std::make_shared<client>(_state->get_id(), _state);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "publish"},
-        {"transaction_id", to_string(_transaction_id)},
-        {"params",{{"channel", "welcome"}}
-        }
-    };
-
-    const auto _response = kernel(_state, _data, on_client, _client->get_id());
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
+    test_response_base_protocol_structure(_response, "success", "ok", _transaction_id);
 
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params payload attribute must be present");
-}
 
-TEST(handlers_publish_handler_test, can_handle_publish_on_wrong_data_params_payload_primitive) {
-    const auto _state = std::make_shared<state>();
-
-    const auto _client = std::make_shared<client>(_state->get_id(), _state);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "publish"},
-        {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {
-                {"channel", "welcome"},
-                {"payload", 7}
-            }
-        }
-    };
-
-    const auto _response = kernel(_state, _data, on_client, _client->get_id());
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params payload attribute must be object");
+    _state->remove_client(_client->get_id());
 }

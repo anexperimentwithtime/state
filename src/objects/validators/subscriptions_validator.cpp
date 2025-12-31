@@ -15,8 +15,9 @@
 
 #include <aewt/validators/subscriptions_validator.hpp>
 
+#include <aewt/validators/id_validator.hpp>
+
 #include <aewt/request.hpp>
-#include <aewt/validator.hpp>
 
 #include <aewt/utils.hpp>
 
@@ -32,6 +33,10 @@ namespace aewt::validators {
         if (const boost::json::value &_channel = _params_object.at("channel"); !_channel.is_string()) {
             mark_as_invalid(request, "params", "params channel attribute must be string");
             return false;
+        }
+
+        if (request.context_ == on_session) {
+            return id_validator(request, _params_object, "client_id");
         }
 
         return true;

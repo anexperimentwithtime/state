@@ -15,8 +15,8 @@
 
 #pragma once
 
-#ifndef AEWT_HANDLERS_CLIENT_LEAVE_HANDLER_HPP
-#define AEWT_HANDLERS_CLIENT_LEAVE_HANDLER_HPP
+#ifndef AEWT_HANDLERS_JOIN_HANDLER_HPP
+#define AEWT_HANDLERS_JOIN_HANDLER_HPP
 
 namespace aewt {
     /**
@@ -26,12 +26,12 @@ namespace aewt {
 
     namespace handlers {
         /**
-         * Client Leave Handler
+         * Join Handler
          *
          * @param request
          */
-        void client_leave_handler(const request &request);
+        void join_handler(const request &request);
     }
 } // namespace aewt
 
-#endif  // AEWT_HANDLERS_CLIENT_LEAVE_HANDLER_HPP
+#endif  // AEWT_HANDLERS_JOIN_HANDLER_HPP

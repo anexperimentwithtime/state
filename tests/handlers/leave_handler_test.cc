@@ -23,7 +23,6 @@
 #include <aewt/client.hpp>
 #include <aewt/state.hpp>
 #include <aewt/logger.hpp>
-
 #include <boost/json/serialize.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -32,25 +31,19 @@
 
 using namespace aewt;
 
-TEST(handlers_client_join_handler_test, can_handle_on_session) {
-    boost::asio::io_context _io_context;
-
+TEST(handlers_leave_handler_test, can_handle_leave_on_session) {
     const auto _state = std::make_shared<state>();
 
-    const auto _remote_session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _io_context });
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
-    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
-
-    const auto _remote_client = std::make_shared<client>(_remote_session->get_id(), _state);
+    _state->push_client(_client);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "client_join"},
+        {"action", "leave"},
         {"transaction_id", to_string(_transaction_id)},
-        {"params", {{"client_id", to_string(_remote_client->get_id())}}}
+        { "params", {{"client_id", to_string(_client->get_id())}} }
     };
-
-    _state->add_session(_remote_session);
 
     const auto _response = kernel(_state, _data, on_session, _state->get_id());
 
@@ -65,24 +58,21 @@ TEST(handlers_client_join_handler_test, can_handle_on_session) {
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
 
-    _state->remove_session(_remote_session->get_id());
+    ASSERT_FALSE(_state->get_client(_client->get_id()).has_value());
+
+    _state->remove_client(_client->get_id());
 }
 
-TEST(handlers_client_join_handler_test, can_handle_no_effect_on_session) {
+TEST(handlers_leave_handler_test, can_handle_leave_no_effect_on_session) {
     const auto _state = std::make_shared<state>();
 
-    const auto _local_client = std::make_shared<client>(_state->get_id(), _state);
-
-    _state->push_client(_local_client);
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "client_join"}, {"transaction_id", to_string(_transaction_id)},
-        {
-            "params", {
-                {"client_id", to_string(_local_client->get_id())},
-            }
-        }
+        {"action", "leave"},
+        {"transaction_id", to_string(_transaction_id)},
+        { "params", {{"client_id", to_string(_client->get_id())}} }
     };
 
     const auto _response = kernel(_state, _data, on_session, _state->get_id());
@@ -97,6 +87,30 @@ TEST(handlers_client_join_handler_test, can_handle_no_effect_on_session) {
 
     ASSERT_TRUE(_response->get_data().contains("data"));
     ASSERT_TRUE(_response->get_data().at("data").is_object());
+}
 
-    _state->remove_client(_local_client->get_id());
+TEST(handlers_leave_handler_test, can_handle_leave_no_effect_on_client) {
+    const auto _state = std::make_shared<state>();
+
+    const auto _client = std::make_shared<client>(_state->get_id(), _state);
+
+    const auto _transaction_id = boost::uuids::random_generator()();
+    const boost::json::object _data = {
+        {"action", "leave"},
+        {"transaction_id", to_string(_transaction_id)},
+        { "params", {{"client_id", to_string(_client->get_id())}} }
+    };
+
+    const auto _response = kernel(_state, _data, on_client, _client->get_id());
+
+    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
+             serialize(_response->get_data()));
+
+    ASSERT_TRUE(_response->get_processed());
+    ASSERT_TRUE(!_response->get_failed());
+
+    test_response_base_protocol_structure(_response, "success", "no effect", _transaction_id);
+
+    ASSERT_TRUE(_response->get_data().contains("data"));
+    ASSERT_TRUE(_response->get_data().at("data").is_object());
 }

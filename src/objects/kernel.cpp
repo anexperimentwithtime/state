@@ -25,8 +25,8 @@
 
 #include <aewt/handlers/ping_handler.hpp>
 
-#include <aewt/handlers/client_join_handler.hpp>
-#include <aewt/handlers/client_leave_handler.hpp>
+#include <aewt/handlers/join_handler.hpp>
+#include <aewt/handlers/leave_handler.hpp>
 
 #include <aewt/handlers/subscribe_handler.hpp>
 
@@ -90,10 +90,10 @@ namespace aewt {
                 handlers::broadcast_handler(_request);
             } else if (_action == "publish") {
                 handlers::publish_handler(_request);
-            } else if (_action == "client_join") {
-                handlers::client_join_handler(_request);
-            } else if (_action == "client_leave") {
-                handlers::client_leave_handler(_request);
+            } else if (_action == "join") {
+                handlers::join_handler(_request);
+            } else if (_action == "leave") {
+                handlers::leave_handler(_request);
             } else {
                 handlers::unimplemented_handler(_request);
             }
