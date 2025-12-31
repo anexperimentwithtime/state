@@ -53,6 +53,11 @@ namespace aewt {
          * Clients Port
          */
         unsigned short clients_port_ = 0;
+
+        /**
+         * IO Context
+         */
+        boost::asio::io_context ioc_;
     public:
         /**
          * Constructor
@@ -288,6 +293,13 @@ namespace aewt {
          * @return
          */
         unsigned short get_clients_port() const;
+
+        /**
+         * Get IO Context
+         *
+         * @return
+         */
+        boost::asio::io_context & get_ioc();
     private:
         /**
          * Send To Sessions

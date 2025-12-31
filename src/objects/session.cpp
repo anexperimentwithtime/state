@@ -100,7 +100,7 @@ namespace aewt {
             }
             case remote: {
                 LOG_INFO("session {} starting handshake", to_string(id_));
-                const auto _host = fmt::format("{}:{}", dotenv::getenv("REMOTE_HOST", "127.0.0.1"), dotenv::getenv("REMOTE_PORT", "10000"));
+                const auto _host = fmt::format("{}:{}", dotenv::getenv("REMOTE_HOST", "127.0.0.1"), dotenv::getenv("REMOTE_SESSIONS_PORT", "10000"));
                 socket_.async_handshake(
                                 _host,
                                 "/",

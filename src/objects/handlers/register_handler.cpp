@@ -41,7 +41,6 @@ namespace aewt::handlers {
                     const auto _sessions_port = get_param_as_number(_params, "sessions_port");
                     const auto _clients_port = get_param_as_number(_params, "clients_port");
 
-                    LOG_INFO("ID: {}", to_string(request.entity_id_));
                     if (const auto _session = _state->get_session(request.entity_id_); _session.has_value()) {
                         const auto& _instance = _session.value();
                         _instance->set_clients_port(_clients_port);

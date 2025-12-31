@@ -224,6 +224,9 @@ namespace aewt {
             if (session->get_id() == get_id() || _session->get_id() == session->get_id())
                 continue;
 
+            if (session->get_clients_port() == 0 || session->get_sessions_port() == 0)
+                continue;
+
             boost::json::object _data = {
                 {"action", "session"},
                 {"transaction_id", to_string(boost::uuids::random_generator()())},
@@ -299,6 +302,10 @@ namespace aewt {
 
     unsigned short state::get_clients_port() const {
         return clients_port_;
+    }
+
+    boost::asio::io_context & state::get_ioc() {
+        return ioc_;
     }
 
     std::size_t state::send_to_sessions(const boost::json::object &data) const {

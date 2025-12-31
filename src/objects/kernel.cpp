@@ -25,6 +25,7 @@
 
 #include <aewt/handlers/ping_handler.hpp>
 #include <aewt/handlers/register_handler.hpp>
+#include <aewt/handlers/session_handler.hpp>
 
 #include <aewt/handlers/join_handler.hpp>
 #include <aewt/handlers/leave_handler.hpp>
@@ -81,6 +82,8 @@ namespace aewt {
                 handlers::ping_handler(_request);
             } else if (_action == "register") {
                 handlers::register_handler(_request);
+            } else if (_action == "session") {
+                handlers::session_handler(_request);
             } else if (_action == "ack") {
                 _response->mark_as_ack();
             } else if (_action == "subscribe") {
