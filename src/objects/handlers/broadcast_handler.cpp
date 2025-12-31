@@ -36,14 +36,14 @@ namespace aewt::handlers {
                 case on_client: {
                     _count = _state->broadcast_to_clients(
                         request,
-                        request.state_->get_id(),
+                        _state->get_id(),
                         request.entity_id_,
                         _payload
                     );
 
                     const auto _ = request.state_->broadcast_to_sessions(
                         request,
-                        request.state_->get_id(),
+                        _state->get_id(),
                         request.entity_id_,
                         _payload
                     );
