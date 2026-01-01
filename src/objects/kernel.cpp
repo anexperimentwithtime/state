@@ -38,6 +38,7 @@
 
 #include <aewt/handlers/broadcast_handler.hpp>
 #include <aewt/handlers/publish_handler.hpp>
+#include <aewt/handlers/send_handler.hpp>
 
 #include <aewt/handlers/unimplemented_handler.hpp>
 
@@ -86,6 +87,8 @@ namespace aewt {
 
             if (_action == "ping") {
                 handlers::ping_handler(_request);
+            } else if (_action == "send") {
+                handlers::send_handler(_request);
             } else if (_action == "register") {
                 handlers::register_handler(_request);
             } else if (_action == "session") {

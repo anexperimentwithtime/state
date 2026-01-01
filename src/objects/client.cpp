@@ -49,9 +49,10 @@ namespace aewt {
     }
 
     void client::run() {
+        auto _run_at = std::chrono::system_clock::now().time_since_epoch().count();
         if (socket_.has_value()) {
             auto &_socket = socket_.value();
-            _socket.async_accept(boost::beast::bind_front_handler(&client::on_accept, shared_from_this()));
+            _socket.async_accept(boost::beast::bind_front_handler(&client::on_accept, shared_from_this(), _run_at));
         }
     }
 
@@ -70,13 +71,25 @@ namespace aewt {
         socket_.emplace(std::move(socket));
     }
 
-    void client::on_accept(const boost::beast::error_code &ec) {
+    void client::on_accept(long run_at, const boost::beast::error_code &ec) {
         if (ec) {
             state_->remove_client(id_);
             const auto _ = state_->leave_to_sessions(get_id());
             boost::ignore_unused(_);
             return;
         }
+
+        auto _now = std::chrono::system_clock::now().time_since_epoch().count();
+        const boost::json::object _welcome = {
+            {"transaction_id", to_string(boost::uuids::random_generator()())},
+            {"action", "welcome"},
+            {"status", "success"},
+            {"message", "accepted"},
+            {"timestamp", _now},
+            {"runtime", _now - run_at},
+            {"data", {{"client_id", to_string(get_id())}}},
+        };
+        send(std::make_shared<std::string const>(serialize(_welcome)));
 
         do_read();
     }
