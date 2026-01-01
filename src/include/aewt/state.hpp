@@ -58,6 +58,12 @@ namespace aewt {
          * IO Context
          */
         boost::asio::io_context ioc_;
+
+        /**
+         * Registered
+         */
+        std::atomic<bool> registered_;
+
     public:
         /**
          * Constructor
@@ -221,6 +227,15 @@ namespace aewt {
 
 
         /**
+         * Send To Subscribed Sessions
+         *
+         * @param data
+         * @param channel
+         * @return
+         */
+        std::size_t send_to_subscribed_sessions(const boost::json::object &data, const std::string &channel) const;
+
+        /**
          * Publish To Sessions
          *
          * @param request
@@ -231,7 +246,8 @@ namespace aewt {
          * @return size_t
          */
         std::size_t publish_to_sessions(const request &request,
-                                        boost::uuids::uuid client_id, const std::string &channel, const boost::json::object &data) const;
+                                        boost::uuids::uuid client_id, const std::string &channel,
+                                        const boost::json::object &data) const;
 
         /**
          * Publish To Clients
@@ -245,12 +261,27 @@ namespace aewt {
          * @return size_t
          */
         std::size_t publish_to_clients(const request &request, boost::uuids::uuid session_id,
-                                       boost::uuids::uuid client_id, const std::string &channel, const boost::json::object &data) const;
+                                       boost::uuids::uuid client_id, const std::string &channel,
+                                       const boost::json::object &data) const;
 
 
+        /**
+         * Join To Sessions
+         *
+         * @param client_id
+         *
+         * @return size_t
+         */
+        std::size_t join_to_sessions(boost::uuids::uuid client_id) const;
 
-
-
+        /**
+         * Leave To Sessions
+         *
+         * @param client_id
+         *
+         * @return size_t
+         */
+        std::size_t leave_to_sessions(boost::uuids::uuid client_id) const;
 
         /**
          * Subscribe To Sessions
@@ -262,7 +293,7 @@ namespace aewt {
          * @return size_t
          */
         std::size_t subscribe_to_sessions(const request &request,
-                                        boost::uuids::uuid client_id, const std::string &channel) const;
+                                          boost::uuids::uuid client_id, const std::string &channel) const;
 
         /**
          *  Push Client
@@ -276,8 +307,9 @@ namespace aewt {
          * Sync
          *
          * @param session
+         * @param registered
          */
-        void sync(const std::shared_ptr<session> & session);
+        void sync(const std::shared_ptr<session> &session, bool registered);
 
         /**
          * Set Ports
@@ -306,7 +338,21 @@ namespace aewt {
          *
          * @return
          */
-        boost::asio::io_context & get_ioc();
+        boost::asio::io_context &get_ioc();
+
+        /**
+         * Set Registered
+         *
+         * @param status
+         */
+        void set_registered(bool status);
+
+        /**
+         * Get Registered
+         *
+         * @return
+         */
+        bool get_registered() const;
 
         /**
          * Unsubscribe To Sessions
@@ -317,7 +363,14 @@ namespace aewt {
          * @return size_t
          */
         std::size_t unsubscribe_to_sessions(const request &request,
-                                     boost::uuids::uuid client_id, const std::string &channel) const;
+                                            boost::uuids::uuid client_id, const std::string &channel) const;
+
+        /**
+         * Remove Subscriptions Of Session
+         *
+         * @param id
+         */
+        void remove_state_of_session(boost::uuids::uuid id);
 
     private:
         /**

@@ -198,12 +198,38 @@ namespace aewt {
         return send_to_others_clients(_data, session_id, client_id);
     }
 
+    std::size_t state::send_to_subscribed_sessions(const boost::json::object &data, const std::string &channel) const {
+        std::unordered_set<boost::uuids::uuid> _receivers; {
+            std::shared_lock _lock(subscriptions_mutex_);
+            const auto &_idx = subscriptions_.get<subscriptions_by_channel>();
+            for (auto [_it, _end] = _idx.equal_range(channel); _it != _end; ++_it) {
+                if (const auto _subscription = *_it; !_receivers.contains(_subscription.session_id_)) {
+                    _receivers.insert(_subscription.session_id_);
+                }
+            }
+        }
+
+        if (_receivers.empty()) {
+            return 0;
+        }
+
+        auto _sessions = get_sessions();
+        auto const _message = std::make_shared<std::string const>(serialize(data));
+
+        for (const auto &_session: _sessions) {
+            if (_receivers.contains(_session->get_id()))
+                _session->send(_message);
+        }
+
+        return _receivers.size();
+    }
+
     std::size_t state::publish_to_sessions(const request &request,
                                            const boost::uuids::uuid client_id, const std::string &channel,
                                            const boost::json::object &data) const {
         const auto _data = make_publish_request_object(request, client_id, channel, data);
 
-        return send_to_sessions(_data);
+        return send_to_subscribed_sessions(_data, channel);
     }
 
     std::size_t state::publish_to_clients(const request &request, const boost::uuids::uuid session_id,
@@ -214,6 +240,18 @@ namespace aewt {
         );
 
         return send_to_others_clients(_data, session_id, client_id);
+    }
+
+    std::size_t state::join_to_sessions(const boost::uuids::uuid client_id) const {
+        const auto _data = make_join_request_object(client_id);
+
+        return send_to_sessions(_data);
+    }
+
+    std::size_t state::leave_to_sessions(const boost::uuids::uuid client_id) const {
+        const auto _data = make_leave_request_object(client_id);
+
+        return send_to_sessions(_data);
     }
 
     std::size_t state::subscribe_to_sessions(const request &request,
@@ -233,31 +271,40 @@ namespace aewt {
         return _inserted;
     }
 
-    void state::sync(const std::shared_ptr<session> &session) {
-        for (const auto &_session: get_sessions()) {
-            if (session->get_id() == get_id() || _session->get_id() == session->get_id())
-                continue;
+    void state::sync(const std::shared_ptr<session> &session, const bool registered) {
+        if (!registered) {
+            for (const auto &_session: get_sessions()) {
+                // Si el identificador de la sesión en iteración es igual al identificador del estado entonces
+                // implicaría que no debería ser considerada para ser reportada a la sesión porque ya está conectada
+                // a esta instancia.
+                const auto _is_state = _session->get_id() == get_id();
 
-            if (session->get_clients_port() == 0 || session->get_sessions_port() == 0)
-                continue;
+                // Sí el identificador de la sesión en iteración es igual al identificador de la sesión
+                // implicaría que no debería ser considerada para ser reportada a la sesión porque es ella misma.
+                const auto _is_same = _session->get_id() == session->get_id();
 
-            boost::json::object _data = {
-                {"action", "session"},
-                {"transaction_id", to_string(boost::uuids::random_generator()())},
-                {
-                    "params", {
-                        {"host", _session->get_host()},
-                        {"sessions_port", _session->get_sessions_port()},
-                        {"clients_port", _session->get_clients_port()},
+                // Sí la sesión en iteración no está registrada entonces está en proceso a ser registrada.
+                const auto _is_unregistered = !_session->get_registered();
+
+                if (_is_state || _is_same || _is_unregistered)
+                    continue;
+
+                boost::json::object _data = {
+                    {"action", "session"},
+                    {"transaction_id", to_string(boost::uuids::random_generator()())},
+                    {
+                        "params", {
+                            {"host", _session->get_host()},
+                            {"sessions_port", _session->get_sessions_port()},
+                            {"clients_port", _session->get_clients_port()},
+                        }
                     }
-                }
-            };
+                };
 
-            auto const _message = std::make_shared<std::string const>(serialize(_data));
-            session->send(_message);
-        }
-
-        {
+                auto const _message = std::make_shared<std::string const>(serialize(_data));
+                session->send(_message);
+            }
+        } {
             std::shared_lock _lock(clients_mutex_);
 
             const auto &_index = clients_.get<clients_by_session>();
@@ -270,17 +317,15 @@ namespace aewt {
                     {"transaction_id", to_string(boost::uuids::random_generator()())},
                     {
                         "params", {
-                                {"client_id", to_string(_client->get_id())},
-                            }
+                            {"client_id", to_string(_client->get_id())},
+                        }
                     }
                 };
 
                 auto const _message = std::make_shared<std::string const>(serialize(_data));
                 session->send(_message);
             }
-        }
-
-        {
+        } {
             std::shared_lock _lock(subscriptions_mutex_);
 
             const auto &_index = subscriptions_.get<subscriptions_by_session>();
@@ -318,15 +363,40 @@ namespace aewt {
         return clients_port_;
     }
 
-    boost::asio::io_context & state::get_ioc() {
+    boost::asio::io_context &state::get_ioc() {
         return ioc_;
     }
 
+    void state::set_registered(const bool status) {
+        registered_.store(status, std::memory_order_release);
+    }
+
+    bool state::get_registered() const {
+        return registered_.load(std::memory_order_acquire);
+    }
+
     std::size_t state::unsubscribe_to_sessions(const request &request, const boost::uuids::uuid client_id,
-        const std::string &channel) const {
+                                               const std::string &channel) const {
         const auto _data = make_unsubscribe_request_object(request, client_id, channel);
 
         return send_to_sessions(_data);
+    }
+
+    void state::remove_state_of_session(const boost::uuids::uuid id) { {
+            std::unique_lock _lock(clients_mutex_);
+
+            auto &_index = clients_.get<clients_by_session>();
+            auto [_begin, _end] = _index.equal_range(id);
+
+            _index.erase(_begin, _end);
+        } {
+            std::unique_lock _lock(subscriptions_mutex_);
+
+            auto &_index = subscriptions_.get<subscriptions_by_session>();
+            auto [_begin, _end] = _index.equal_range(id);
+
+            _index.erase(_begin, _end);
+        }
     }
 
     std::size_t state::send_to_sessions(const boost::json::object &data) const {

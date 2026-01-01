@@ -31,7 +31,8 @@ namespace aewt::validators {
             return false;
         }
 
-        if (const boost::json::value &_sessions_port = _params_object.at("sessions_port"); !_sessions_port.is_number()) {
+        if (const boost::json::value &_sessions_port = _params_object.at("sessions_port"); !_sessions_port.
+            is_number()) {
             mark_as_invalid(request, "params", "params host attribute must be number");
             return false;
         }
@@ -43,6 +44,16 @@ namespace aewt::validators {
 
         if (const boost::json::value &_clients_port = _params_object.at("clients_port"); !_clients_port.is_number()) {
             mark_as_invalid(request, "params", "params clients_port attribute must be number");
+            return false;
+        }
+
+        if (!_params_object.contains("registered")) {
+            mark_as_invalid(request, "params", "params registered attribute must be present");
+            return false;
+        }
+
+        if (const boost::json::value &_registered = _params_object.at("registered"); !_registered.is_bool()) {
+            mark_as_invalid(request, "params", "params registered attribute must be boolean");
             return false;
         }
 

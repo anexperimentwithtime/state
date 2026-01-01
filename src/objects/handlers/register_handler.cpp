@@ -40,12 +40,15 @@ namespace aewt::handlers {
                     const auto &_params = get_params(request);
                     const auto _sessions_port = get_param_as_number(_params, "sessions_port");
                     const auto _clients_port = get_param_as_number(_params, "clients_port");
+                    const auto _registered = get_param_as_bool(_params, "registered");
 
                     if (const auto _session = _state->get_session(request.entity_id_); _session.has_value()) {
-                        const auto& _instance = _session.value();
+                        const auto &_instance = _session.value();
                         _instance->set_clients_port(_clients_port);
                         _instance->set_sessions_port(_sessions_port);
                         _instance->mark_as_registered();
+
+                        _state->sync(_instance, _registered);
 
                         next(request, "ok");
                     } else {

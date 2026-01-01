@@ -30,9 +30,9 @@
 namespace aewt {
     client::client(const boost::uuids::uuid session_id,
                    const std::shared_ptr<state> &state, const boost::uuids::uuid id) : state_(state),
-                                                          id_(id),
-                                                          session_id_(session_id),
-                                                          is_local_(state->get_id() == session_id) {
+        id_(id),
+        session_id_(session_id),
+        is_local_(state->get_id() == session_id) {
         LOG_INFO("client {} allocated", to_string(id_));
     }
 
@@ -73,6 +73,8 @@ namespace aewt {
     void client::on_accept(const boost::beast::error_code &ec) {
         if (ec) {
             state_->remove_client(id_);
+            const auto _ = state_->leave_to_sessions(get_id());
+            boost::ignore_unused(_);
             return;
         }
 
@@ -89,11 +91,15 @@ namespace aewt {
 
         if (ec == boost::beast::websocket::error::closed) {
             state_->remove_client(id_);
+            const auto _ = state_->leave_to_sessions(get_id());
+            boost::ignore_unused(_);
             return;
         }
 
         if (ec) {
             state_->remove_client(id_);
+            const auto _ = state_->leave_to_sessions(get_id());
+            boost::ignore_unused(_);
             return;
         }
 

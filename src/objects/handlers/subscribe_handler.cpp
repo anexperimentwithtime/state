@@ -38,13 +38,15 @@ namespace aewt::handlers {
 
                     auto _ = _state->subscribe_to_sessions(request, request.entity_id_, _channel);
                     boost::ignore_unused(_);
-                } break;
+                }
+                break;
                 case on_session: {
                     const auto &_client_id = get_param_as_id(_params, "client_id");
                     const bool _success = _state->subscribe(request.entity_id_, _client_id, _channel);
                     const auto _status = get_status(_success);
                     next(request, _status);
-                } break;
+                }
+                break;
             }
         }
     }

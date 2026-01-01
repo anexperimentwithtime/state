@@ -45,6 +45,10 @@ namespace aewt {
         return params.at(field).as_int64();
     }
 
+    bool get_param_as_bool(const boost::json::object &params, const char *field) {
+        return params.at(field).as_bool();
+    }
+
     const boost::json::object &get_params(const request &request) {
         return request.data_.at("params").as_object();
     }
@@ -86,6 +90,30 @@ namespace aewt {
                     {"client_id", to_string(client_id)},
                     {"channel", channel},
                     {"payload", payload},
+                }
+            }
+        };
+    }
+
+    boost::json::object make_join_request_object(const boost::uuids::uuid &client_id) {
+        return {
+            {"transaction_id", to_string(boost::uuids::random_generator()())},
+            {"action", "join"},
+            {
+                "params", {
+                    {"client_id", to_string(client_id)},
+                }
+            }
+        };
+    }
+
+    boost::json::object make_leave_request_object(const boost::uuids::uuid &client_id) {
+        return {
+            {"transaction_id", to_string(boost::uuids::random_generator()())},
+            {"action", "leave"},
+            {
+                "params", {
+                    {"client_id", to_string(client_id)},
                 }
             }
         };
