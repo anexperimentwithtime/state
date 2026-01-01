@@ -94,7 +94,6 @@ namespace aewt {
      */
     boost::uuids::uuid get_param_as_id(const boost::json::object &params, const char *field);
 
-
     /**
      * Get Params As Number
      *
@@ -105,17 +104,41 @@ namespace aewt {
     std::size_t get_param_as_number(const boost::json::object &params, const char *field);
 
     /**
+     * Get Params As Bool
+     *
+     * @param params
+     * @param field
+     * @return bool
+     */
+    bool get_param_as_bool(const boost::json::object &params, const char *field);
+
+    /**
      * Make Broadcast Request Object
      *
      * @param request
      * @param client_id
-     * @param channel
      * @param payload
      * @return object
      */
     boost::json::object make_broadcast_request_object(const request &request,
                                                       const boost::uuids::uuid &client_id,
                                                       const boost::json::object &payload);
+
+    /**
+     * Make Join Request Object
+     *
+     * @param client_id
+     * @return object
+     */
+    boost::json::object make_join_request_object(const boost::uuids::uuid &client_id);
+
+    /**
+     * Make Leave Request Object
+     *
+     * @param client_id
+     * @return object
+     */
+    boost::json::object make_leave_request_object(const boost::uuids::uuid &client_id);
 
     /**
      * Make Publish Request Object
@@ -127,9 +150,9 @@ namespace aewt {
      * @return object
      */
     boost::json::object make_publish_request_object(const request &request,
-                                                      const boost::uuids::uuid &client_id,
-                                                      const std::string & channel,
-                                                      const boost::json::object &payload);
+                                                    const boost::uuids::uuid &client_id,
+                                                    const std::string &channel,
+                                                    const boost::json::object &payload);
 
     /**
      * Make Subscribe Request Object
@@ -141,7 +164,7 @@ namespace aewt {
      */
     boost::json::object make_subscribe_request_object(const request &request,
                                                       const boost::uuids::uuid &client_id,
-                                                      const std::string & channel);
+                                                      const std::string &channel);
 
     /**
      * Make Unsubscribe Request Object
@@ -152,8 +175,8 @@ namespace aewt {
      * @return object
      */
     boost::json::object make_unsubscribe_request_object(const request &request,
-                                                      const boost::uuids::uuid &client_id,
-                                                      const std::string & channel);
+                                                        const boost::uuids::uuid &client_id,
+                                                        const std::string &channel);
 
     /**
      * Get Status

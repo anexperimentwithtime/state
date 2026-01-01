@@ -59,6 +59,8 @@ namespace aewt {
             const auto _client = std::make_shared<client>(state_->get_id(), state_);
             _client->set_socket(std::move(socket));
             state_->add_client(_client);
+            const auto _ = state_->join_to_sessions(_client->get_id());
+            boost::ignore_unused(_);
             _client->run();
         }
 

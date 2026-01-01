@@ -38,6 +38,8 @@ namespace aewt {
 
     session::~session() {
         LOG_INFO("session {} released", to_string(id_));
+
+        state_->remove_state_of_session(id_);
     }
 
     boost::uuids::uuid session::get_id() const { return id_; }
@@ -53,7 +55,8 @@ namespace aewt {
     }
 
     void session::run(session_context context) {
-        dispatch(socket_.get_executor(), boost::beast::bind_front_handler(&session::on_run, shared_from_this(), context));
+        dispatch(socket_.get_executor(),
+                 boost::beast::bind_front_handler(&session::on_run, shared_from_this(), context));
     }
 
     unsigned short session::get_sessions_port() const {
@@ -91,17 +94,19 @@ namespace aewt {
     void session::on_run(const session_context context) {
         switch (context) {
             case local: {
-                socket_.async_accept(boost::beast::bind_front_handler(&session::on_accept, shared_from_this(), context));
+                socket_.async_accept(
+                    boost::beast::bind_front_handler(&session::on_accept, shared_from_this(), context));
                 break;
             }
             case remote: {
-                const auto _host = fmt::format("{}:{}", dotenv::getenv("REMOTE_HOST", "127.0.0.1"), dotenv::getenv("REMOTE_SESSIONS_PORT", "10000"));
+                const auto _host = fmt::format("{}:{}", dotenv::getenv("REMOTE_HOST", "127.0.0.1"),
+                                               dotenv::getenv("REMOTE_SESSIONS_PORT", "10000"));
                 socket_.async_handshake(
-                                _host,
-                                "/",
-                                boost::beast::bind_front_handler(
-                                    &session::on_accept,
-                                    shared_from_this(), context));
+                    _host,
+                    "/",
+                    boost::beast::bind_front_handler(
+                        &session::on_accept,
+                        shared_from_this(), context));
             }
         }
     }
@@ -114,20 +119,23 @@ namespace aewt {
 
         host_ = socket_.next_layer().socket().remote_endpoint().address().to_string();
 
-        if (context == local) {
-            state_->sync(shared_from_this());
-        } else {
-            // Sí una sesión se registra debe declarar los puertos que provee servicios
+        // Sí esta sesión es para conectarse a una instancia remota, entonces:
+        if (context == remote) {
+            // Apenas se conecta procede a registrarse
             const boost::json::object _response = {
                 {"transaction_id", to_string(boost::uuids::random_generator()())},
                 {"action", "register"},
                 {
                     "params", {
-                            {"clients_port", state_->get_clients_port()},
-                            {"sessions_port", state_->get_sessions_port()},
-                        }
+                        {"registered", state_->get_registered()},
+                        {"clients_port", state_->get_clients_port()},
+                        {"sessions_port", state_->get_sessions_port()},
+                    }
                 },
             };
+            // Para evitar que las siguientes conexiones remitan el listado de sesiones se marca una bandera
+            state_->set_registered(true);
+
             send(std::make_shared<std::string const>(serialize(_response)));
         }
 
