@@ -15,8 +15,8 @@
 
 #pragma once
 
-#ifndef AEWT_VALIDATORS_PUBLISH_VALIDATOR_HPP
-#define AEWT_VALIDATORS_PUBLISH_VALIDATOR_HPP
+#ifndef AEWT_HANDLERS_SEND_HANDLER_HPP
+#define AEWT_HANDLERS_SEND_HANDLER_HPP
 
 namespace aewt {
     /**
@@ -24,15 +24,14 @@ namespace aewt {
      */
     struct request;
 
-    namespace validators {
+    namespace handlers {
         /**
-         * Publish Validator
+         * Send Handler
          *
          * @param request
-         * @return bool
          */
-        bool publish_validator(const request &request);
+        void send_handler(const request &request);
     }
 } // namespace aewt
 
-#endif  // AEWT_VALIDATORS_PUBLISH_VALIDATOR_HPP
+#endif  // AEWT_HANDLERS_SEND_HANDLER_HPP

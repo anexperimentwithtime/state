@@ -372,6 +372,16 @@ namespace aewt {
          */
         void remove_state_of_session(boost::uuids::uuid id);
 
+        /**
+         * Send To Session
+         *
+         * @param session_id
+         * @param from_client_id
+         * @param to_client_id
+         * @param payload
+         */
+        void send_to_session(boost::uuids::uuid session_id, boost::uuids::uuid from_client_id, boost::uuids::uuid to_client_id, const boost::json::object & payload) const;
+
     private:
         /**
          * Send To Sessions

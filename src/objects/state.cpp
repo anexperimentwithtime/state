@@ -399,6 +399,31 @@ namespace aewt {
         }
     }
 
+    void state::send_to_session(const boost::uuids::uuid session_id, const boost::uuids::uuid from_client_id,
+                                const boost::uuids::uuid to_client_id, const boost::json::object &payload) const {
+        auto _sessions = get_sessions();
+
+        const boost::json::object _data = {
+            {"transaction_id", to_string(boost::uuids::random_generator()())},
+            {"action", "send"},
+            {
+                "params", {
+                    {"from_client_id", to_string(from_client_id)},
+                    {"to_client_id", to_string(to_client_id)},
+                    {"payload", payload},
+                }
+            }
+        };
+
+        auto const _message = std::make_shared<std::string const>(serialize(_data));
+
+        for (const auto &_session: _sessions) {
+            if (_session->get_id() == session_id) {
+                _session->send(_message);
+            }
+        }
+    }
+
     std::size_t state::send_to_sessions(const boost::json::object &data) const {
         auto _sessions = get_sessions();
 
