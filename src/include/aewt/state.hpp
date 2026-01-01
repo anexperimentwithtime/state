@@ -366,7 +366,7 @@ namespace aewt {
                                             boost::uuids::uuid client_id, const std::string &channel) const;
 
         /**
-         * Remove Subscriptions Of Session
+         * Remove State Of Session
          *
          * @param id
          */
