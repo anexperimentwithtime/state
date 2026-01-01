@@ -144,6 +144,18 @@ namespace aewt {
                                                       const std::string & channel);
 
     /**
+     * Make Unsubscribe Request Object
+     *
+     * @param request
+     * @param client_id
+     * @param channel
+     * @return object
+     */
+    boost::json::object make_unsubscribe_request_object(const request &request,
+                                                      const boost::uuids::uuid &client_id,
+                                                      const std::string & channel);
+
+    /**
      * Get Status
      *
      * @param gate

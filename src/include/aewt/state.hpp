@@ -98,6 +98,13 @@ namespace aewt {
         std::vector<std::shared_ptr<client> > get_clients() const;
 
         /**
+         * Get Subscriptions
+         *
+         * @return vector<subscription>
+         */
+        std::vector<subscription> get_subscriptions() const;
+
+        /**
          * Get Client Exists
          *
          * @param client_id
@@ -300,6 +307,18 @@ namespace aewt {
          * @return
          */
         boost::asio::io_context & get_ioc();
+
+        /**
+         * Unsubscribe To Sessions
+         *
+         * @param request
+         * @param client_id
+         * @param channel
+         * @return size_t
+         */
+        std::size_t unsubscribe_to_sessions(const request &request,
+                                     boost::uuids::uuid client_id, const std::string &channel) const;
+
     private:
         /**
          * Send To Sessions

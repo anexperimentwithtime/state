@@ -48,10 +48,7 @@ namespace aewt {
         boost::ignore_unused(data);
 
         if (socket_.is_open()) {
-            LOG_INFO("session {} send data [{}]", to_string(id_), *data);
             post(socket_.get_executor(), boost::beast::bind_front_handler(&session::on_send, shared_from_this(), data));
-        } else {
-            LOG_INFO("session {} send socket not open", to_string(id_));
         }
     }
 
@@ -94,12 +91,10 @@ namespace aewt {
     void session::on_run(const session_context context) {
         switch (context) {
             case local: {
-                LOG_INFO("session {} starting accept", to_string(id_));
                 socket_.async_accept(boost::beast::bind_front_handler(&session::on_accept, shared_from_this(), context));
                 break;
             }
             case remote: {
-                LOG_INFO("session {} starting handshake", to_string(id_));
                 const auto _host = fmt::format("{}:{}", dotenv::getenv("REMOTE_HOST", "127.0.0.1"), dotenv::getenv("REMOTE_SESSIONS_PORT", "10000"));
                 socket_.async_handshake(
                                 _host,
@@ -136,12 +131,10 @@ namespace aewt {
             send(std::make_shared<std::string const>(serialize(_response)));
         }
 
-        LOG_INFO("session {} accept/handshake success", to_string(id_));
         do_read();
     }
 
     void session::do_read() {
-        LOG_INFO("session {} starting read", to_string(id_));
         socket_.async_read(buffer_, boost::beast::bind_front_handler(&session::on_read, shared_from_this()));
     }
 
@@ -159,8 +152,7 @@ namespace aewt {
         }
 
         const auto _read_at = std::chrono::system_clock::now().time_since_epoch().count();
-        auto _stream = boost::beast::buffers_to_string(buffer_.data());
-        LOG_INFO("session {} read: {}", to_string(id_), _stream);
+        const auto _stream = boost::beast::buffers_to_string(buffer_.data());
 
         boost::system::error_code _parse_ec;
 
@@ -197,7 +189,6 @@ namespace aewt {
             return;
 
         const auto _message = *queue_.begin();
-        LOG_INFO("session {} write: {}", to_string(id_), _message->data());
 
         socket_.async_write(boost::asio::buffer(*queue_.front()),
                             boost::beast::bind_front_handler(&session::on_write, shared_from_this()));

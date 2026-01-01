@@ -35,6 +35,9 @@ namespace aewt::handlers {
                     const bool _success = _state->unsubscribe(_state->get_id(), request.entity_id_, _channel);
                     const auto _status = get_status(_success);
                     next(request, _status);
+
+                    auto _ = _state->unsubscribe_to_sessions(request, request.entity_id_, _channel);
+                    boost::ignore_unused(_);
                 } break;
                 case on_session: {
                     const auto &_client_id = get_param_as_id(_params, "client_id");

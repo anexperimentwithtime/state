@@ -26,6 +26,7 @@
 #include <aewt/session.hpp>
 #include <aewt/session_listener.hpp>
 #include <aewt/client_listener.hpp>
+#include <aewt/repl.hpp>
 
 #include <aewt/version.hpp>
 
@@ -129,6 +130,9 @@ int main(const int argc, const char *argv[]) {
         ->start();
     std::make_shared<aewt::client_listener>(_state->get_ioc(), boost::asio::ip::tcp::endpoint { _address, _clients_port }, _state)
         ->start();
+
+    aewt::repl _repl(_state);
+
     sentry_stop();
 
     std::vector<std::thread> _vector_of_threads;
