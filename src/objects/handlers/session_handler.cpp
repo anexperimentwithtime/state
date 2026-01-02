@@ -44,8 +44,8 @@ namespace aewt::handlers {
 
 
                     bool _found = false;
-                    for (const auto _session : _state->get_sessions()) {
-                        if (auto &_socket = _session->get_socket().next_layer().socket(); _socket.remote_endpoint().address().to_string() == _host && _socket.remote_endpoint().port() == _sessions_port) {
+                    for (const auto& _session : _state->get_sessions()) {
+                        if (_session->get_host() == _host && _session->get_sessions_port() == _sessions_port && _session->get_clients_port() == _clients_port) {
                             _found = true;
                         }
                     }
@@ -56,7 +56,13 @@ namespace aewt::handlers {
                         const auto _remote_session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
                         auto & _socket = _remote_session->get_socket();
                         auto & _lowest_socket = _socket.next_layer().socket().lowest_layer();
-                        boost::asio::connect(_lowest_socket, _results);
+                        try {
+                            boost::asio::connect(_lowest_socket, _results);
+                        } catch (const std::exception &e) {
+                            // TODO si no se puede conectar no implica que el servicio no exista.
+                            // Puede ser que para esta instancia el servicio no sea alcanzable.
+
+                        }
                         _remote_session->set_clients_port(_clients_port);
                         _remote_session->set_sessions_port(_sessions_port);
                         _remote_session->run(remote);
