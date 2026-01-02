@@ -74,7 +74,7 @@ TEST(handlers_send_handler_test, can_handle_local_send_on_client) {
 TEST(handlers_send_handler_test, can_handle_remote_send_on_client) {
     const auto _state = std::make_shared<state>();
 
-    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
+    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket{_state->get_ioc()});
 
     const auto _client = std::make_shared<client>(_state->get_id(), _state);
     const auto _other = std::make_shared<client>(_session->get_id(), _state);
@@ -89,8 +89,8 @@ TEST(handlers_send_handler_test, can_handle_remote_send_on_client) {
         {
             "params",
             {
-                    {"to_client_id", to_string(_other->get_id())},
-                    {"payload", {{"message", "EHLO"}}}
+                {"to_client_id", to_string(_other->get_id())},
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };
@@ -115,7 +115,7 @@ TEST(handlers_send_handler_test, can_handle_remote_send_on_client) {
 TEST(handlers_send_handler_test, can_handle_no_effect_on_client) {
     const auto _state = std::make_shared<state>();
 
-    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
+    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket{_state->get_ioc()});
 
     const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
@@ -128,8 +128,8 @@ TEST(handlers_send_handler_test, can_handle_no_effect_on_client) {
         {
             "params",
             {
-                        {"to_client_id", to_string(boost::uuids::random_generator()())},
-                        {"payload", {{"message", "EHLO"}}}
+                {"to_client_id", to_string(boost::uuids::random_generator()())},
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };
@@ -153,7 +153,7 @@ TEST(handlers_send_handler_test, can_handle_no_effect_on_client) {
 TEST(handlers_send_handler_test, can_handle_send_on_session) {
     const auto _state = std::make_shared<state>();
 
-    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
+    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket{_state->get_ioc()});
     const auto _client = std::make_shared<client>(_state->get_id(), _state);
     const auto _other = std::make_shared<client>(_session->get_id(), _state);
 
@@ -168,9 +168,9 @@ TEST(handlers_send_handler_test, can_handle_send_on_session) {
         {
             "params",
             {
-                    {"from_client_id", to_string(_other->get_id())},
-                    {"to_client_id", to_string(_client->get_id())},
-                    {"payload", {{"message", "EHLO"}}}
+                {"from_client_id", to_string(_other->get_id())},
+                {"to_client_id", to_string(_client->get_id())},
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };
@@ -195,7 +195,7 @@ TEST(handlers_send_handler_test, can_handle_send_on_session) {
 TEST(handlers_send_handler_test, can_handle_send_no_effect_on_session) {
     const auto _state = std::make_shared<state>();
 
-    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
+    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket{_state->get_ioc()});
     const auto _client = std::make_shared<client>(_state->get_id(), _state);
     const auto _other = std::make_shared<client>(_session->get_id(), _state);
 
@@ -210,9 +210,9 @@ TEST(handlers_send_handler_test, can_handle_send_no_effect_on_session) {
         {
             "params",
             {
-                        {"from_client_id", to_string(_client->get_id())},
-                        {"to_client_id", to_string(_other->get_id())},
-                        {"payload", {{"message", "EHLO"}}}
+                {"from_client_id", to_string(_client->get_id())},
+                {"to_client_id", to_string(_other->get_id())},
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };
@@ -236,7 +236,7 @@ TEST(handlers_send_handler_test, can_handle_send_no_effect_on_session) {
 TEST(handlers_send_handler_test, can_handle_send_no_effect_on_session_when_missing_client) {
     const auto _state = std::make_shared<state>();
 
-    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
+    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket{_state->get_ioc()});
     const auto _client = std::make_shared<client>(_state->get_id(), _state);
     const auto _other = std::make_shared<client>(_session->get_id(), _state);
 
@@ -250,9 +250,9 @@ TEST(handlers_send_handler_test, can_handle_send_no_effect_on_session_when_missi
         {
             "params",
             {
-                            {"from_client_id", to_string(_client->get_id())},
-                            {"to_client_id", to_string(_other->get_id())},
-                            {"payload", {{"message", "EHLO"}}}
+                {"from_client_id", to_string(_client->get_id())},
+                {"to_client_id", to_string(_other->get_id())},
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };

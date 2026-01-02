@@ -35,7 +35,7 @@ using namespace aewt;
 TEST(handlers_register_handler_test, can_handle_register_on_session) {
     const auto _state = std::make_shared<state>();
 
-    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
+    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket{_state->get_ioc()});
 
     _state->add_session(_session);
 
@@ -46,9 +46,9 @@ TEST(handlers_register_handler_test, can_handle_register_on_session) {
         {
             "params",
             {
-                    {"registered", false},
-                    {"clients_port", 10000},
-                    {"sessions_port", 9000}
+                {"registered", false},
+                {"clients_port", 10000},
+                {"sessions_port", 9000}
             }
         }
     };
@@ -72,7 +72,7 @@ TEST(handlers_register_handler_test, can_handle_register_on_session) {
 TEST(handlers_register_handler_test, can_handle_register_no_effect_on_session) {
     const auto _state = std::make_shared<state>();
 
-    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
+    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket{_state->get_ioc()});
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
@@ -81,9 +81,9 @@ TEST(handlers_register_handler_test, can_handle_register_no_effect_on_session) {
         {
             "params",
             {
-                        {"registered", false},
-                        {"clients_port", 10000},
-                        {"sessions_port", 9000}
+                {"registered", false},
+                {"clients_port", 10000},
+                {"sessions_port", 9000}
             }
         }
     };

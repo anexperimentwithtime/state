@@ -112,7 +112,7 @@ TEST(validators_session_validator_test, on_clients_port_empty) {
         {
             "params", {
 
-                    {"host", "127.0.0.1"},
+                {"host", "127.0.0.1"},
                 {"sessions_port", 10000},
             }
         }
@@ -171,9 +171,6 @@ TEST(validators_session_validator_test, on_wrong_clients_port_primitive) {
 }
 
 
-
-
-
 TEST(validators_session_validator_test, on_host_empty) {
     const auto _state = std::make_shared<state>();
 
@@ -185,9 +182,9 @@ TEST(validators_session_validator_test, on_host_empty) {
         {"transaction_id", to_string(_transaction_id)},
         {
             "params", {
-                    {"sessions_port", 10000},
-                    {"clients_port", 9000},
-                }
+                {"sessions_port", 10000},
+                {"clients_port", 9000},
+            }
         }
     };
 
@@ -220,10 +217,10 @@ TEST(validators_session_validator_test, on_wrong_host_primitive) {
         {"transaction_id", to_string(_transaction_id)},
         {
             "params", {
-                          {"host", 100},
-                        {"sessions_port", 10000},
-                        {"clients_port", 9000},
-                    }
+                {"host", 100},
+                {"sessions_port", 10000},
+                {"clients_port", 9000},
+            }
         }
     };
 

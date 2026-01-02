@@ -41,7 +41,8 @@ namespace aewt::validators {
             return false;
         }
 
-        if (const boost::json::value &_sessions_port = _params_object.at("sessions_port"); !_sessions_port.is_number()) {
+        if (const boost::json::value &_sessions_port = _params_object.at("sessions_port"); !_sessions_port.
+            is_number()) {
             mark_as_invalid(request, "params", "params sessions_port attribute must be number");
             return false;
         }

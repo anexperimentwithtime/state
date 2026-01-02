@@ -108,7 +108,8 @@ TEST(validators_publish_validator_test, on_payload_empty) {
     const boost::json::object _data = {
         {"action", "publish"},
         {"transaction_id", to_string(_transaction_id)},
-        {"params",{{"channel", "welcome"}}
+        {
+            "params", {{"channel", "welcome"}}
         }
     };
 

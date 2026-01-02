@@ -89,9 +89,9 @@ TEST(handlers_publish_handler_test, can_handle_publish_on_session) {
         {
             "params",
             {
-                    {"client_id", to_string(_client->get_id())},
-                    {"channel", "welcome"},
-                    {"payload", {{"message", "EHLO"}}}
+                {"client_id", to_string(_client->get_id())},
+                {"channel", "welcome"},
+                {"payload", {{"message", "EHLO"}}}
             }
         }
     };

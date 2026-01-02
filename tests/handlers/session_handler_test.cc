@@ -42,9 +42,9 @@ TEST(handlers_session_handler_test, can_handle_session_on_session) {
         {
             "params",
             {
-                    {"host", "127.0.0.1"},
-                    {"clients_port", 10000},
-                    {"sessions_port", 9000}
+                {"host", "127.0.0.1"},
+                {"clients_port", 10000},
+                {"sessions_port", 9000}
             }
         }
     };
@@ -68,7 +68,7 @@ TEST(handlers_session_handler_test, can_handle_session_on_session) {
 TEST(handlers_session_handler_test, can_handle_session_no_effect_on_session) {
     const auto _state = std::make_shared<state>();
 
-    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
+    const auto _session = std::make_shared<session>(_state, boost::asio::ip::tcp::socket{_state->get_ioc()});
 
     _session->set_host("127.0.0.1");
     _session->set_clients_port(10000);
@@ -83,9 +83,9 @@ TEST(handlers_session_handler_test, can_handle_session_no_effect_on_session) {
         {
             "params",
             {
-                        {"host", "127.0.0.1"},
-                        {"clients_port", 10000},
-                        {"sessions_port", 9000}
+                {"host", "127.0.0.1"},
+                {"clients_port", 10000},
+                {"sessions_port", 9000}
             }
         }
     };
@@ -117,10 +117,10 @@ TEST(handlers_session_handler_test, can_handle_session_no_effect_on_client) {
         {"transaction_id", to_string(_transaction_id)},
         {
             "params",
-                {
-                    {"host", "127.0.0.1"},
-                    {"clients_port", 10000},
-                    {"sessions_port", 9000}
+            {
+                {"host", "127.0.0.1"},
+                {"clients_port", 10000},
+                {"sessions_port", 9000}
             }
         }
     };

@@ -42,7 +42,8 @@ TEST(validators_send_validator_test, on_payload_empty) {
     const boost::json::object _data = {
         {"action", "send"},
         {"transaction_id", to_string(_transaction_id)},
-        {"params",{}
+        {
+            "params", {}
         }
     };
 
