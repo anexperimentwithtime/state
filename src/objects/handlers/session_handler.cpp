@@ -68,9 +68,12 @@ namespace aewt::handlers {
                         _remote_session->set_sessions_port(_sessions_port);
                         _remote_session->run(remote);
                         _state->add_session(_remote_session);
+                        LOG_INFO("state_id=[{}] action=[session] context=[{}] session_id=[{}] host=[{}] sessions_port=[{}] clients_port=[{}] status=[ok]", to_string(request.state_->get_id()), kernel_context_to_string(request.context_), to_string(_remote_session->get_id()), _host, _sessions_port, _clients_port);
+
                         next(request, "ok");
                     } else {
-                        LOG_INFO("session already exists host={} port={}", _host, _sessions_port);
+                        LOG_INFO("state_id=[{}] action=[session] context=[{}] status=[no effect]", to_string(request.state_->get_id()), kernel_context_to_string(request.context_));
+
                         next(request, "no effect");
                     }
                 }

@@ -25,6 +25,7 @@
 #include <aewt/validators/publish_validator.hpp>
 
 #include <aewt/utils.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
     void publish_handler(const request &request) {
@@ -52,6 +53,9 @@ namespace aewt::handlers {
                         _payload
                     );
                     boost::ignore_unused(_);
+
+
+                    LOG_INFO("state_id=[{}] action=[publish] context=[{}] client_id=[{}] channel=[{}] count=[{}] size=[{}]", to_string(request.state_->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), _channel, _count, _payload.size());
                     break;
                 }
                 case on_session: {
@@ -63,6 +67,9 @@ namespace aewt::handlers {
                         _channel,
                         _payload
                     );
+
+                    LOG_INFO("state_id=[{}] action=[publish] context=[{}] session_id=[{}] client_id=[{}] channel=[{}] count=[{}] size=[{}]", to_string(request.state_->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), to_string(_client_id), _channel, _count, _payload.size());
+
                     break;
                 }
             }

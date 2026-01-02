@@ -33,11 +33,11 @@ namespace aewt {
     session::session(const std::shared_ptr<state> &state,
                      boost::asio::ip::tcp::socket &&socket, const boost::uuids::uuid id)
         : state_(state), id_(id), socket_(boost::beast::tcp_stream(std::move(socket))) {
-        LOG_INFO("session {} allocated", to_string(id_));
+        LOG_INFO("state_id=[{}] action=[session_allocated] session_id=[{}]", to_string(state_->get_id()), to_string(id_));
     }
 
     session::~session() {
-        LOG_INFO("session {} released", to_string(id_));
+        LOG_INFO("state_id=[{}] action=[session_released] session_id=[{}]", to_string(state_->get_id()), to_string(id_));
 
         state_->remove_state_of_session(id_);
     }

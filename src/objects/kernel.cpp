@@ -72,20 +72,7 @@ namespace aewt {
                 .timestamp_ = _timestamp,
             };
 
-            const std::string _action{data.at("action").as_string()};
-
-            switch (context) {
-                case on_session: {
-                    LOG_INFO("session [{}] action [{}] data={}", to_string(_request.entity_id_), _action, serialize(_request.data_));
-                    break;
-                }
-                case on_client: {
-                    LOG_INFO("client [{}] action [{}] data={}", to_string(_request.entity_id_), _action, serialize(_request.data_));
-                    break;
-                }
-            }
-
-            if (_action == "ping") {
+            if (const std::string _action{data.at("action").as_string()}; _action == "ping") {
                 handlers::ping_handler(_request);
             } else if (_action == "send") {
                 handlers::send_handler(_request);

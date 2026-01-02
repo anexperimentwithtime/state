@@ -21,6 +21,8 @@
 #include <aewt/validators/subscriptions_validator.hpp>
 
 #include <aewt/utils.hpp>
+#include <aewt/logger.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
     void unsubscribe_handler(const request &request) {
@@ -38,11 +40,17 @@ namespace aewt::handlers {
 
                     auto _ = _state->unsubscribe_to_sessions(request, request.entity_id_, _channel);
                     boost::ignore_unused(_);
+
+                    LOG_INFO("state_id=[{}] action=[unsubscribe] context=[{}] client_id=[{}] channel=[{}] status=[{}]", to_string(_state->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), _channel, _status);
+
                 } break;
                 case on_session: {
                     const auto &_client_id = get_param_as_id(_params, "client_id");
                     const bool _success = _state->unsubscribe(request.entity_id_, _client_id, _channel);
                     const auto _status = get_status(_success);
+
+                    LOG_INFO("state_id=[{}] action=[unsubscribe] context=[{}] session_id=[{}] client_id=[{}] channel=[{}] status=[{}]", to_string(_state->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), to_string(_client_id), _channel, _status);
+
                     next(request, _status);
                 } break;
             }

@@ -31,11 +31,11 @@
 namespace aewt {
     state::state()
         : id_(boost::uuids::random_generator()()), created_at_(std::chrono::system_clock::now()) {
-        LOG_INFO("state {} allocated", to_string(id_));
+        LOG_INFO("state_id=[{}] action=[state_allocated]", to_string(id_));
     }
 
     state::~state() {
-        LOG_INFO("state {} released", to_string(id_));
+        LOG_INFO("state_id=[{}] action=[state_released]", to_string(id_));
     }
 
     boost::uuids::uuid state::get_id() const { return id_; }

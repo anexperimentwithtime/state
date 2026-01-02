@@ -22,6 +22,8 @@
 #include <aewt/validators/broadcast_validator.hpp>
 
 #include <aewt/utils.hpp>
+#include <aewt/logger.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
     void broadcast_handler(const request &request) {
@@ -30,6 +32,7 @@ namespace aewt::handlers {
         if (validators::broadcast_validator(request)) {
             auto &_params = get_params(request);
             const auto &_payload = get_param_as_object(_params, "payload");
+
             std::size_t _count = 0;
 
             switch (request.context_) {
@@ -48,6 +51,8 @@ namespace aewt::handlers {
                     );
                     boost::ignore_unused(_);
 
+                    LOG_INFO("state_id=[{}] action=[broadcast] context=[{}] client_id=[{}] count=[{}] size=[{}]", to_string(_state->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), _count, _payload.size());
+
                     break;
                 }
                 case on_session: {
@@ -58,6 +63,9 @@ namespace aewt::handlers {
                        _client_id,
                        _payload
                    );
+
+                    LOG_INFO("state_id=[{}] action=[broadcast] context=[{}] session_id=[{}] client_id=[{}] count=[{}] size=[{}]", to_string(_state->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), to_string(_client_id), _count, _payload.size());
+
                     break;
                 }
             }

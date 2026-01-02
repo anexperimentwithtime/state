@@ -7,6 +7,8 @@
 #include <boost/uuid/uuid.hpp>
 #include <string>
 
+#include <aewt/kernel_context.hpp>
+
 namespace aewt {
     /**
      * Forward Request
@@ -187,6 +189,14 @@ namespace aewt {
      * @return char *
      */
     const char *get_status(bool gate, const char *on_true = "ok", const char *on_false = "no effect");
+
+    /**
+     * Kernel Context To String
+     *
+     * @param context
+     * @return string
+     */
+    std::string kernel_context_to_string(kernel_context context);
 }
 
 #endif // AEWT_UTILS_HPP

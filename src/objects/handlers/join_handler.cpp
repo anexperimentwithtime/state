@@ -21,6 +21,8 @@
 #include <aewt/validators/id_validator.hpp>
 
 #include <aewt/utils.hpp>
+#include <aewt/logger.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace aewt::handlers {
     void join_handler(const request &request) {
@@ -28,6 +30,8 @@ namespace aewt::handlers {
 
         switch (request.context_) {
             case on_client: {
+                LOG_INFO("state_id=[{}] action=[join] context=[{}] client_id=[{}] status=[{}]", to_string(_state->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), "no effect");
+
                 next(request, "no effect");
                 break;
             }
@@ -37,6 +41,8 @@ namespace aewt::handlers {
                     const auto _inserted = _state->add_client(
                         std::make_shared<client>(request.entity_id_, _state, _client_id));
                     const auto _status = get_status(_inserted);
+
+                    LOG_INFO("state_id=[{}] action=[join] context=[{}] session_id=[{}] client_id=[{}] status=[{}]", to_string(_state->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), to_string(_client_id), _status);
                     next(request, _status);
                 }
                 break;
