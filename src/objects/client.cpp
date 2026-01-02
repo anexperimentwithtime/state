@@ -33,11 +33,13 @@ namespace aewt {
         id_(id),
         session_id_(session_id),
         is_local_(state->get_id() == session_id) {
-        LOG_INFO("state_id=[{}] action=[client_allocated] session_id=[{}] client_id=[{}]", to_string(state_->get_id()), to_string(session_id), to_string(id_));
+        LOG_INFO("state_id=[{}] action=[client_allocated] session_id=[{}] client_id=[{}]", to_string(state_->get_id()),
+                 to_string(session_id), to_string(id_));
     }
 
     client::~client() {
-        LOG_INFO("state_id=[{}] action=[client_released] session_id=[{}] client_id=[{}]", to_string(state_->get_id()), to_string(get_session_id()), to_string(id_));
+        LOG_INFO("state_id=[{}] action=[client_released] session_id=[{}] client_id=[{}]", to_string(state_->get_id()),
+                 to_string(get_session_id()), to_string(id_));
     }
 
     boost::uuids::uuid client::get_id() const { return id_; }

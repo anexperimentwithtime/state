@@ -23,7 +23,8 @@
 
 namespace aewt::handlers {
     void ping_handler(const request &request) {
-        LOG_INFO("state_id=[{}] action=[ping] context=[{}] status=[{}]", to_string(request.state_->get_id()), kernel_context_to_string(request.context_), "pong");
+        LOG_INFO("state_id=[{}] action=[ping] context=[{}] status=[{}]", to_string(request.state_->get_id()),
+                 kernel_context_to_string(request.context_), "pong");
 
         next(request, "pong");
     }

@@ -38,7 +38,9 @@ namespace aewt::handlers {
 
                     const auto _status = get_status(_success, "yes", "no");
 
-                    LOG_INFO("state_id=[{}] action=[is_subscribed] context=[{}] client_id=[{}] status=[{}]", to_string(_state->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), _status);
+                    LOG_INFO("state_id=[{}] action=[is_subscribed] context=[{}] client_id=[{}] status=[{}]",
+                             to_string(_state->get_id()), kernel_context_to_string(request.context_),
+                             to_string(request.entity_id_), _status);
 
                     next(request, _status);
                     break;
@@ -46,12 +48,13 @@ namespace aewt::handlers {
                 case on_session: {
                     next(request, "no effect");
 
-                    LOG_INFO("state_id=[{}] action=[is_subscribed] context=[{}] session_id=[{}] status=[{}]", to_string(_state->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), "no effect");
+                    LOG_INFO("state_id=[{}] action=[is_subscribed] context=[{}] session_id=[{}] status=[{}]",
+                             to_string(_state->get_id()), kernel_context_to_string(request.context_),
+                             to_string(request.entity_id_), "no effect");
 
                     break;
                 }
             }
-
         }
     }
 }

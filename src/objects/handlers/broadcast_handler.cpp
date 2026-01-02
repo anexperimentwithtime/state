@@ -51,20 +51,25 @@ namespace aewt::handlers {
                     );
                     boost::ignore_unused(_);
 
-                    LOG_INFO("state_id=[{}] action=[broadcast] context=[{}] client_id=[{}] count=[{}] size=[{}]", to_string(_state->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), _count, _payload.size());
+                    LOG_INFO("state_id=[{}] action=[broadcast] context=[{}] client_id=[{}] count=[{}] size=[{}]",
+                             to_string(_state->get_id()), kernel_context_to_string(request.context_),
+                             to_string(request.entity_id_), _count, _payload.size());
 
                     break;
                 }
                 case on_session: {
                     const auto &_client_id = get_param_as_id(_params, "client_id");
                     _count = _state->broadcast_to_clients(
-                       request,
-                       _state->get_id(),
-                       _client_id,
-                       _payload
-                   );
+                        request,
+                        _state->get_id(),
+                        _client_id,
+                        _payload
+                    );
 
-                    LOG_INFO("state_id=[{}] action=[broadcast] context=[{}] session_id=[{}] client_id=[{}] count=[{}] size=[{}]", to_string(_state->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), to_string(_client_id), _count, _payload.size());
+                    LOG_INFO(
+                        "state_id=[{}] action=[broadcast] context=[{}] session_id=[{}] client_id=[{}] count=[{}] size=[{}]",
+                        to_string(_state->get_id()), kernel_context_to_string(request.context_),
+                        to_string(request.entity_id_), to_string(_client_id), _count, _payload.size());
 
                     break;
                 }

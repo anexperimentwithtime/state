@@ -54,14 +54,20 @@ namespace aewt::handlers {
                             };
                             _scoped_client->send(std::make_shared<std::string const>(serialize(_data)));
 
-                            LOG_INFO("state_id=[{}] action=[send] context=[{}] from_client_id=[{}] to_client_id=[{}] status=[ok] size=[{}]", to_string(request.state_->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), to_string(_scoped_client->get_id()), _payload.size());
+                            LOG_INFO(
+                                "state_id=[{}] action=[send] context=[{}] from_client_id=[{}] to_client_id=[{}] status=[ok] size=[{}]",
+                                to_string(request.state_->get_id()), kernel_context_to_string(request.context_),
+                                to_string(request.entity_id_), to_string(_scoped_client->get_id()), _payload.size());
 
                             next(request, "ok");
                         } else {
                             _state->send_to_session(_scoped_client->get_session_id(), request.entity_id_,
                                                     _scoped_client->get_id(), _payload);
 
-                            LOG_INFO("state_id=[{}] action=[send] context=[{}] from_client_id=[{}] to_client_id=[{}] status=[ok] size=[{}]", to_string(request.state_->get_id()), kernel_context_to_string(request.context_), to_string(request.entity_id_), to_string(_scoped_client->get_id()), _payload.size());
+                            LOG_INFO(
+                                "state_id=[{}] action=[send] context=[{}] from_client_id=[{}] to_client_id=[{}] status=[ok] size=[{}]",
+                                to_string(request.state_->get_id()), kernel_context_to_string(request.context_),
+                                to_string(request.entity_id_), to_string(_scoped_client->get_id()), _payload.size());
 
                             next(request, "ok");
                         }
@@ -88,7 +94,10 @@ namespace aewt::handlers {
                             };
                             _scoped_client->send(std::make_shared<std::string const>(serialize(_data)));
 
-                            LOG_INFO("state_id=[{}] action=[send] context=[{}] from_client_id=[{}] to_client_id=[{}] status=[ok] size=[{}]", to_string(request.state_->get_id()), kernel_context_to_string(request.context_), to_string(_from_client_id), to_string(_scoped_client->get_id()), _payload.size());
+                            LOG_INFO(
+                                "state_id=[{}] action=[send] context=[{}] from_client_id=[{}] to_client_id=[{}] status=[ok] size=[{}]",
+                                to_string(request.state_->get_id()), kernel_context_to_string(request.context_),
+                                to_string(_from_client_id), to_string(_scoped_client->get_id()), _payload.size());
                             next(request, "ok");
                         } else {
                             next(request, "no effect");

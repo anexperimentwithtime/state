@@ -54,14 +54,12 @@ namespace aewt {
                                      const boost::json::object &data,
                                      const kernel_context context,
                                      const boost::uuids::uuid entity_id) {
-
         boost::ignore_unused(state);
 
         const auto _timestamp = std::chrono::system_clock::now().time_since_epoch().count();
 
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
-
             const auto _request = request{
                 .transaction_id_ = get_param_as_id(data, "transaction_id"),
                 .response_ = _response,
