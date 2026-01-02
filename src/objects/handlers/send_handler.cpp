@@ -54,7 +54,8 @@ namespace aewt::handlers {
                             _scoped_client->send(std::make_shared<std::string const>(serialize(_data)));
                             next(request, "ok");
                         } else {
-                            _state->send_to_session(_scoped_client->get_session_id(), request.entity_id_, _scoped_client->get_id(), _payload);
+                            _state->send_to_session(_scoped_client->get_session_id(), request.entity_id_,
+                                                    _scoped_client->get_id(), _payload);
                             next(request, "ok");
                         }
                     } else {
@@ -72,10 +73,10 @@ namespace aewt::handlers {
                                 {"action", "send"},
                                 {
                                     "params", {
-                                            {"from_client_id", to_string(_from_client_id)},
-                                            {"to_client_id", to_string(_scoped_client->get_id())},
-                                            {"payload", _payload},
-                                        }
+                                        {"from_client_id", to_string(_from_client_id)},
+                                        {"to_client_id", to_string(_scoped_client->get_id())},
+                                        {"payload", _payload},
+                                    }
                                 }
                             };
                             _scoped_client->send(std::make_shared<std::string const>(serialize(_data)));

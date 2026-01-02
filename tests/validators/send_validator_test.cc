@@ -33,83 +33,17 @@
 
 using namespace aewt;
 
-TEST(validators_publish_validator_test, on_channel_empty) {
+TEST(validators_send_validator_test, on_payload_empty) {
     const auto _state = std::make_shared<state>();
 
     const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "publish"},
-        {"transaction_id", to_string(_transaction_id)},
-        {"params", {{"payload", {{"message", "EHLO"}}}}}
-    };
-
-    const auto _response = kernel(_state, _data, on_client, _client->get_id());
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params channel attribute must be present");
-}
-
-TEST(validators_publish_validator_test, on_wrong_channel_primitive) {
-    const auto _state = std::make_shared<state>();
-
-    const auto _client = std::make_shared<client>(_state->get_id(), _state);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "publish"},
+        {"action", "send"},
         {"transaction_id", to_string(_transaction_id)},
         {
-            "params",
-            {
-                {"channel", 7},
-                {"payload", {{"message", "EHLO"}}}
-            }
-        }
-    };
-
-    const auto _response = kernel(_state, _data, on_client, _client->get_id());
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "failed", "unprocessable entity", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-    ASSERT_TRUE(_response->get_data().at("data").as_object().contains("params"));
-    ASSERT_TRUE(_response->get_data().at("data").as_object().at("params").is_string());
-    ASSERT_EQ(_response->get_data().at("data").as_object().at("params").as_string(),
-              "params channel attribute must be string");
-}
-
-TEST(validators_publish_validator_test, on_payload_empty) {
-    const auto _state = std::make_shared<state>();
-
-    const auto _client = std::make_shared<client>(_state->get_id(), _state);
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "publish"},
-        {"transaction_id", to_string(_transaction_id)},
-        {
-            "params", {{"channel", "welcome"}}
+            "params", {}
         }
     };
 
@@ -131,19 +65,18 @@ TEST(validators_publish_validator_test, on_payload_empty) {
               "params payload attribute must be present");
 }
 
-TEST(validators_publish_validator_test, on_wrong_payload_primitive) {
+TEST(validators_send_validator_test, on_wrong_payload_primitive) {
     const auto _state = std::make_shared<state>();
 
     const auto _client = std::make_shared<client>(_state->get_id(), _state);
 
     const auto _transaction_id = boost::uuids::random_generator()();
     const boost::json::object _data = {
-        {"action", "publish"},
+        {"action", "send"},
         {"transaction_id", to_string(_transaction_id)},
         {
             "params",
             {
-                {"channel", "welcome"},
                 {"payload", 7}
             }
         }

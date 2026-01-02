@@ -39,7 +39,7 @@ namespace aewt::validators {
 
         if (request.context_ == on_session) {
             return id_validator(request, _params_object, "from_client_id") &&
-                id_validator(request, _params_object, "to_client_id");
+                   id_validator(request, _params_object, "to_client_id");
         }
 
         return id_validator(request, _params_object, "to_client_id");
