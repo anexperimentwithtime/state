@@ -37,6 +37,8 @@ protected:
             _remote_server->start();
         });
 
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+
         _local_thread = std::make_unique<std::jthread>([this]() {
             const auto &_config = _local_server->get_config();
             _config->sessions_port_.store(0, std::memory_order_release);
