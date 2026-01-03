@@ -60,11 +60,7 @@ protected:
             _local_server->start();
         });
 
-        while (_remote_server->get_config()->sessions_port_.load(std::memory_order_acquire) == 0 || _remote_server->
-               get_config()->clients_port_.load(std::memory_order_acquire) == 0 ||
-               _local_server->get_config()->sessions_port_.load(std::memory_order_acquire) == 0 || _local_server->
-               get_config()->clients_port_.load(std::memory_order_acquire) == 0 || _local_server->get_config()->
-               registered_.load(std::memory_order_acquire) == false) {
+        while (_local_server->get_state()->get_sessions().size() == 0 || _remote_server->get_state()->get_sessions().size() == 0) {
             LOG_INFO("Waiting 1 second for remote and local ready ...");
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
