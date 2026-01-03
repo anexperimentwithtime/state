@@ -24,7 +24,7 @@
 
 namespace aewt {
     session_listener::session_listener(boost::asio::io_context &ioc, const boost::asio::ip::tcp::endpoint &endpoint,
-                                       const std::shared_ptr<state> &state) : ioc_(ioc), acceptor_(ioc), state_(state) {
+                                       const std::shared_ptr<state> &state) : ioc_(ioc), acceptor_(make_strand(ioc)), state_(state) {
         boost::beast::error_code ec;
 
         acceptor_.open(endpoint.protocol(), ec);

@@ -23,6 +23,7 @@
 #include <aewt/validators/session_validator.hpp>
 
 #include <aewt/utils.hpp>
+#include <boost/asio/strand.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
 
@@ -52,10 +53,10 @@ namespace aewt::handlers {
                     }
 
                     if (!_found) {
-                        boost::asio::ip::tcp::resolver _resolver{_state->get_ioc()};
+                        boost::asio::ip::tcp::resolver _resolver{make_strand(_state->get_ioc())};
                         auto const _results = _resolver.resolve(_host, std::to_string(_sessions_port));
                         const auto _remote_session = std::make_shared<session>(
-                            _state, boost::asio::ip::tcp::socket{_state->get_ioc()});
+                            _state, boost::asio::ip::tcp::socket{make_strand(_state->get_ioc())});
                         auto &_socket = _remote_session->get_socket();
                         auto &_lowest_socket = _socket.next_layer().socket().lowest_layer();
                         while (!_lowest_socket.is_open()) {

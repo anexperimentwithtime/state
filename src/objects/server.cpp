@@ -24,6 +24,7 @@
 #include <aewt/session_listener.hpp>
 #include <aewt/client_listener.hpp>
 #include <aewt/repl.hpp>
+#include <boost/asio/strand.hpp>
 
 namespace aewt {
     server::server(const std::shared_ptr<config> &configuration) : config_(configuration),
@@ -33,7 +34,7 @@ namespace aewt {
     void server::start() {
         auto const &_config = state_->get_config();
         auto const _address = boost::asio::ip::make_address(_config->address_);
-        boost::asio::ip::tcp::resolver _resolver{state_->get_ioc()};
+        boost::asio::ip::tcp::resolver _resolver{make_strand(state_->get_ioc())};
 
         LOG_INFO("state_id=[{}] action=[running] sessions_port=[{}] clients_port=[{}]", to_string(state_->get_id()),
                  _config->sessions_port_.load(std::memory_order_acquire), _config->clients_port_.load(std::memory_order_acquire));
@@ -47,7 +48,7 @@ namespace aewt {
             auto const _results = _resolver.resolve(_config->remote_address_,
                                                     std::to_string(_config->remote_sessions_port_.load(std::memory_order_acquire)));
             const auto _remote_session = std::make_shared<session>(
-                state_, boost::asio::ip::tcp::socket{state_->get_ioc()});
+                state_, boost::asio::ip::tcp::socket{make_strand(state_->get_ioc())});
             auto &_socket = _remote_session->get_socket();
             auto &_lowest_socket = _socket.next_layer().socket().lowest_layer();
 
