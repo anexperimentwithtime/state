@@ -54,9 +54,9 @@ namespace aewt {
             while (!_lowest_socket.is_open()) {
                 try {
                     boost::asio::connect(_lowest_socket, _results);
-                    std::this_thread::sleep_for(std::chrono::seconds(3));
                 } catch (std::exception &e) {
                     LOG_INFO("Connection refused ... retrying : {}", e.what());
+                    std::this_thread::sleep_for(std::chrono::seconds(3));
                 }
             }
             _remote_session->set_sessions_port(_config->remote_sessions_port_.load(std::memory_order_acquire));
