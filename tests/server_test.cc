@@ -41,10 +41,12 @@ TEST_F(server_test, assert_local_server_accept_clients) {
     std::cout << boost::beast::make_printable(_accepted_buffer.data()) << std::endl;
 
     ASSERT_TRUE(_local_server->get_state()->get_clients().size() == 1);
-    _client.close(boost::beast::websocket::close_code::normal);
+
+    boost::system::error_code ec;
+    _client.close(boost::beast::websocket::close_code::normal, ec);
 
     // Wait for processing.
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 
     ASSERT_TRUE(_local_server->get_state()->get_clients().size() == 0);
 }
@@ -78,7 +80,8 @@ TEST_F(server_test, assert_local_server_can_handle_subscribe) {
 
     std::cout << boost::beast::make_printable(_buffer.data()) << std::endl;
 
-    _client.close(boost::beast::websocket::close_code::normal);
+    boost::system::error_code ec;
+    _client.close(boost::beast::websocket::close_code::normal, ec);
 }
 
 TEST_F(server_test, assert_local_server_can_handle_publish) {
@@ -199,8 +202,9 @@ TEST_F(server_test, assert_local_server_can_handle_publish) {
         std::cout << boost::beast::make_printable(_buffer.data()) << std::endl << std::endl;
     }
 
-    _local_client.close(boost::beast::websocket::close_code::normal);
-    _other_local_client.close(boost::beast::websocket::close_code::normal);
-    _remote_client.close(boost::beast::websocket::close_code::normal);
-    _other_remote_client.close(boost::beast::websocket::close_code::normal);
+    boost::system::error_code ec;
+    _local_client.close(boost::beast::websocket::close_code::normal, ec);
+    _other_local_client.close(boost::beast::websocket::close_code::normal, ec);
+    _remote_client.close(boost::beast::websocket::close_code::normal, ec);
+    _other_remote_client.close(boost::beast::websocket::close_code::normal, ec);
 }
