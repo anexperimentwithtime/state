@@ -97,7 +97,6 @@ find_package(
 
 find_package(OpenSSL REQUIRED)
 find_package(spdlog REQUIRED)
-find_package(laserpants_dotenv REQUIRED)
 find_package(fmt REQUIRED)
 
 if (NOT ENABLE_STATIC_LINKING)
@@ -120,7 +119,6 @@ if (NOT ENABLE_STATIC_LINKING)
             spdlog::spdlog
             sentry::sentry
             fmt::fmt
-            laserpants::dotenv
     )
 else ()
     target_link_libraries(objects PRIVATE
@@ -129,9 +127,19 @@ else ()
             ${OPENSSL_CRYPTO_LIBRARY}
             spdlog::spdlog
             fmt::fmt
-            laserpants::dotenv
     )
 endif ()
+
+add_library(netdeps OBJECT
+        deps/asio.cxx
+        deps/beast.cxx
+)
+
+target_link_libraries(netdeps PRIVATE
+        ${Boost_LIBRARIES}
+        ${OPENSSL_SSL_LIBRARY}
+        ${OPENSSL_CRYPTO_LIBRARY}
+)
 
 add_executable(state main.cpp)
 if (ENABLE_STATIC_LINKING)
@@ -141,22 +149,22 @@ endif()
 
 if (NOT ENABLE_STATIC_LINKING)
 target_link_libraries(state PRIVATE objects
+        netdeps
         ${Boost_LIBRARIES}
         ${OPENSSL_SSL_LIBRARY}
         ${OPENSSL_CRYPTO_LIBRARY}
         spdlog::spdlog
         sentry::sentry
         fmt::fmt
-        laserpants::dotenv
 )
 else ()
     target_link_libraries(state PRIVATE objects
+            netdeps
             ${Boost_LIBRARIES}
             ${OPENSSL_SSL_LIBRARY}
             ${OPENSSL_CRYPTO_LIBRARY}
             spdlog::spdlog
             fmt::fmt
-            laserpants::dotenv
     )
 endif ()
 
@@ -174,11 +182,17 @@ if (ENABLE_TESTS)
     file(GLOB_RECURSE STATE_TESTS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cc")
 
     add_executable(tests ${STATE_TESTS})
-    target_link_libraries(tests PUBLIC objects)
 
     target_link_libraries(tests
             PRIVATE
+            objects
+            netdeps
             GTest::gtest_main
+            ${Boost_LIBRARIES}
+            ${OPENSSL_SSL_LIBRARY}
+            ${OPENSSL_CRYPTO_LIBRARY}
+            spdlog::spdlog
+            fmt::fmt
     )
 
     if (ENABLE_STATIC_LINKING)

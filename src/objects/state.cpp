@@ -350,29 +350,8 @@ namespace aewt {
         }
     }
 
-    void state::set_ports(const unsigned short sessions, const unsigned short clients) {
-        sessions_port_ = sessions;
-        clients_port_ = clients;
-    }
-
-    unsigned short state::get_sessions_port() const {
-        return sessions_port_;
-    }
-
-    unsigned short state::get_clients_port() const {
-        return clients_port_;
-    }
-
     boost::asio::io_context &state::get_ioc() {
         return ioc_;
-    }
-
-    void state::set_registered(const bool status) {
-        registered_.store(status, std::memory_order_release);
-    }
-
-    bool state::get_registered() const {
-        return registered_.load(std::memory_order_acquire);
     }
 
     std::size_t state::unsubscribe_to_sessions(const request &request, const boost::uuids::uuid client_id,

@@ -41,5 +41,5 @@ ctest --output-on-failure --verbose
 cd ..
 if [[ "$BUILD_TYPE" == "debug" ]]; then
   gcovr --filter='src/' --print-summary --sort-percentage --gcov-ignore-parse-errors=negative_hits.warn
-  gcovr --filter='src/' --sonarqube > coverage.xml
+  gcovr --filter='src/' --gcov-ignore-parse-errors=negative_hits.warn --sonarqube > coverage.xml
 fi

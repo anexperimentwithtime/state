@@ -46,29 +46,9 @@ namespace aewt {
      */
     class state : public std::enable_shared_from_this<state> {
         /**
-         * Sessions Port
-         */
-        unsigned short sessions_port_ = 0;
-
-        /**
-         * Clients Port
-         */
-        unsigned short clients_port_ = 0;
-
-        /**
          * IO Context
          */
         boost::asio::io_context ioc_;
-
-        /**
-         * Registered
-         */
-        std::atomic<bool> registered_;
-
-        /**
-         * Is Node
-         */
-        std::atomic<bool> is_node_;
 
         /**
          * Config
@@ -323,47 +303,11 @@ namespace aewt {
         void sync(const std::shared_ptr<session> &session, bool registered);
 
         /**
-         * Set Ports
-         *
-         * @param sessions
-         * @param clients
-         */
-        void set_ports(unsigned short sessions, unsigned short clients);
-
-        /**
-         * Get Sessions Port
-         *
-         * @return
-         */
-        unsigned short get_sessions_port() const;
-
-        /**
-         * Get Clients Port
-         *
-         * @return
-         */
-        unsigned short get_clients_port() const;
-
-        /**
          * Get IO Context
          *
          * @return
          */
         boost::asio::io_context &get_ioc();
-
-        /**
-         * Set Registered
-         *
-         * @param status
-         */
-        void set_registered(bool status);
-
-        /**
-         * Get Registered
-         *
-         * @return
-         */
-        bool get_registered() const;
 
         /**
          * Unsubscribe To Sessions
