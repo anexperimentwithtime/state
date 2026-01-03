@@ -130,6 +130,17 @@ else ()
     )
 endif ()
 
+add_library(netdeps OBJECT
+        deps/asio.cxx
+        deps/beast.cxx
+)
+
+target_link_libraries(netdeps PRIVATE
+        ${Boost_LIBRARIES}
+        ${OPENSSL_SSL_LIBRARY}
+        ${OPENSSL_CRYPTO_LIBRARY}
+)
+
 add_executable(state main.cpp)
 if (ENABLE_STATIC_LINKING)
     target_compile_options(state PRIVATE -static -static-libgcc -static-libstdc++)
@@ -138,6 +149,7 @@ endif()
 
 if (NOT ENABLE_STATIC_LINKING)
 target_link_libraries(state PRIVATE objects
+        netdeps
         ${Boost_LIBRARIES}
         ${OPENSSL_SSL_LIBRARY}
         ${OPENSSL_CRYPTO_LIBRARY}
@@ -147,6 +159,7 @@ target_link_libraries(state PRIVATE objects
 )
 else ()
     target_link_libraries(state PRIVATE objects
+            netdeps
             ${Boost_LIBRARIES}
             ${OPENSSL_SSL_LIBRARY}
             ${OPENSSL_CRYPTO_LIBRARY}
@@ -169,11 +182,17 @@ if (ENABLE_TESTS)
     file(GLOB_RECURSE STATE_TESTS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cc")
 
     add_executable(tests ${STATE_TESTS})
-    target_link_libraries(tests PUBLIC objects)
 
     target_link_libraries(tests
             PRIVATE
+            objects
+            netdeps
             GTest::gtest_main
+            ${Boost_LIBRARIES}
+            ${OPENSSL_SSL_LIBRARY}
+            ${OPENSSL_CRYPTO_LIBRARY}
+            spdlog::spdlog
+            fmt::fmt
     )
 
     if (ENABLE_STATIC_LINKING)

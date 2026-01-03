@@ -52,7 +52,7 @@ protected:
         });
 
         while (_remote_server->get_config()->sessions_port_ == 0 || _remote_server->get_config()->clients_port_ == 0 ||
-            _local_server->get_config()->sessions_port_ == 0 || _local_server->get_config()->clients_port_ == 0)
+            _local_server->get_config()->sessions_port_ == 0 || _local_server->get_config()->clients_port_ == 0 || _local_server->get_config()->registered_.load(std::memory_order_acquire) == false)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
                 LOG_INFO("Waiting for remote and local ...");

@@ -23,19 +23,54 @@
 
 namespace aewt {
     struct config {
+        /**
+         * Address
+         */
         std::string address_ = "0.0.0.0";
+
+        /**
+         * Sessions Port
+         */
         unsigned short sessions_port_ = 11000;
+
+        /**
+         * Clients Port
+         */
         unsigned short clients_port_ = 12000;
 
+        /**
+         * Is Node
+         */
         bool is_node_ = false;
+
+        /**
+         * Remote Address
+         */
         std::string remote_address_ = "127.0.0.1";
+
+        /**
+         * Remote Sessions Port
+         */
         unsigned short remote_sessions_port_ = 9000;
+
+        /**
+         * Remote Clients Port
+         */
         unsigned short remote_clients_port_ = 10000;
 
+        /**
+         * Threads
+         */
         unsigned short threads_ = 1;
 
-        std::atomic<bool> registered_;
+        /**
+         * Registered
+         */
+        std::atomic<bool> registered_ = false;
 
+        /**
+         * REPL Enabled
+         */
         bool repl_enabled = true;
     };
 } // namespace aewt
