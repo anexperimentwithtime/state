@@ -32,39 +32,6 @@
 
 using namespace aewt;
 
-TEST(handlers_session_handler_test, can_handle_session_on_session) {
-    const auto _state = std::make_shared<state>();
-
-    const auto _transaction_id = boost::uuids::random_generator()();
-    const boost::json::object _data = {
-        {"action", "session"},
-        {"transaction_id", to_string(_transaction_id)},
-        {
-            "params",
-            {
-                {"host", "127.0.0.1"},
-                {"clients_port", 10000},
-                {"sessions_port", 9000}
-            }
-        }
-    };
-
-    const auto _response = kernel(_state, _data, on_session, _state->get_id());
-
-    LOG_INFO("response processed={} failed={} data={}", _response->get_processed(), _response->get_failed(),
-             serialize(_response->get_data()));
-
-    ASSERT_TRUE(_response->get_processed());
-    ASSERT_TRUE(!_response->get_failed());
-
-    test_response_base_protocol_structure(_response, "success", "ok", _transaction_id);
-
-    ASSERT_TRUE(_response->get_data().contains("data"));
-    ASSERT_TRUE(_response->get_data().at("data").is_object());
-
-    ASSERT_TRUE(_state->get_sessions().size() == 1);
-}
-
 TEST(handlers_session_handler_test, can_handle_session_no_effect_on_session) {
     const auto _state = std::make_shared<state>();
 

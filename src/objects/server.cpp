@@ -57,6 +57,8 @@ namespace aewt {
                     boost::asio::connect(_lowest_socket, _results);
                 } catch (std::exception &e) {
                     LOG_INFO("Connection refused ... retrying : {}", e.what());
+                    boost::system::error_code _ec;
+                    _lowest_socket.close(_ec);
                     std::this_thread::sleep_for(std::chrono::seconds(3));
                 }
             }
