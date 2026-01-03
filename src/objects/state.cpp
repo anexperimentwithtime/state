@@ -29,8 +29,8 @@
 #include <aewt/utils.hpp>
 
 namespace aewt {
-    state::state()
-        : id_(boost::uuids::random_generator()()), created_at_(std::chrono::system_clock::now()) {
+    state::state(const std::shared_ptr<config> &config)
+        : config_(config), id_(boost::uuids::random_generator()()), created_at_(std::chrono::system_clock::now()) {
         LOG_INFO("state_id=[{}] action=[state_allocated]", to_string(id_));
     }
 
@@ -422,6 +422,10 @@ namespace aewt {
                 _session->send(_message);
             }
         }
+    }
+
+    std::shared_ptr<config> state::get_config() {
+        return config_;
     }
 
     std::size_t state::send_to_sessions(const boost::json::object &data) const {

@@ -27,8 +27,6 @@
 #include <boost/json/parse.hpp>
 #include <boost/json/serialize.hpp>
 
-#include <dotenv.h>
-
 namespace aewt {
     session::session(const std::shared_ptr<state> &state,
                      boost::asio::ip::tcp::socket &&socket, const boost::uuids::uuid id)
@@ -101,8 +99,8 @@ namespace aewt {
                 break;
             }
             case remote: {
-                const auto _host = fmt::format("{}:{}", dotenv::getenv("REMOTE_HOST", "127.0.0.1"),
-                                               dotenv::getenv("REMOTE_SESSIONS_PORT", "10000"));
+                const auto _host = fmt::format("{}:{}", state_->get_config()->remote_address_,
+                                               std::to_string(state_->get_config()->remote_sessions_port_));
                 socket_.async_handshake(
                     _host,
                     "/",

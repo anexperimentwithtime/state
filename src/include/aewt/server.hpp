@@ -15,26 +15,27 @@
 
 #pragma once
 
-#ifndef AEWT_CONFIG_HPP
-#define AEWT_CONFIG_HPP
+#ifndef AEWT_SERVER_HPP
+#define AEWT_SERVER_HPP
 
-#include <string>
+#include <aewt/config.hpp>
+
+#include <memory>
 
 namespace aewt {
-    struct config {
-        std::string address_ = "0.0.0.0";
-        unsigned short sessions_port_ = 11000;
-        unsigned short clients_port_ = 12000;
+    class state;
 
-        bool is_node_ = false;
-        std::string remote_address_ = "127.0.0.1";
-        unsigned short remote_sessions_port_ = 9000;
-        unsigned short remote_clients_port_ = 10000;
+    class server : std::enable_shared_from_this<server> {
+        std::shared_ptr<config> config_;
+        std::shared_ptr<state> state_;
 
-        unsigned short threads_ = 1;
+    public:
+        explicit server(const std::shared_ptr<config> &configuration = std::make_shared<config>());
 
-        bool repl_enabled = true;
+        void start();
+
+        std::shared_ptr<config> get_config();
     };
 } // namespace aewt
 
-#endif  // AEWT_CONFIG_HPP
+#endif  // AEWT_SERVER_HPP

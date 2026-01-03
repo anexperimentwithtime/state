@@ -18,6 +18,7 @@
 #ifndef AEWT_STATE_HPP
 #define AEWT_STATE_HPP
 
+#include <aewt/config.hpp>
 #include <aewt/subscriptions.hpp>
 #include <aewt/clients.hpp>
 
@@ -64,11 +65,21 @@ namespace aewt {
          */
         std::atomic<bool> registered_;
 
+        /**
+         * Is Node
+         */
+        std::atomic<bool> is_node_;
+
+        /**
+         * Config
+         */
+        std::shared_ptr<config> config_;
+
     public:
         /**
          * Constructor
          */
-        state();
+        explicit state(const std::shared_ptr<config> & config = {});
 
         /**
          * Destructor
@@ -382,6 +393,12 @@ namespace aewt {
          */
         void send_to_session(boost::uuids::uuid session_id, boost::uuids::uuid from_client_id, boost::uuids::uuid to_client_id, const boost::json::object & payload) const;
 
+        /**
+         * Get Config
+         *
+         * @return shared<config>
+         */
+        std::shared_ptr<config> get_config();
     private:
         /**
          * Send To Sessions
