@@ -71,7 +71,7 @@ namespace aewt {
         client_listener_->start();
 
         if (_config->repl_enabled) {
-            repl _repl(state_);
+            repl_ = std::make_unique<repl>(state_);
         }
 
         vector_of_threads_.reserve(config_->threads_ - 1);

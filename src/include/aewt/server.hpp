@@ -24,6 +24,8 @@
 #include <thread>
 #include <vector>
 
+#include "repl.hpp"
+
 namespace aewt {
     /**
      * Forward State
@@ -65,6 +67,11 @@ namespace aewt {
          * Vector Of Threads
          */
         std::vector<std::jthread> vector_of_threads_;
+
+        /**
+         * REPL
+         */
+        std::unique_ptr<repl> repl_;
     public:
         /**
          * Constructor
