@@ -21,6 +21,8 @@
 #include <aewt/config.hpp>
 
 #include <memory>
+#include <thread>
+#include <vector>
 
 namespace aewt {
     /**
@@ -28,7 +30,17 @@ namespace aewt {
      */
     class state;
 
-    class server : std::enable_shared_from_this<server> {
+    /**
+     * Forward Session Listener
+     */
+    class session_listener;
+
+    /**
+     * Forward Client Listener
+     */
+    class client_listener;
+
+    class server : public std::enable_shared_from_this<server> {
         /**
          * Config
          */
@@ -39,6 +51,20 @@ namespace aewt {
          */
         std::shared_ptr<state> state_;
 
+        /**
+         * Session Listener
+         */
+        std::shared_ptr<session_listener> session_listener_;
+
+        /**
+         * Client Listener
+         */
+        std::shared_ptr<client_listener> client_listener_;
+
+        /**
+         * Vector Of Threads
+         */
+        std::vector<std::jthread> vector_of_threads_;
     public:
         /**
          * Constructor
@@ -58,6 +84,13 @@ namespace aewt {
          * @return
          */
         std::shared_ptr<config> get_config();
+
+        /**
+         * Get State
+         *
+         * @return
+         */
+        std::shared_ptr<state> get_state();
 
         /**
          * Stop

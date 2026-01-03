@@ -54,30 +54,41 @@ namespace aewt {
             state_->add_session(_remote_session);
         }
 
-        std::make_shared<session_listener>(state_->get_ioc(),
-                                           boost::asio::ip::tcp::endpoint{_address, _config->sessions_port_},
-                                           state_)
-                ->start();
+        session_listener_ = std::make_shared<session_listener>(state_->get_ioc(),
+                                                               boost::asio::ip::tcp::endpoint{
+                                                                   _address, _config->sessions_port_
+                                                               },
+                                                               state_);
 
-        std::make_shared<client_listener>(state_->get_ioc(),
-                                          boost::asio::ip::tcp::endpoint{_address, _config->clients_port_},
-                                          state_)
-                ->start();
+        session_listener_->start();
 
-        repl _repl(state_);
+        client_listener_ = std::make_shared<client_listener>(state_->get_ioc(),
+                                                             boost::asio::ip::tcp::endpoint{
+                                                                 _address, _config->clients_port_
+                                                             },
+                                                             state_);
 
-        std::vector<std::thread> _vector_of_threads;
-        _vector_of_threads.reserve(config_->threads_ - 1);
+        client_listener_->start();
+
+        if (_config->repl_enabled) {
+            repl _repl(state_);
+        }
+
+        vector_of_threads_.reserve(config_->threads_ - 1);
         for (auto i = config_->threads_ - 1; i > 0; --i)
-            _vector_of_threads.emplace_back(
-                [&] {
-                    this->state_->get_ioc().run();
+            vector_of_threads_.emplace_back(
+                [self = shared_from_this()]() {
+                    self->state_->get_ioc().run();
                 });
         state_->get_ioc().run();
     }
 
     std::shared_ptr<config> server::get_config() {
         return config_;
+    }
+
+    std::shared_ptr<state> server::get_state() {
+        return state_;
     }
 
     void server::stop() const {

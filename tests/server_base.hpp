@@ -17,28 +17,33 @@
 
 #include <aewt/server.hpp>
 #include <aewt/logger.hpp>
+#include <aewt/state.hpp>
 
 class server_test : public testing::Test {
-    std::unique_ptr<std::thread> _remote_thread;
-    std::unique_ptr<std::thread> _local_thread;
+    std::unique_ptr<std::jthread> _remote_thread;
+    std::unique_ptr<std::jthread> _local_thread;
 
 protected:
     std::shared_ptr<aewt::server> _remote_server = std::make_shared<aewt::server>();
     std::shared_ptr<aewt::server> _local_server = std::make_shared<aewt::server>();
 
     void SetUp() override {
-        _remote_thread = std::make_unique<std::thread>([this]() {
+        _remote_thread = std::make_unique<std::jthread>([this]() {
             const auto &_config = _remote_server->get_config();
             _config->sessions_port_ = 0;
             _config->clients_port_ = 0;
+            _config->threads_ = 2;
+            _config->repl_enabled = false;
             _remote_server->start();
         });
 
-        _local_thread = std::make_unique<std::thread>([this]() {
+        _local_thread = std::make_unique<std::jthread>([this]() {
             const auto &_config = _local_server->get_config();
             _config->sessions_port_ = 0;
             _config->clients_port_ = 0;
             _config->is_node_ = true;
+            _config->repl_enabled = false;
+            _config->threads_ = 2;
 
             while (_remote_server->get_config()->sessions_port_ == 0 || _remote_server->get_config()->clients_port_ == 0) {
                 std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -47,6 +52,8 @@ protected:
 
             _config->remote_clients_port_ = _remote_server->get_config()->clients_port_;
             _config->remote_sessions_port_ = _remote_server->get_config()->sessions_port_;
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
 
             _local_server->start();
         });
@@ -62,8 +69,8 @@ protected:
     void TearDown() override {
         _local_server->stop();
         _remote_server->stop();
-
-        _local_thread->join();
-        _remote_thread->join();
+        while (!_local_server->get_state()->get_ioc().stopped() || !_remote_server->get_state()->get_ioc().stopped()) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
     }
 };
