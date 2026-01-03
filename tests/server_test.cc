@@ -27,8 +27,8 @@ TEST_F(server_test, assert_local_server_is_registered) {
 
 TEST_F(server_test, assert_local_server_accept_clients) {
     boost::asio::io_context _ioc;
-    boost::asio::ip::tcp::resolver _resolver{_ioc};
-    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client{_ioc};
+    boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client{make_strand(_ioc)};
 
     auto const _results = _resolver.resolve("127.0.0.1", std::to_string(_local_server->get_config()->clients_port_.load(std::memory_order_acquire)));
     boost::asio::connect(_client.next_layer(), _results);
@@ -53,8 +53,8 @@ TEST_F(server_test, assert_local_server_accept_clients) {
 
 TEST_F(server_test, assert_local_server_can_handle_subscribe) {
     boost::asio::io_context _ioc;
-    boost::asio::ip::tcp::resolver _resolver{_ioc};
-    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client{_ioc};
+    boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client{make_strand(_ioc)};
 
     auto const _results = _resolver.resolve("127.0.0.1", std::to_string(_local_server->get_config()->clients_port_.load(std::memory_order_acquire)));
     boost::asio::connect(_client.next_layer(), _results);
@@ -86,7 +86,7 @@ TEST_F(server_test, assert_local_server_can_handle_subscribe) {
 
 TEST_F(server_test, assert_local_server_can_handle_publish) {
     boost::asio::io_context _ioc;
-    boost::asio::ip::tcp::resolver _resolver{_ioc};
+    boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
     boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _local_client{make_strand(_ioc)};
     boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _other_local_client{make_strand(_ioc)};
     boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _remote_client{make_strand(_ioc)};
