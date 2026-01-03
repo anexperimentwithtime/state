@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <dotenv.h>
 #include <fmt/base.h>
 
 #ifdef STATIC_ENABLED
@@ -23,6 +22,8 @@
 
 #include <aewt/logger.hpp>
 #include <aewt/state.hpp>
+#include <aewt/config.hpp>
+#include <aewt/server.hpp>
 #include <aewt/session.hpp>
 #include <aewt/session_listener.hpp>
 #include <aewt/client_listener.hpp>
@@ -43,110 +44,93 @@ std::string DEFAULT_SENTRY_DSN =
         "https://{username}@{token}.ingest.{zone}.sentry.io/{app_id}";
 std::string DEFAULT_SENTRY_DEBUG = "OFF";
 
-void sentry_start() {
-    if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
+void sentry_start(const std::string &dsn, const bool debug) {
 #ifdef STATIC_ENABLED
-        LOG_INFO("sentry start isn't available on static");
+    LOG_INFO("sentry start isn't available on static");
 #else
-        LOG_INFO("sentry starting");
-        sentry_options_t *_options = sentry_options_new();
-        sentry_options_set_dsn(_options, dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN).data());
-        sentry_options_set_database_path(_options, ".sentry-native");
-        const std::string _release_name =
-                fmt::format("state@{}.{}.{}", aewt::version::get_major(),
-                            aewt::version::get_minor(), aewt::version::get_patch());
-        sentry_options_set_release(_options, _release_name.data());
-        sentry_options_set_debug(
-            _options,
-            dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG).data() == "ON");
-        sentry_init(_options);
-        LOG_INFO("sentry started");
+    LOG_INFO("sentry starting");
+    sentry_options_t *_options = sentry_options_new();
+    sentry_options_set_dsn(_options, dsn.data());
+    sentry_options_set_database_path(_options, ".sentry-native");
+
+    const std::string _release_name =
+            fmt::format("state@{}.{}.{}", aewt::version::get_major(),
+                        aewt::version::get_minor(), aewt::version::get_patch());
+
+    sentry_options_set_release(_options, _release_name.data());
+    sentry_options_set_debug(_options, debug);
+    sentry_init(_options);
+    LOG_INFO("sentry started");
 #endif
-    }
 }
 
 void sentry_stop() {
-    if (dotenv::getenv("SENTRY_ENABLED", DEFAULT_SENTRY_DEBUG).data() == "ON") {
 #ifdef STATIC_ENABLED
-        LOG_INFO("sentry close isn't available on static");
+    LOG_INFO("sentry close isn't available on static");
 #else
-        LOG_INFO("sentry closing");
-        sentry_close();
-        LOG_INFO("sentry closed");
+    LOG_INFO("sentry closing");
+    sentry_close();
+    LOG_INFO("sentry closed");
 #endif
-    }
 }
 
 int main(const int argc, const char *argv[]) {
-    dotenv::init();
-    LOG_INFO("state version: {}.{}.{}", aewt::version::get_major(), aewt::version::get_minor(),
-             aewt::version::get_patch());
-    LOG_INFO("boost version: {}", BOOST_VERSION);
-    LOG_INFO("environment variables:");
-    LOG_INFO("- SENTRY_DEBUG: {}", dotenv::getenv("SENTRY_DEBUG", DEFAULT_SENTRY_DEBUG));
-    LOG_INFO("- SENTRY_DSN: {}", dotenv::getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN));
-
-    sentry_start();
     boost::program_options::options_description _options("Options");
     auto _push_option = _options.add_options();
 
-    auto _state = std::make_shared<aewt::state>();
-    boost::asio::ip::tcp::resolver _resolver{_state->get_ioc()};
-    auto const _address = boost::asio::ip::make_address("0.0.0.0");
-    auto const _threads = 4;
-
+    _push_option("address", boost::program_options::value<std::string>()->default_value("0.0.0.0"));
+    _push_option("threads", boost::program_options::value<unsigned short>()->default_value(4));
     _push_option("is_node", boost::program_options::value<bool>()->default_value(false));
-    _push_option("sessions_port", boost::program_options::value<unsigned short>()->default_value(9000));
-    _push_option("clients_port", boost::program_options::value<unsigned short>()->default_value(10000));
+    _push_option("sessions_port", boost::program_options::value<unsigned short>()->default_value(11000));
+    _push_option("clients_port", boost::program_options::value<unsigned short>()->default_value(12000));
+    _push_option("remote_address", boost::program_options::value<std::string>()->default_value("localhost"));
+    _push_option("remote_sessions_port", boost::program_options::value<unsigned short>()->default_value(9000));
+    _push_option("remote_clients_port", boost::program_options::value<unsigned short>()->default_value(10000));
+    _push_option("sentry_enabled", boost::program_options::value<bool>()->default_value(false));
+    _push_option("sentry_dsn",
+                 boost::program_options::value<std::string>()->default_value(
+                     "https://{username}@{token}.ingest.{zone}.sentry.io/{app_id}"));
+    _push_option("sentry_debug", boost::program_options::value<bool>()->default_value(false));
 
     boost::program_options::variables_map _vm;
     store(parse_command_line(argc, argv, _options), _vm);
 
-    auto const _sessions_port = _vm["sessions_port"].as<unsigned short>();
-    auto const _clients_port = _vm["clients_port"].as<unsigned short>();
-
-    LOG_INFO("state_id=[{}] action=[running] sessions_port=[{}] clients_port=[{}]", to_string(_state->get_id()), _sessions_port, _clients_port);
-
-    _state->set_ports(_sessions_port, _clients_port);
-
-    auto _is_node = _vm["is_node"].as<bool>();
-
-    if (_is_node) {
-        auto _remote_host = dotenv::getenv("REMOTE_HOST", "127.0.0.1");
-        auto _remote_sessions_port = dotenv::getenv("REMOTE_SESSIONS_PORT", "9000");
-        auto _remote_clients_port = dotenv::getenv("REMOTE_CLIENTS_PORT", "10000");
-        auto const _results = _resolver.resolve(_remote_host, _remote_sessions_port);
-
-        const auto _remote_session = std::make_shared<aewt::session>(_state, boost::asio::ip::tcp::socket { _state->get_ioc() });
-        auto & _socket = _remote_session->get_socket();
-        auto & _lowest_socket = _socket.next_layer().socket().lowest_layer();
-        boost::asio::connect(_lowest_socket, _results);
-
-        _remote_session->set_clients_port(std::stoi(_remote_clients_port));
-        _remote_session->set_sessions_port(std::stoi(_remote_sessions_port));
-        _remote_session->run(aewt::remote);
-
-        _state->add_session(_remote_session);
+    if (_vm["sentry_enabled"].as<bool>()) {
+        sentry_start(_vm["sentry_dsn"].as<std::string>(), _vm["sentry_debug"].as<bool>());
     }
 
-    std::make_shared<aewt::session_listener>(_state->get_ioc(), boost::asio::ip::tcp::endpoint { _address, _sessions_port }, _state)
-        ->start();
-    std::make_shared<aewt::client_listener>(_state->get_ioc(), boost::asio::ip::tcp::endpoint { _address, _clients_port }, _state)
-        ->start();
+    const auto _server = std::make_shared<aewt::server>();
 
-    aewt::repl _repl(_state);
+    _server->get_config()->address_ = _vm["address"].as<std::string>();
+    _server->get_config()->threads_ = _vm["threads"].as<unsigned short>();
+    _server->get_config()->is_node_ = _vm["is_node"].as<bool>();
+    _server->get_config()->sessions_port_ = _vm["sessions_port"].as<unsigned short>();
+    _server->get_config()->clients_port_ = _vm["clients_port"].as<unsigned short>();
+    _server->get_config()->remote_address_ = _vm["remote_address"].as<std::string>();
+    _server->get_config()->remote_sessions_port_ = _vm["remote_sessions_port"].as<unsigned short>();
+    _server->get_config()->remote_clients_port_ = _vm["remote_clients_port"].as<unsigned short>();
 
-    sentry_stop();
+    LOG_INFO("state version: {}.{}.{}", aewt::version::get_major(), aewt::version::get_minor(),
+             aewt::version::get_patch());
+    LOG_INFO("boost version: {}", BOOST_VERSION);
+    LOG_INFO("configuration:");
+    LOG_INFO("- threads: {}", _vm["threads"].as<unsigned short>());
+    LOG_INFO("- address: {}", _vm["address"].as<std::string>());
+    LOG_INFO("- sessions_port: {}", _vm["sessions_port"].as<unsigned short>());
+    LOG_INFO("- clients_port: {}", _vm["clients_port"].as<unsigned short>());
+    LOG_INFO("- is_node: {}", _vm["is_node"].as<bool>());
+    LOG_INFO("- remote_address: {}", _vm["remote_address"].as<std::string>());
+    LOG_INFO("- remote_sessions_port: {}", _vm["remote_sessions_port"].as<unsigned short>());
+    LOG_INFO("- remote_clients_port: {}", _vm["remote_clients_port"].as<unsigned short>());
+    LOG_INFO("- sentry_enabled: {}", _vm["sentry_enabled"].as<bool>());
+    LOG_INFO("- sentry_debug: {}", _vm["sentry_debug"].as<bool>());
+    LOG_INFO("- sentry_dsn: {}", _vm["sentry_dsn"].as<std::string>());
 
-    std::vector<std::thread> _vector_of_threads;
-    _vector_of_threads.reserve(_threads - 1);
-    for(auto i = _threads - 1; i > 0; --i)
-        _vector_of_threads.emplace_back(
-        [&_state]
-        {
-            _state->get_ioc().run();
-        });
-    _state->get_ioc().run();
+    _server->start();
+
+    if (_vm["sentry_enabled"].as<bool>()) {
+        sentry_stop();
+    }
 
     return 0;
 }
