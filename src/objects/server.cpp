@@ -39,14 +39,22 @@ namespace aewt {
                  _config->sessions_port_, _config->clients_port_);
 
         if (_config->is_node_) {
+            LOG_INFO("state_id=[{}] action=[waiting for remote] remote_address=[{}] remote_sessions_port=[{}]", to_string(state_->get_id()),
+                     _config->remote_address_, _config->remote_sessions_port_);
+
+            std::this_thread::sleep_for(std::chrono::seconds(3));
+
             auto const _results = _resolver.resolve(_config->remote_address_,
                                                     std::to_string(_config->remote_sessions_port_));
             const auto _remote_session = std::make_shared<session>(
                 state_, boost::asio::ip::tcp::socket{state_->get_ioc()});
             auto &_socket = _remote_session->get_socket();
             auto &_lowest_socket = _socket.next_layer().socket().lowest_layer();
-            boost::asio::connect(_lowest_socket, _results);
-
+            try {
+                boost::asio::connect(_lowest_socket, _results);
+            } catch (std::exception &e) {
+                LOG_INFO("Connection refused: {}", e.what());
+            }
             _remote_session->set_sessions_port(_config->remote_sessions_port_);
             _remote_session->set_clients_port(_config->remote_clients_port_);
             _remote_session->run(remote);

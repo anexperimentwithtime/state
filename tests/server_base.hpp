@@ -51,7 +51,7 @@ protected:
             _config->remote_clients_port_ = _remote_server->get_config()->clients_port_;
             _config->remote_sessions_port_ = _remote_server->get_config()->sessions_port_;
 
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::this_thread::sleep_for(std::chrono::seconds(5));
 
             _local_server->start();
         });
