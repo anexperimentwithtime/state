@@ -58,11 +58,13 @@ namespace aewt::handlers {
                             _state, boost::asio::ip::tcp::socket{_state->get_ioc()});
                         auto &_socket = _remote_session->get_socket();
                         auto &_lowest_socket = _socket.next_layer().socket().lowest_layer();
-                        try {
-                            boost::asio::connect(_lowest_socket, _results);
-                        } catch (const std::exception &e) {
-                            // TODO si no se puede conectar no implica que el servicio no exista.
-                            // Puede ser que para esta instancia el servicio no sea alcanzable.
+                        while (!_lowest_socket.is_open()) {
+                            try {
+                                boost::asio::connect(_lowest_socket, _results);
+                                std::this_thread::sleep_for(std::chrono::seconds(3));
+                            } catch (std::exception &e) {
+                                LOG_INFO("Connection refused ... retrying : {}", e.what());
+                            }
                         }
                         _remote_session->set_clients_port(_clients_port);
                         _remote_session->set_sessions_port(_sessions_port);
