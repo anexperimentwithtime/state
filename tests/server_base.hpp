@@ -75,7 +75,11 @@ protected:
         _local_server->stop();
         LOG_INFO("Remote server stop ...");
         _remote_server->stop();
-        LOG_INFO("Waiting for 5 seconds ...");
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        while (!_local_server->get_state()->get_ioc().stopped() || !_remote_server->get_state()->get_ioc().stopped()) {
+            LOG_INFO("Waiting for io stop ...");
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        _remote_server.reset();
+        _local_server.reset();
     }
 };

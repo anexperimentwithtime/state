@@ -85,8 +85,8 @@ namespace aewt {
         vector_of_threads_.reserve(config_->threads_ - 1);
         for (auto i = config_->threads_ - 1; i > 0; --i)
             vector_of_threads_.emplace_back(
-                [self = shared_from_this()]() {
-                    self->state_->get_ioc().run();
+                [_state = this->state_->shared_from_this()]() {
+                    _state->get_ioc().run();
                 });
         state_->get_ioc().run();
     }
