@@ -97,7 +97,6 @@ find_package(
 
 find_package(OpenSSL REQUIRED)
 find_package(spdlog REQUIRED)
-find_package(laserpants_dotenv REQUIRED)
 find_package(fmt REQUIRED)
 
 if (NOT ENABLE_STATIC_LINKING)
@@ -120,7 +119,6 @@ if (NOT ENABLE_STATIC_LINKING)
             spdlog::spdlog
             sentry::sentry
             fmt::fmt
-            laserpants::dotenv
     )
 else ()
     target_link_libraries(objects PRIVATE
@@ -129,7 +127,6 @@ else ()
             ${OPENSSL_CRYPTO_LIBRARY}
             spdlog::spdlog
             fmt::fmt
-            laserpants::dotenv
     )
 endif ()
 
@@ -147,7 +144,6 @@ target_link_libraries(state PRIVATE objects
         spdlog::spdlog
         sentry::sentry
         fmt::fmt
-        laserpants::dotenv
 )
 else ()
     target_link_libraries(state PRIVATE objects
@@ -156,7 +152,6 @@ else ()
             ${OPENSSL_CRYPTO_LIBRARY}
             spdlog::spdlog
             fmt::fmt
-            laserpants::dotenv
     )
 endif ()
 

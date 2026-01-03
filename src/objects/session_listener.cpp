@@ -20,7 +20,7 @@
 #include <aewt/logger.hpp>
 #include <aewt/session.hpp>
 #include <aewt/state.hpp>
-#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace aewt {
     session_listener::session_listener(boost::asio::io_context &ioc, const boost::asio::ip::tcp::endpoint &endpoint,
@@ -50,6 +50,9 @@ namespace aewt {
             LOG_INFO("listener failed on listen: {}", ec.what());
             return;
         }
+
+        state_->get_config()->sessions_port_ = acceptor_.local_endpoint().port();
+        LOG_INFO("state_id=[{}] sessions is listening on [{}]", to_string(state_->get_id()), state_->get_config()->sessions_port_);
     }
 
     void session_listener::on_accept(const boost::beast::error_code &ec, boost::asio::ip::tcp::socket socket) {

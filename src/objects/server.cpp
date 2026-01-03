@@ -38,8 +38,6 @@ namespace aewt {
         LOG_INFO("state_id=[{}] action=[running] sessions_port=[{}] clients_port=[{}]", to_string(state_->get_id()),
                  _config->sessions_port_, _config->clients_port_);
 
-        state_->set_ports(_config->sessions_port_, _config->clients_port_);
-
         if (_config->is_node_) {
             auto const _results = _resolver.resolve(_config->remote_address_,
                                                     std::to_string(_config->remote_sessions_port_));
@@ -80,5 +78,9 @@ namespace aewt {
 
     std::shared_ptr<config> server::get_config() {
         return config_;
+    }
+
+    void server::stop() const {
+        state_->get_ioc().stop();
     }
 } // namespace aewt

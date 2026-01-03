@@ -13,31 +13,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include <gtest/gtest.h>
 
-#ifndef AEWT_CONFIG_HPP
-#define AEWT_CONFIG_HPP
+#include "server_base.hpp"
+#include <aewt/logger.hpp>
 
-#include <string>
-#include <atomic>
-
-namespace aewt {
-    struct config {
-        std::string address_ = "0.0.0.0";
-        unsigned short sessions_port_ = 11000;
-        unsigned short clients_port_ = 12000;
-
-        bool is_node_ = false;
-        std::string remote_address_ = "127.0.0.1";
-        unsigned short remote_sessions_port_ = 9000;
-        unsigned short remote_clients_port_ = 10000;
-
-        unsigned short threads_ = 1;
-
-        std::atomic<bool> registered_;
-
-        bool repl_enabled = true;
-    };
-} // namespace aewt
-
-#endif  // AEWT_CONFIG_HPP
+TEST_F(server_test, assert_local_server_is_registered) {
+    ASSERT_TRUE(_local_server->get_config()->registered_);
+}

@@ -122,19 +122,20 @@ namespace aewt {
         // Sí esta sesión es para conectarse a una instancia remota, entonces:
         if (context == remote) {
             // Apenas se conecta procede a registrarse
+            auto const &_config = state_->get_config();
             const boost::json::object _response = {
                 {"transaction_id", to_string(boost::uuids::random_generator()())},
                 {"action", "register"},
                 {
                     "params", {
-                        {"registered", state_->get_registered()},
-                        {"clients_port", state_->get_clients_port()},
-                        {"sessions_port", state_->get_sessions_port()},
+                        {"registered", _config->registered_ },
+                        {"clients_port", _config->clients_port_},
+                        {"sessions_port", _config->sessions_port_},
                     }
                 },
             };
             // Para evitar que las siguientes conexiones remitan el listado de sesiones se marca una bandera
-            state_->set_registered(true);
+            _config->registered_.store(true, std::memory_order_release);
 
             send(std::make_shared<std::string const>(serialize(_response)));
         }

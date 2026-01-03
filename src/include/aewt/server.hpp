@@ -58,6 +58,11 @@ namespace aewt {
          * @return
          */
         std::shared_ptr<config> get_config();
+
+        /**
+         * Stop
+         */
+        void stop() const;
     };
 } // namespace aewt
 
