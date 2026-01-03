@@ -48,11 +48,19 @@ namespace aewt::handlers {
                         _instance->set_sessions_port(_sessions_port);
                         _instance->mark_as_registered();
 
+                        LOG_INFO(
+                            "state_id=[{}] action=[register] context=[{}] session_id=[{}] sessions_port=[{}] clients_port=[{}] registered=[{}] status=[ok]",
+                            to_string(request.state_->get_id()), kernel_context_to_string(request.context_),
+                            to_string(request.entity_id_), _sessions_port, _clients_port, _registered);
+
                         _state->sync(_instance, _registered);
 
                         next(request, "ok");
                     } else {
                         next(request, "no effect");
+
+                        LOG_INFO("state_id=[{}] action=[register] context=[{}] status=[no effect]",
+                                 to_string(request.state_->get_id()), kernel_context_to_string(request.context_));
                     }
                 }
                 break;

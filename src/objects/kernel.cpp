@@ -54,14 +54,12 @@ namespace aewt {
                                      const boost::json::object &data,
                                      const kernel_context context,
                                      const boost::uuids::uuid entity_id) {
-
         boost::ignore_unused(state);
 
         const auto _timestamp = std::chrono::system_clock::now().time_since_epoch().count();
 
         auto _response = std::make_shared<response>();
         if (const validator _validator(data); _validator.get_passed()) {
-
             const auto _request = request{
                 .transaction_id_ = get_param_as_id(data, "transaction_id"),
                 .response_ = _response,
@@ -72,20 +70,7 @@ namespace aewt {
                 .timestamp_ = _timestamp,
             };
 
-            const std::string _action{data.at("action").as_string()};
-
-            switch (context) {
-                case on_session: {
-                    LOG_INFO("session [{}] action [{}] data={}", to_string(_request.entity_id_), _action, serialize(_request.data_));
-                    break;
-                }
-                case on_client: {
-                    LOG_INFO("client [{}] action [{}] data={}", to_string(_request.entity_id_), _action, serialize(_request.data_));
-                    break;
-                }
-            }
-
-            if (_action == "ping") {
+            if (const std::string _action{data.at("action").as_string()}; _action == "ping") {
                 handlers::ping_handler(_request);
             } else if (_action == "send") {
                 handlers::send_handler(_request);

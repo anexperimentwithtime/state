@@ -32,11 +32,12 @@
 
 #include <boost/version.hpp>
 #include <boost/asio/io_context.hpp>
-#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
+
 
 std::string DEFAULT_SENTRY_DSN =
         "https://{username}@{token}.ingest.{zone}.sentry.io/{app_id}";
@@ -103,6 +104,8 @@ int main(const int argc, const char *argv[]) {
 
     auto const _sessions_port = _vm["sessions_port"].as<unsigned short>();
     auto const _clients_port = _vm["clients_port"].as<unsigned short>();
+
+    LOG_INFO("state_id=[{}] action=[running] sessions_port=[{}] clients_port=[{}]", to_string(_state->get_id()), _sessions_port, _clients_port);
 
     _state->set_ports(_sessions_port, _clients_port);
 

@@ -152,4 +152,8 @@ namespace aewt {
                    ? on_true
                    : on_false;
     }
+
+    std::string kernel_context_to_string(const kernel_context context) {
+        return context == on_session ? "on_session" : "on_client";
+    }
 } // namespace aewt
