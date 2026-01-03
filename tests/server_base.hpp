@@ -32,7 +32,6 @@ protected:
             const auto &_config = _remote_server->get_config();
             _config->sessions_port_ = 0;
             _config->clients_port_ = 0;
-            _config->threads_ = 2;
             _config->repl_enabled = false;
             _remote_server->start();
         });
@@ -43,7 +42,6 @@ protected:
             _config->clients_port_ = 0;
             _config->is_node_ = true;
             _config->repl_enabled = false;
-            _config->threads_ = 2;
 
             while (_remote_server->get_config()->sessions_port_ == 0 || _remote_server->get_config()->clients_port_ == 0) {
                 std::this_thread::sleep_for(std::chrono::seconds(1));
