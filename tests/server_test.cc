@@ -44,6 +44,7 @@ TEST_F(server_test, assert_local_server_accept_clients) {
 
     boost::system::error_code ec;
     _client.close(boost::beast::websocket::close_code::normal, ec);
+    _client.next_layer().close(ec);
 
     // Wait for processing.
     std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -82,6 +83,7 @@ TEST_F(server_test, assert_local_server_can_handle_subscribe) {
 
     boost::system::error_code ec;
     _client.close(boost::beast::websocket::close_code::normal, ec);
+    _client.next_layer().close(ec);
 }
 
 TEST_F(server_test, assert_local_server_can_handle_publish) {
