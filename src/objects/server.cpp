@@ -24,6 +24,7 @@
 #include <aewt/session_listener.hpp>
 #include <aewt/client_listener.hpp>
 #include <aewt/repl.hpp>
+#include <boost/asio/strand.hpp>
 
 namespace aewt {
     server::server(const std::shared_ptr<config> &configuration) : config_(configuration),
@@ -33,30 +34,36 @@ namespace aewt {
     void server::start() {
         auto const &_config = state_->get_config();
         auto const _address = boost::asio::ip::make_address(_config->address_);
-        boost::asio::ip::tcp::resolver _resolver{state_->get_ioc()};
+        boost::asio::ip::tcp::resolver _resolver{make_strand(state_->get_ioc())};
 
         LOG_INFO("state_id=[{}] action=[running] sessions_port=[{}] clients_port=[{}]", to_string(state_->get_id()),
-                 _config->sessions_port_, _config->clients_port_);
+                 _config->sessions_port_.load(std::memory_order_acquire), _config->clients_port_.load(std::memory_order_acquire));
 
         if (_config->is_node_) {
             LOG_INFO("state_id=[{}] action=[waiting for remote] remote_address=[{}] remote_sessions_port=[{}]", to_string(state_->get_id()),
-                     _config->remote_address_, _config->remote_sessions_port_);
+                     _config->remote_address_, _config->remote_sessions_port_.load(std::memory_order_acquire));
 
             std::this_thread::sleep_for(std::chrono::seconds(3));
 
             auto const _results = _resolver.resolve(_config->remote_address_,
-                                                    std::to_string(_config->remote_sessions_port_));
+                                                    std::to_string(_config->remote_sessions_port_.load(std::memory_order_acquire)));
             const auto _remote_session = std::make_shared<session>(
-                state_, boost::asio::ip::tcp::socket{state_->get_ioc()});
+                state_, boost::asio::ip::tcp::socket{make_strand(state_->get_ioc())});
             auto &_socket = _remote_session->get_socket();
             auto &_lowest_socket = _socket.next_layer().socket().lowest_layer();
-            try {
-                boost::asio::connect(_lowest_socket, _results);
-            } catch (std::exception &e) {
-                LOG_INFO("Connection refused: {}", e.what());
+
+            while (!_lowest_socket.is_open()) {
+                try {
+                    boost::asio::connect(_lowest_socket, _results);
+                } catch (std::exception &e) {
+                    LOG_INFO("Connection refused ... retrying : {}", e.what());
+                    boost::system::error_code _ec;
+                    _lowest_socket.close(_ec);
+                    std::this_thread::sleep_for(std::chrono::seconds(3));
+                }
             }
-            _remote_session->set_sessions_port(_config->remote_sessions_port_);
-            _remote_session->set_clients_port(_config->remote_clients_port_);
+            _remote_session->set_sessions_port(_config->remote_sessions_port_.load(std::memory_order_acquire));
+            _remote_session->set_clients_port(_config->remote_clients_port_.load(std::memory_order_acquire));
             _remote_session->run(remote);
 
             state_->add_session(_remote_session);
@@ -64,7 +71,7 @@ namespace aewt {
 
         session_listener_ = std::make_shared<session_listener>(state_->get_ioc(),
                                                                boost::asio::ip::tcp::endpoint{
-                                                                   _address, _config->sessions_port_
+                                                                   _address, _config->sessions_port_.load(std::memory_order_acquire)
                                                                },
                                                                state_);
 
@@ -72,7 +79,7 @@ namespace aewt {
 
         client_listener_ = std::make_shared<client_listener>(state_->get_ioc(),
                                                              boost::asio::ip::tcp::endpoint{
-                                                                 _address, _config->clients_port_
+                                                                 _address, _config->clients_port_.load(std::memory_order_acquire)
                                                              },
                                                              state_);
 
@@ -85,8 +92,8 @@ namespace aewt {
         vector_of_threads_.reserve(config_->threads_ - 1);
         for (auto i = config_->threads_ - 1; i > 0; --i)
             vector_of_threads_.emplace_back(
-                [self = shared_from_this()]() {
-                    self->state_->get_ioc().run();
+                [_state = this->state_->shared_from_this()]() {
+                    _state->get_ioc().run();
                 });
         state_->get_ioc().run();
     }

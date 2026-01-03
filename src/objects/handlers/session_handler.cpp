@@ -23,6 +23,7 @@
 #include <aewt/validators/session_validator.hpp>
 
 #include <aewt/utils.hpp>
+#include <boost/asio/strand.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
 
@@ -52,17 +53,21 @@ namespace aewt::handlers {
                     }
 
                     if (!_found) {
-                        boost::asio::ip::tcp::resolver _resolver{_state->get_ioc()};
+                        boost::asio::ip::tcp::resolver _resolver{make_strand(_state->get_ioc())};
                         auto const _results = _resolver.resolve(_host, std::to_string(_sessions_port));
                         const auto _remote_session = std::make_shared<session>(
-                            _state, boost::asio::ip::tcp::socket{_state->get_ioc()});
+                            _state, boost::asio::ip::tcp::socket{make_strand(_state->get_ioc())});
                         auto &_socket = _remote_session->get_socket();
                         auto &_lowest_socket = _socket.next_layer().socket().lowest_layer();
-                        try {
-                            boost::asio::connect(_lowest_socket, _results);
-                        } catch (const std::exception &e) {
-                            // TODO si no se puede conectar no implica que el servicio no exista.
-                            // Puede ser que para esta instancia el servicio no sea alcanzable.
+                        while (!_lowest_socket.is_open()) {
+                            try {
+                                boost::asio::connect(_lowest_socket, _results);
+                            } catch (std::exception &e) {
+                                LOG_INFO("Connection refused ... retrying : {}", e.what());
+                                boost::system::error_code _ec;
+                                _lowest_socket.close(_ec);
+                                std::this_thread::sleep_for(std::chrono::seconds(3));
+                            }
                         }
                         _remote_session->set_clients_port(_clients_port);
                         _remote_session->set_sessions_port(_sessions_port);

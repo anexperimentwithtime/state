@@ -31,12 +31,12 @@ namespace aewt {
         /**
          * Sessions Port
          */
-        unsigned short sessions_port_ = 11000;
+        std::atomic<unsigned short> sessions_port_ = 11000;
 
         /**
          * Clients Port
          */
-        unsigned short clients_port_ = 12000;
+        std::atomic<unsigned short> clients_port_ = 12000;
 
         /**
          * Is Node
@@ -51,12 +51,12 @@ namespace aewt {
         /**
          * Remote Sessions Port
          */
-        unsigned short remote_sessions_port_ = 9000;
+        std::atomic<unsigned short> remote_sessions_port_ = 9000;
 
         /**
          * Remote Clients Port
          */
-        unsigned short remote_clients_port_ = 10000;
+        std::atomic<unsigned short> remote_clients_port_ = 10000;
 
         /**
          * Threads

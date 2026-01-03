@@ -24,7 +24,7 @@
 
 namespace aewt {
     client_listener::client_listener(boost::asio::io_context &ioc, const boost::asio::ip::tcp::endpoint &endpoint,
-                                     const std::shared_ptr<state> &state) : ioc_(ioc), acceptor_(ioc), state_(state) {
+                                     const std::shared_ptr<state> &state) : ioc_(ioc), acceptor_(make_strand(ioc)), state_(state) {
         boost::beast::error_code ec;
 
         acceptor_.open(endpoint.protocol(), ec);
@@ -51,8 +51,8 @@ namespace aewt {
             return;
         }
 
-        state_->get_config()->clients_port_ = acceptor_.local_endpoint().port();
-        LOG_INFO("state_id=[{}] clients is listening on [{}]", to_string(state_->get_id()), state_->get_config()->clients_port_);
+        state_->get_config()->clients_port_.store(acceptor_.local_endpoint().port(), std::memory_order_release);
+        LOG_INFO("state_id=[{}] clients is listening on [{}]", to_string(state_->get_id()), state_->get_config()->clients_port_.load(std::memory_order_acquire));
     }
 
     void client_listener::on_accept(const boost::beast::error_code &ec, boost::asio::ip::tcp::socket socket) {
