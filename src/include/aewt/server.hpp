@@ -23,17 +23,40 @@
 #include <memory>
 
 namespace aewt {
+    /**
+     * Forward State
+     */
     class state;
 
     class server : std::enable_shared_from_this<server> {
+        /**
+         * Config
+         */
         std::shared_ptr<config> config_;
+
+        /**
+         * State
+         */
         std::shared_ptr<state> state_;
 
     public:
+        /**
+         * Constructor
+         *
+         * @param configuration
+         */
         explicit server(const std::shared_ptr<config> &configuration = std::make_shared<config>());
 
+        /**
+         * Start
+         */
         void start();
 
+        /**
+         * Get Config
+         *
+         * @return
+         */
         std::shared_ptr<config> get_config();
     };
 } // namespace aewt

@@ -79,7 +79,7 @@ namespace aewt {
         /**
          * Constructor
          */
-        explicit state(const std::shared_ptr<config> & config = {});
+        explicit state(const std::shared_ptr<config> &config = {});
 
         /**
          * Destructor
@@ -391,7 +391,8 @@ namespace aewt {
          * @param to_client_id
          * @param payload
          */
-        void send_to_session(boost::uuids::uuid session_id, boost::uuids::uuid from_client_id, boost::uuids::uuid to_client_id, const boost::json::object & payload) const;
+        void send_to_session(boost::uuids::uuid session_id, boost::uuids::uuid from_client_id,
+                             boost::uuids::uuid to_client_id, const boost::json::object &payload) const;
 
         /**
          * Get Config
@@ -399,6 +400,7 @@ namespace aewt {
          * @return shared<config>
          */
         std::shared_ptr<config> get_config();
+
     private:
         /**
          * Send To Sessions
