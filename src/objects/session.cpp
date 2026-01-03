@@ -100,7 +100,7 @@ namespace aewt {
             }
             case remote: {
                 const auto _host = fmt::format("{}:{}", state_->get_config()->remote_address_,
-                                               std::to_string(state_->get_config()->remote_sessions_port_));
+                                               std::to_string(state_->get_config()->remote_sessions_port_.load(std::memory_order_acquire)));
                 socket_.async_handshake(
                     _host,
                     "/",

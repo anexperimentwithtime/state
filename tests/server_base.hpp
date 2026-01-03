@@ -30,41 +30,52 @@ protected:
     void SetUp() override {
         _remote_thread = std::make_unique<std::jthread>([this]() {
             const auto &_config = _remote_server->get_config();
-            _config->sessions_port_ = 0;
-            _config->clients_port_ = 0;
+            _config->sessions_port_.store(0, std::memory_order_release);
+            _config->clients_port_.store(0, std::memory_order_release);
             _config->repl_enabled = false;
+            _config->threads_ = 4;
             _remote_server->start();
         });
 
         _local_thread = std::make_unique<std::jthread>([this]() {
             const auto &_config = _local_server->get_config();
-            _config->sessions_port_ = 0;
-            _config->clients_port_ = 0;
+            _config->sessions_port_.store(0, std::memory_order_release);
+            _config->clients_port_.store(0, std::memory_order_release);
             _config->is_node_ = true;
+            _config->threads_ = 4;
             _config->repl_enabled = false;
 
-            while (_remote_server->get_config()->sessions_port_ == 0 || _remote_server->get_config()->clients_port_ == 0) {
+            while (_remote_server->get_config()->sessions_port_.load(std::memory_order_acquire) == 0 || _remote_server->
+                   get_config()->clients_port_.load(std::memory_order_acquire) == 0) {
                 std::this_thread::sleep_for(std::chrono::seconds(1));
-                LOG_INFO("Waiting for remote ...");
+                LOG_INFO("Waiting for remote ready ...");
             }
 
-            _config->remote_clients_port_ = _remote_server->get_config()->clients_port_;
-            _config->remote_sessions_port_ = _remote_server->get_config()->sessions_port_;
+            _config->remote_clients_port_.store(
+                _remote_server->get_config()->clients_port_.load(std::memory_order_acquire), std::memory_order_release);
+            _config->remote_sessions_port_.store(
+                _remote_server->get_config()->sessions_port_.load(std::memory_order_acquire),
+                std::memory_order_release);
 
             _local_server->start();
         });
 
-        while (_remote_server->get_config()->sessions_port_ == 0 || _remote_server->get_config()->clients_port_ == 0 ||
-            _local_server->get_config()->sessions_port_ == 0 || _local_server->get_config()->clients_port_ == 0 || _local_server->get_config()->registered_.load(std::memory_order_acquire) == false)
-        {
+        while (_remote_server->get_config()->sessions_port_.load(std::memory_order_acquire) == 0 || _remote_server->
+               get_config()->clients_port_.load(std::memory_order_acquire) == 0 ||
+               _local_server->get_config()->sessions_port_.load(std::memory_order_acquire) == 0 || _local_server->
+               get_config()->clients_port_.load(std::memory_order_acquire) == 0 || _local_server->get_config()->
+               registered_.load(std::memory_order_acquire) == false) {
+            LOG_INFO("Waiting 1 second for remote and local ready ...");
             std::this_thread::sleep_for(std::chrono::seconds(1));
-                LOG_INFO("Waiting for remote and local ...");
         }
     }
 
     void TearDown() override {
+        LOG_INFO("Local server stop ...");
         _local_server->stop();
+        LOG_INFO("Remote server stop ...");
         _remote_server->stop();
+        LOG_INFO("Waiting for 5 seconds ...");
         std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 };

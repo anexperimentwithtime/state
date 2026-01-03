@@ -51,8 +51,8 @@ namespace aewt {
             return;
         }
 
-        state_->get_config()->sessions_port_ = acceptor_.local_endpoint().port();
-        LOG_INFO("state_id=[{}] sessions is listening on [{}]", to_string(state_->get_id()), state_->get_config()->sessions_port_);
+        state_->get_config()->sessions_port_.store(acceptor_.local_endpoint().port(), std::memory_order_release);
+        LOG_INFO("state_id=[{}] sessions is listening on [{}]", to_string(state_->get_id()), state_->get_config()->sessions_port_.load(std::memory_order_acquire));
     }
 
     void session_listener::on_accept(const boost::beast::error_code &ec, boost::asio::ip::tcp::socket socket) {
