@@ -259,3 +259,165 @@ TEST_F(server_test, assert_local_server_can_handle_publish) {
     _client_c.close(boost::beast::websocket::close_code::normal, ec);
     _client_d.close(boost::beast::websocket::close_code::normal, ec);
 }
+
+TEST_F(server_test, assert_local_server_can_handle_broadcast) {
+    boost::asio::io_context _ioc;
+    boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_a{make_strand(_ioc)};
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_b{make_strand(_ioc)};
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_c{make_strand(_ioc)};
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_d{make_strand(_ioc)};
+
+    {
+        auto const _results = _resolver.resolve("127.0.0.1", std::to_string(server_b_->get_config()->clients_port_.load(std::memory_order_acquire)));
+        boost::asio::connect(_client_a.next_layer(), _results);
+        boost::asio::connect(_client_b.next_layer(), _results);
+    }
+
+    {
+        auto const _results = _resolver.resolve("127.0.0.1", std::to_string(server_c_->get_config()->clients_port_.load(std::memory_order_acquire)));
+        boost::asio::connect(_client_c.next_layer(), _results);
+        boost::asio::connect(_client_d.next_layer(), _results);
+    }
+
+    const auto _server_b_host = fmt::format("127.0.0.1:{}", std::to_string(server_b_->get_config()->clients_port_.load(std::memory_order_acquire)));
+    _client_a.handshake(_server_b_host, "/");
+    _client_b.handshake(_server_b_host, "/");
+
+    const auto _server_c_host = fmt::format("127.0.0.1:{}", std::to_string(server_c_->get_config()->clients_port_.load(std::memory_order_acquire)));
+    _client_c.handshake(_server_c_host, "/");
+    _client_d.handshake(_server_c_host, "/");
+
+    for (const auto _client : { &_client_a, &_client_b, &_client_c, &_client_d }) {
+        boost::beast::flat_buffer _buffer;
+        _client->read(_buffer);
+        LOG_INFO("receiving client welcome ...");
+    }
+
+    _client_a.write(boost::asio::buffer(std::string(serialize(boost::json::object{
+        {"transaction_id", to_string(boost::uuids::random_generator()())},
+        {"action", "broadcast"},
+        {"params", {{"payload", {{"message", "EHLO"}}}}},
+    }))));
+
+    {
+        boost::beast::flat_buffer _buffer;
+        _client_a.read(_buffer);
+        LOG_INFO("client A should receive broadcast ACK ... {}", boost::beast::buffers_to_string(_buffer.data()));
+        _buffer.clear();
+    }
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    for (const auto _client : { &_client_b, &_client_c, &_client_d })
+    {
+        boost::beast::flat_buffer _buffer;
+        _client->read(_buffer);
+        LOG_INFO("client should receive broadcast MESSAGE ... {}", boost::beast::buffers_to_string(_buffer.data()));
+
+        auto _publish_message = boost::beast::buffers_to_string(_buffer.data());
+        auto _publish_object = boost::json::parse(_publish_message);
+
+        ASSERT_TRUE(_publish_object.is_object());
+        ASSERT_TRUE(_publish_object.as_object().contains("action"));
+        ASSERT_TRUE(_publish_object.as_object().at("action").is_string());
+        ASSERT_EQ(_publish_object.as_object().at("action").as_string(), "broadcast");
+        ASSERT_TRUE(_publish_object.as_object().contains("transaction_id"));
+        ASSERT_TRUE(_publish_object.as_object().at("transaction_id").is_string());
+        ASSERT_TRUE(_publish_object.as_object().contains("params"));
+        ASSERT_TRUE(_publish_object.as_object().at("params").is_object());
+        ASSERT_TRUE(_publish_object.as_object().at("params").as_object().contains("payload"));
+        ASSERT_TRUE(_publish_object.as_object().at("params").as_object().at("payload").is_object());
+        ASSERT_TRUE(_publish_object.as_object().at("params").as_object().at("payload").as_object().contains("message"));
+        ASSERT_TRUE(_publish_object.as_object().at("params").as_object().at("payload").as_object().at("message").is_string());
+        ASSERT_EQ(_publish_object.as_object().at("params").as_object().at("payload").as_object().at("message").as_string(), "EHLO");
+        _buffer.clear();
+    }
+
+    boost::system::error_code ec;
+    _client_a.close(boost::beast::websocket::close_code::normal, ec);
+    _client_b.close(boost::beast::websocket::close_code::normal, ec);
+    _client_c.close(boost::beast::websocket::close_code::normal, ec);
+    _client_d.close(boost::beast::websocket::close_code::normal, ec);
+}
+
+
+TEST_F(server_test, assert_local_server_can_handle_send) {
+    boost::asio::io_context _ioc;
+    boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_a{make_strand(_ioc)};
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_b{make_strand(_ioc)};
+
+    {
+        auto const _results = _resolver.resolve("127.0.0.1", std::to_string(server_b_->get_config()->clients_port_.load(std::memory_order_acquire)));
+        boost::asio::connect(_client_a.next_layer(), _results);
+    }
+
+    {
+        auto const _results = _resolver.resolve("127.0.0.1", std::to_string(server_c_->get_config()->clients_port_.load(std::memory_order_acquire)));
+        boost::asio::connect(_client_b.next_layer(), _results);
+    }
+
+    const auto _server_b_host = fmt::format("127.0.0.1:{}", std::to_string(server_b_->get_config()->clients_port_.load(std::memory_order_acquire)));
+    _client_a.handshake(_server_b_host, "/");
+
+    const auto _server_c_host = fmt::format("127.0.0.1:{}", std::to_string(server_c_->get_config()->clients_port_.load(std::memory_order_acquire)));
+    _client_b.handshake(_server_c_host, "/");
+
+    boost::beast::flat_buffer _client_a_accepted_buffer;
+    _client_a.read(_client_a_accepted_buffer);
+    auto _accepted_a_message = boost::beast::buffers_to_string(_client_a_accepted_buffer.data());
+    auto _accepted_a_object = boost::json::parse(_accepted_a_message);
+
+    auto _client_a_id = _accepted_a_object.as_object().at("data").at("client_id").as_string();
+
+    boost::beast::flat_buffer _client_b_accepted_buffer;
+    _client_b.read(_client_b_accepted_buffer);
+    auto _accepted_b_message = boost::beast::buffers_to_string(_client_b_accepted_buffer.data());
+    auto _accepted_b_object = boost::json::parse(_accepted_b_message);
+
+    auto _client_b_id = _accepted_b_object.as_object().at("data").at("client_id").as_string();
+
+    _client_a.write(boost::asio::buffer(std::string(serialize(boost::json::object{
+        {"transaction_id", to_string(boost::uuids::random_generator()())},
+        {"action", "send"},
+        {"params", {
+            {"to_client_id", _client_b_id},
+            {"payload", {{"message", "EHLO"}}}}},
+    }))));
+
+    {
+        boost::beast::flat_buffer _buffer;
+        _client_a.read(_buffer);
+        LOG_INFO("client A should receive send ACK ... {}", boost::beast::buffers_to_string(_buffer.data()));
+        _buffer.clear();
+    }
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    boost::beast::flat_buffer _buffer;
+    _client_b.read(_buffer);
+    LOG_INFO("client should receive send MESSAGE ... {}", boost::beast::buffers_to_string(_buffer.data()));
+
+    auto _send_message = boost::beast::buffers_to_string(_buffer.data());
+    auto _send_object = boost::json::parse(_send_message);
+
+    ASSERT_TRUE(_send_object.is_object());
+    ASSERT_TRUE(_send_object.as_object().contains("action"));
+    ASSERT_TRUE(_send_object.as_object().at("action").is_string());
+    ASSERT_EQ(_send_object.as_object().at("action").as_string(), "send");
+    ASSERT_TRUE(_send_object.as_object().contains("transaction_id"));
+    ASSERT_TRUE(_send_object.as_object().at("transaction_id").is_string());
+    ASSERT_TRUE(_send_object.as_object().contains("params"));
+    ASSERT_TRUE(_send_object.as_object().at("params").is_object());
+    ASSERT_TRUE(_send_object.as_object().at("params").as_object().contains("payload"));
+    ASSERT_TRUE(_send_object.as_object().at("params").as_object().at("payload").is_object());
+    ASSERT_TRUE(_send_object.as_object().at("params").as_object().at("payload").as_object().contains("message"));
+    ASSERT_TRUE(_send_object.as_object().at("params").as_object().at("payload").as_object().at("message").is_string());
+    ASSERT_EQ(_send_object.as_object().at("params").as_object().at("payload").as_object().at("message").as_string(), "EHLO");
+
+
+    boost::system::error_code ec;
+    _client_a.close(boost::beast::websocket::close_code::normal, ec);
+    _client_b.close(boost::beast::websocket::close_code::normal, ec);
+}
