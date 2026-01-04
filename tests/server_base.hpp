@@ -20,64 +20,108 @@
 #include <aewt/state.hpp>
 
 class server_test : public testing::Test {
-    std::unique_ptr<std::jthread> _remote_thread;
-    std::unique_ptr<std::jthread> _local_thread;
+    std::unique_ptr<std::jthread> thread_a_;
+    std::unique_ptr<std::jthread> thread_b_;
+    std::unique_ptr<std::jthread> thread_c_;
 
 protected:
-    std::shared_ptr<aewt::server> _remote_server = std::make_shared<aewt::server>();
-    std::shared_ptr<aewt::server> _local_server = std::make_shared<aewt::server>();
+    std::shared_ptr<aewt::server> server_a_ = std::make_shared<aewt::server>();
+    std::shared_ptr<aewt::server> server_b_ = std::make_shared<aewt::server>();
+    std::shared_ptr<aewt::server> server_c_ = std::make_shared<aewt::server>();
 
     void SetUp() override {
-        _remote_thread = std::make_unique<std::jthread>([this]() {
-            const auto &_config = _remote_server->get_config();
+        thread_a_ = std::make_unique<std::jthread>([this]() {
+            const auto &_config = server_a_->get_config();
             _config->sessions_port_.store(0, std::memory_order_release);
             _config->clients_port_.store(0, std::memory_order_release);
             _config->repl_enabled = false;
             _config->threads_ = 4;
-            _remote_server->start();
+
+            LOG_INFO("starting server A");
+            server_a_->start();
+            LOG_INFO("server A stopped");
         });
 
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        LOG_INFO("waiting for server A ready");
+        std::this_thread::sleep_for(std::chrono::seconds(3));
 
-        _local_thread = std::make_unique<std::jthread>([this]() {
-            const auto &_config = _local_server->get_config();
+        thread_b_ = std::make_unique<std::jthread>([this]() {
+            const auto &_config = server_b_->get_config();
             _config->sessions_port_.store(0, std::memory_order_release);
             _config->clients_port_.store(0, std::memory_order_release);
             _config->is_node_ = true;
             _config->threads_ = 4;
             _config->repl_enabled = false;
 
-            while (_remote_server->get_config()->sessions_port_.load(std::memory_order_acquire) == 0 || _remote_server->
-                   get_config()->clients_port_.load(std::memory_order_acquire) == 0) {
+            while (server_a_->get_config()->sessions_port_.load(std::memory_order_acquire) == 0 ||
+                    server_a_->get_config()->clients_port_.load(std::memory_order_acquire) == 0) {
                 std::this_thread::sleep_for(std::chrono::seconds(1));
-                LOG_INFO("Waiting for remote ready ...");
+                LOG_INFO("waiting for server A ready ...");
             }
 
             _config->remote_clients_port_.store(
-                _remote_server->get_config()->clients_port_.load(std::memory_order_acquire), std::memory_order_release);
+                server_a_->get_config()->clients_port_.load(std::memory_order_acquire), std::memory_order_release);
             _config->remote_sessions_port_.store(
-                _remote_server->get_config()->sessions_port_.load(std::memory_order_acquire),
+                server_a_->get_config()->sessions_port_.load(std::memory_order_acquire),
                 std::memory_order_release);
 
-            _local_server->start();
+            LOG_INFO("starting server B");
+            server_b_->start();
+            LOG_INFO("server B stopped");
         });
 
-        while (_local_server->get_state()->get_sessions().size() == 0 || _remote_server->get_state()->get_sessions().size() == 0) {
-            LOG_INFO("Waiting 1 second for remote and local ready ...");
+        LOG_INFO("waiting for server B ready");
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+
+        thread_c_ = std::make_unique<std::jthread>([this]() {
+            const auto &_config = server_c_->get_config();
+            _config->sessions_port_.store(0, std::memory_order_release);
+            _config->clients_port_.store(0, std::memory_order_release);
+            _config->is_node_ = true;
+            _config->threads_ = 4;
+            _config->repl_enabled = false;
+
+            while (server_a_->get_config()->sessions_port_.load(std::memory_order_acquire) == 0 ||
+                    server_a_->get_config()->clients_port_.load(std::memory_order_acquire) == 0) {
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                LOG_INFO("waiting for Server A ready ...");
+            }
+
+            _config->remote_clients_port_.store(
+                server_a_->get_config()->clients_port_.load(std::memory_order_acquire), std::memory_order_release);
+            _config->remote_sessions_port_.store(
+                server_a_->get_config()->sessions_port_.load(std::memory_order_acquire),
+                std::memory_order_release);
+
+            LOG_INFO("starting server C");
+            server_c_->start();
+            LOG_INFO("server C stopped");
+        });
+
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+
+        while (server_a_->get_state()->get_sessions().size() != 2 || !server_b_->get_config()->registered_.load(std::memory_order_acquire) || !server_c_->get_config()->registered_.load(std::memory_order_acquire)) {
+            LOG_INFO("waiting 1 second for all servers ready ...");
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
 
     void TearDown() override {
-        LOG_INFO("Local server stop ...");
-        _local_server->stop();
-        LOG_INFO("Remote server stop ...");
-        _remote_server->stop();
-        while (!_local_server->get_state()->get_ioc().stopped() || !_remote_server->get_state()->get_ioc().stopped()) {
-            LOG_INFO("Waiting for io stop ...");
+        LOG_INFO("server A stop ...");
+        server_a_->stop();
+
+        LOG_INFO("server B stop ...");
+        server_b_->stop();
+
+        LOG_INFO("server C stop ...");
+        server_c_->stop();
+
+        while (!server_a_->get_state()->get_ioc().stopped() || !server_b_->get_state()->get_ioc().stopped() || !server_c_->get_state()->get_ioc().stopped()) {
+            LOG_INFO("waiting for io stop ...");
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-        _remote_server.reset();
-        _local_server.reset();
+        server_a_.reset();
+        server_b_.reset();
+        server_c_.reset();
     }
 };

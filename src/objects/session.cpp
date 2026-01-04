@@ -128,9 +128,9 @@ namespace aewt {
                 {"action", "register"},
                 {
                     "params", {
-                        {"registered", _config->registered_ },
-                        {"clients_port", _config->clients_port_},
-                        {"sessions_port", _config->sessions_port_},
+                        {"registered", _config->registered_.load(std::memory_order_acquire) },
+                        {"clients_port", _config->clients_port_.load(std::memory_order_acquire) },
+                        {"sessions_port", _config->sessions_port_.load(std::memory_order_acquire)},
                     }
                 },
             };
