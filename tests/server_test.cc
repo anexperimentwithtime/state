@@ -20,6 +20,7 @@
 #include <boost/json/serialize.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/asio/strand.hpp>
+#include <boost/json/parse.hpp>
 
 TEST_F(server_test, assert_nodes_are_registered) {
     ASSERT_TRUE(server_b_->get_config()->registered_);
@@ -29,33 +30,51 @@ TEST_F(server_test, assert_nodes_are_registered) {
     ASSERT_TRUE(server_c_->get_state()->get_sessions().size() == 2);
 }
 
-// TEST_F(server_test, assert_local_server_accept_clients) {
-//     boost::asio::io_context _ioc;
-//     boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
-//     boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client{make_strand(_ioc)};
-//
-//     auto const _results = _resolver.resolve("127.0.0.1", std::to_string(_local_server->get_config()->clients_port_.load(std::memory_order_acquire)));
-//     boost::asio::connect(_client.next_layer(), _results);
-//
-//     const auto _host = fmt::format("127.0.0.1:{}", std::to_string(_local_server->get_config()->clients_port_.load(std::memory_order_acquire)));
-//     _client.handshake(_host, "/");
-//
-//     boost::beast::flat_buffer _accepted_buffer;
-//     _client.read(_accepted_buffer);
-//     std::cout << boost::beast::make_printable(_accepted_buffer.data()) << std::endl;
-//
-//     ASSERT_TRUE(_local_server->get_state()->get_clients().size() == 1);
-//
-//     boost::system::error_code ec;
-//     _client.close(boost::beast::websocket::close_code::normal, ec);
-//     _client.next_layer().close(ec);
-//
-//     // Wait for processing.
-//     std::this_thread::sleep_for(std::chrono::seconds(3));
-//
-//     ASSERT_TRUE(_local_server->get_state()->get_clients().size() == 0);
-// }
-//
+TEST_F(server_test, assert_local_server_accept_clients) {
+
+    for (auto &_server : { server_a_, server_b_, server_c_ }) {
+        boost::asio::io_context _ioc;
+        boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
+        boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client{make_strand(_ioc)};
+
+        auto const _results = _resolver.resolve("127.0.0.1", std::to_string(_server->get_config()->clients_port_.load(std::memory_order_acquire)));
+        boost::asio::connect(_client.next_layer(), _results);
+
+        const auto _host = fmt::format("127.0.0.1:{}", std::to_string(_server->get_config()->clients_port_.load(std::memory_order_acquire)));
+        _client.handshake(_host, "/");
+
+        boost::beast::flat_buffer _accepted_buffer;
+        _client.read(_accepted_buffer);
+        auto _accepted_message = boost::beast::buffers_to_string(_accepted_buffer.data());
+
+        auto _accepted_object = boost::json::parse(_accepted_message);
+
+        ASSERT_TRUE(_accepted_object.is_object());
+        ASSERT_TRUE(_accepted_object.as_object().contains("action"));
+        ASSERT_TRUE(_accepted_object.as_object().at("action").is_string());
+        ASSERT_EQ(_accepted_object.as_object().at("action").as_string(), "welcome");
+        ASSERT_TRUE(_accepted_object.as_object().contains("transaction_id"));
+        ASSERT_TRUE(_accepted_object.as_object().at("transaction_id").is_string());
+        ASSERT_TRUE(_accepted_object.as_object().contains("status"));
+        ASSERT_TRUE(_accepted_object.as_object().at("status").is_string());
+        ASSERT_EQ(_accepted_object.as_object().at("status").as_string(), "success");
+        ASSERT_TRUE(_accepted_object.as_object().contains("data"));
+        ASSERT_TRUE(_accepted_object.as_object().at("data").is_object());
+        ASSERT_TRUE(_accepted_object.as_object().at("data").as_object().contains("client_id"));
+        ASSERT_TRUE(_accepted_object.as_object().at("data").as_object().at("client_id").is_string());
+
+        ASSERT_TRUE(_server->get_state()->get_clients().size() == 1);
+
+        boost::system::error_code ec;
+        _client.close(boost::beast::websocket::close_code::normal, ec);
+        _client.next_layer().close(ec);
+
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+
+        ASSERT_TRUE(_server->get_state()->get_clients().size() == 0);
+    }
+}
+
 // TEST_F(server_test, assert_local_server_can_handle_subscribe) {
 //     boost::asio::io_context _ioc;
 //     boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
