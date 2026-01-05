@@ -122,7 +122,7 @@ TEST_F(server_test, server_can_handle_subscribe) {
     _client.next_layer().close(ec);
 }
 
-TEST_F(server_test, assert_local_server_can_handle_publish) {
+TEST_F(server_test, assert_server_can_handle_publish) {
     boost::asio::io_context _ioc;
     boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
     boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_a{make_strand(_ioc)};
@@ -260,7 +260,7 @@ TEST_F(server_test, assert_local_server_can_handle_publish) {
     _client_d.close(boost::beast::websocket::close_code::normal, ec);
 }
 
-TEST_F(server_test, assert_local_server_can_handle_broadcast) {
+TEST_F(server_test, assert_server_can_handle_broadcast) {
     boost::asio::io_context _ioc;
     boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
     boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_a{make_strand(_ioc)};
@@ -341,8 +341,7 @@ TEST_F(server_test, assert_local_server_can_handle_broadcast) {
     _client_d.close(boost::beast::websocket::close_code::normal, ec);
 }
 
-
-TEST_F(server_test, assert_local_server_can_handle_send) {
+TEST_F(server_test, assert_server_can_handle_send) {
     boost::asio::io_context _ioc;
     boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
     boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_a{make_strand(_ioc)};
@@ -420,4 +419,68 @@ TEST_F(server_test, assert_local_server_can_handle_send) {
     boost::system::error_code ec;
     _client_a.close(boost::beast::websocket::close_code::normal, ec);
     _client_b.close(boost::beast::websocket::close_code::normal, ec);
+}
+
+TEST_F(server_test, assert_server_can_handle_sync) {
+    boost::asio::io_context _ioc;
+    boost::asio::ip::tcp::resolver _resolver{make_strand(_ioc)};
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_a{make_strand(_ioc)};
+    boost::beast::websocket::stream<boost::asio::ip::tcp::socket> _client_b{make_strand(_ioc)};
+
+    {
+        auto const _results = _resolver.resolve("127.0.0.1", std::to_string(server_b_->get_config()->clients_port_.load(std::memory_order_acquire)));
+        boost::asio::connect(_client_a.next_layer(), _results);
+    }
+
+    {
+        auto const _results = _resolver.resolve("127.0.0.1", std::to_string(server_c_->get_config()->clients_port_.load(std::memory_order_acquire)));
+        boost::asio::connect(_client_b.next_layer(), _results);
+    }
+
+    const auto _server_b_host = fmt::format("127.0.0.1:{}", std::to_string(server_b_->get_config()->clients_port_.load(std::memory_order_acquire)));
+    _client_a.handshake(_server_b_host, "/");
+
+    const auto _server_c_host = fmt::format("127.0.0.1:{}", std::to_string(server_c_->get_config()->clients_port_.load(std::memory_order_acquire)));
+    _client_b.handshake(_server_c_host, "/");
+
+    _client_a.write(boost::asio::buffer(std::string(serialize(boost::json::object{
+        {"transaction_id", to_string(boost::uuids::random_generator()())},
+        {"action", "subscribe"},
+        {"params", {{"channel", "welcome"}}},
+    }))));
+
+    {
+        boost::beast::flat_buffer _buffer;
+        _client_a.read(_buffer);
+        LOG_INFO("client A should receive subscribe ACK ... {}", boost::beast::buffers_to_string(_buffer.data()));
+        _buffer.clear();
+    }
+
+    auto _server_e = std::make_shared<aewt::server>();
+
+    auto _thread_e = std::make_unique<std::jthread>([_server_e, this]() {
+            const auto &_config = _server_e->get_config();
+            _config->sessions_port_.store(0, std::memory_order_release);
+            _config->clients_port_.store(0, std::memory_order_release);
+            _config->is_node_ = true;
+            _config->threads_ = 4;
+            _config->repl_enabled = false;
+
+            _config->remote_clients_port_.store(
+                server_a_->get_config()->clients_port_.load(std::memory_order_acquire), std::memory_order_release);
+            _config->remote_sessions_port_.store(
+                server_a_->get_config()->sessions_port_.load(std::memory_order_acquire),
+                std::memory_order_release);
+
+            LOG_INFO("starting server E");
+            _server_e->start();
+            LOG_INFO("server E stopped");
+        });
+
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
+    ASSERT_EQ(_server_e->get_state()->get_subscriptions().size(), 1);
+    ASSERT_EQ(_server_e->get_state()->get_clients().size(), 2);
+
+    _server_e->stop();
 }
