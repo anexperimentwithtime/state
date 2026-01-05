@@ -20,8 +20,6 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      BUILD_WRAPPER_OUT_DIR: /srv/build
 
     strategy:
       fail-fast: false
@@ -33,37 +31,11 @@ jobs:
     container:
       image: ghcr.io/anexperimentwithtime/compiler:${{ matrix.version }}-${{ matrix.type }}-${{ matrix.link }}
 
-    services:
-      mysql:
-        image: mysql:8.4
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: false
-          MYSQL_ROOT_PASSWORD: state_password
-          MYSQL_USER: user
-          MYSQL_PASSWORD: state_password
-          MYSQL_DATABASE: state
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Prepares databases
-        env:
-          DB_HOST: mysql
-          DB_PORT: 3306
-        run: |
-          bash scripts/prepare-database.sh
-
       - name: Run build and test
-        env:
-          DB_HOST: mysql
-          DB_USER: user
-          DB_PASSWORD: state_password
-          DB_NAME: state
-          DB_PORT: 3306
         run: |
           bash scripts/build-and-test.sh ${{ matrix.type }} ${{ matrix.link }}
